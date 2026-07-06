@@ -1,0 +1,77 @@
+<form action="{% url 'logout' %}" method="post" style="display:inline;">
+    {% csrf_token %}
+    <button type="submit">
+        Cerrar sesión
+    </button>
+</form>
+
+<hr>
+
+<h2>Lista de Usuarios</h2>
+
+{% if messages %}
+
+    {% for message in messages %}
+
+        <p style="color:green">
+
+            {{ message }}
+
+        </p>
+
+    {% endfor %}
+
+{% endif %}
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Usuario</th>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for u in usuarios %}
+        <tr>
+            <td>{{ u.id }}</td>
+            <td>{{ u.username }}</td>
+            <td>{{ u.first_name }}</td>
+            <td>{{ u.last_name }}</td>
+            <td>{{ u.email }}</td>
+            <td>acciones</td>
+            <td>
+                {% if u.estado %}
+                    Activo
+                {% else %}
+                    Inactivo
+                {% endif %}
+            </td>
+            
+           <td>
+
+    <a href="{% url 'editar_usuario' u.id %}">
+        Editar
+    </a>
+    |
+    {% if u.estado %}
+
+        <a href="{% url 'cambiar_estado_usuario' u.id %}">
+            Desactivar
+        </a>
+    {% else %}
+        <a href="{% url 'cambiar_estado_usuario' u.id %}">
+            Activar
+        </a>
+    {% endif %}
+</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

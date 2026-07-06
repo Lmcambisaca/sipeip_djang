@@ -1,0 +1,19 @@
+<h2>Editar Usuario</h2>
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">
+        Guardar cambios
+    </button>
+
+</form>
+
+<br>
+
+<a href="{% url 'consultar_usuarios' %}">
+    Volver
+</a>

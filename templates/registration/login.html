@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Iniciar sesión</title>
+</head>
+
+<body>
+
+<h2>Iniciar sesión</h2>
+
+<form method="post">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">
+        Ingresar
+    </button>
+    <br><br>
+
+<a href="{% url 'recuperar_password' %}">
+    ¿Olvidó su contraseña?
+</a>
+
+</form>
+
+</body>
+</html>
