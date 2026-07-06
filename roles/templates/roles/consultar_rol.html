@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Consultar Roles</title>
+</head>
+<body>
+
+<h2>Lista de Roles</h2>
+
+{% if messages %}
+    {% for message in messages %}
+        <p style="color:green">{{ message }}</p>
+    {% endfor %}
+{% endif %}
+
+<a href="{% url 'registrar_rol' %}">
+    Nuevo Rol
+</a>
+
+<br><br>
+
+<form method="GET">
+
+    <input
+        type="text"
+        name="buscar"
+        placeholder="Buscar rol">
+
+    <button>
+        Buscar
+    </button>
+
+</form>
+
+<br>
+
+<table border="1">
+
+<tr>
+
+<th>ID</th>
+
+<th>Nombre</th>
+
+<th>Descripción</th>
+
+<th>Estado</th>
+
+<th>Acciones</th>
+
+</tr>
+
+{% for rol in roles %}
+
+<tr>
+
+<td>{{ rol.id }}</td>
+
+<td>{{ rol.nombre }}</td>
+
+<td>{{ rol.descripcion }}</td>
+
+<td>
+
+{% if rol.estado %}
+
+Activo
+
+{% else %}
+
+Inactivo
+
+{% endif %}
+
+</td>
+
+<td>
+
+<a href="{% url 'editar_rol' rol.id %}">
+
+Editar
+
+</a>
+
+|
+
+<a href="{% url 'eliminar_rol' rol.id %}"
+   onclick="return confirm('¿Está seguro de eliminar este rol?')">
+    Eliminar
+</a>
+
+|
+
+<a href="{% url 'asignar_permiso' rol.id %}">
+
+Permisos
+
+</a>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Asignar Permisos</title>
+</head>
+<body>
+
+<h2>
+
+Permisos del Rol
+
+{{ rol.nombre }}
+
+</h2>
+
+<form method="POST">
+
+{% csrf_token %}
+
+{% for permiso in permisos %}
+
+<label>
+
+<input
+type="checkbox"
+name="permisos"
+value="{{ permiso.id }}"
+
+{% if permiso in rol.permisos.all %}
+
+checked
+
+{% endif %}
+
+>
+
+{{ permiso.nombre }}
+
+</label>
+
+<br>
+
+{% endfor %}
+
+<br>
+
+<button>
+
+Guardar Permisos
+
+</button>
+
+</form>
+
+</body>
+</html>
