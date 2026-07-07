@@ -1,0 +1,19 @@
+<h2>Editar Entidad</h2>
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">
+        Actualizar
+    </button>
+
+</form>
+
+<br>
+
+<a href="{% url 'consultar_entidades' %}">
+    Volver
+</a>

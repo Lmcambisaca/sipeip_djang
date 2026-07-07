@@ -1,0 +1,127 @@
+<h2>Consultar Entidades</h2>
+
+{% if mensaje %}
+
+<p style="color:red;">
+    {{ mensaje }}
+</p>
+
+{% endif %}
+
+<a href="{% url 'registrar_entidad' %}">
+    Nueva Entidad
+</a>
+
+<br><br>
+
+<form method="GET">
+
+    <input
+        type="text"
+        name="buscar"
+        placeholder="Buscar entidad..."
+        value="{{ request.GET.buscar }}"
+    >
+
+    <button type="submit">
+        Buscar
+    </button>
+
+</form>
+
+<br>
+
+{% if messages %}
+
+    {% for message in messages %}
+
+        <p style="color:green;">
+            {{ message }}
+        </p>
+
+    {% endfor %}
+
+{% endif %}
+
+<table border="1">
+
+    <thead>
+
+        <tr>
+
+            <th>ID</th>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Responsable</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for entidad in entidades %}
+
+        <tr>
+
+            <td>{{ entidad.id }}</td>
+
+            <td>{{ entidad.codigo }}</td>
+
+            <td>{{ entidad.nombre }}</td>
+
+            <td>{{ entidad.descripcion }}</td>
+
+            <td>{{ entidad.responsable }}</td>
+
+            <td>
+
+                {% if entidad.estado %}
+
+                    Activa
+
+                {% else %}
+
+                    Inactiva
+
+                {% endif %}
+
+            </td>
+
+            <td>
+
+                <a href="{% url 'editar_entidad' entidad.id %}">
+                    Editar
+                </a>
+
+                |
+
+                <a
+    href="{% url 'eliminar_entidad' entidad.id %}"
+    onclick="return confirm('¿Está seguro de eliminar esta entidad?');"
+>
+    Eliminar
+</a>
+
+            </td>
+
+        </tr>
+
+        {% empty %}
+
+        <tr>
+
+            <td colspan="7">
+                No existen entidades registradas.
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
