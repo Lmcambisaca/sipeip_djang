@@ -3,6 +3,7 @@ from django.contrib import messages
 
 from .models import Entidad
 from .forms import EntidadForm
+from django.db.models import Q
 
 
 def registrar_entidad(request):
@@ -56,35 +57,44 @@ def registrar_entidad(request):
         }
     )
 
-
 def consultar_entidades(request):
 
-    buscar = request.GET.get("buscar", "")
+    buscar = request.GET.get("buscar", "").strip()
+    estado = request.GET.get("estado", "")
 
-    if buscar:
+    entidades = Entidad.objects.all()
 
-        entidades = Entidad.objects.filter(
-            nombre__icontains=buscar
+    # Buscar por código, nombre o responsable
+    if buscar != "":
+
+        entidades = entidades.filter(
+            Q(codigo__icontains=buscar) |
+            Q(nombre__icontains=buscar) |
+            Q(responsable__icontains=buscar)
         )
 
-    else:
+    # Filtrar por estado
+    if estado == "1":
+        entidades = entidades.filter(estado=True)
 
-        entidades = Entidad.objects.all()
+    elif estado == "0":
+        entidades = entidades.filter(estado=False)
 
     mensaje = ""
 
-    if not entidades.exists():
-        mensaje = "No existen entidades registradas."
+    if entidades.count() == 0:
+        mensaje = "No existen entidades que coincidan con la búsqueda."
 
     return render(
         request,
         "entidades/consultar_entidad.html",
         {
             "entidades": entidades,
-            "mensaje": mensaje
+            "mensaje": mensaje,
+            "buscar": buscar,
+            "estado": estado,
         }
     )
-
 
 def editar_entidad(request, id):
 
@@ -157,3 +167,35 @@ def eliminar_entidad(request, id):
     )
 
     return redirect("consultar_entidades")
+
+def cambiar_estado_entidad(request, id):
+
+    entidad = get_object_or_404(
+        Entidad,
+        id=id
+    )
+
+    # En el futuro aquí validaremos dependencias
+    # cuando exista el módulo Planificación.
+
+    entidad.estado = not entidad.estado
+
+    entidad.save()
+
+    if entidad.estado:
+
+        messages.success(
+            request,
+            "Entidad activada correctamente."
+        )
+
+    else:
+
+        messages.success(
+            request,
+            "Entidad desactivada correctamente."
+        )
+
+    return redirect(
+        "consultar_entidades"
+    )

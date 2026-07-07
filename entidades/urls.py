@@ -22,8 +22,9 @@ urlpatterns = [
     ),
 
     path(
-        "eliminar/<int:id>/",
-        views.eliminar_entidad,
-        name="eliminar_entidad"
+        "cambiar_estado/<int:id>/",
+        views.cambiar_estado_entidad,
+        name="cambiar_estado_entidad"
     ),
+
 ]

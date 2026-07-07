@@ -1,13 +1,5 @@
 <h2>Consultar Entidades</h2>
 
-{% if mensaje %}
-
-<p style="color:red;">
-    {{ mensaje }}
-</p>
-
-{% endif %}
-
 <a href="{% url 'registrar_entidad' %}">
     Nueva Entidad
 </a>
@@ -19,9 +11,23 @@
     <input
         type="text"
         name="buscar"
-        placeholder="Buscar entidad..."
-        value="{{ request.GET.buscar }}"
+        placeholder="Buscar por código, nombre o responsable"
+        value="{{ buscar }}"
     >
+
+    <select name="estado">
+
+        <option value="">Todos</option>
+
+        <option value="1" {% if estado == "1" %}selected{% endif %}>
+            Activas
+        </option>
+
+        <option value="0" {% if estado == "0" %}selected{% endif %}>
+            Inactivas
+        </option>
+
+    </select>
 
     <button type="submit">
         Buscar
@@ -40,6 +46,14 @@
         </p>
 
     {% endfor %}
+
+{% endif %}
+
+{% if mensaje %}
+
+<p style="color:red;">
+    {{ mensaje }}
+</p>
 
 {% endif %}
 
@@ -68,56 +82,50 @@
         <tr>
 
             <td>{{ entidad.id }}</td>
-
             <td>{{ entidad.codigo }}</td>
-
             <td>{{ entidad.nombre }}</td>
-
             <td>{{ entidad.descripcion }}</td>
-
             <td>{{ entidad.responsable }}</td>
 
             <td>
 
                 {% if entidad.estado %}
-
                     Activa
-
                 {% else %}
-
                     Inactiva
-
                 {% endif %}
 
             </td>
 
             <td>
 
-                <a href="{% url 'editar_entidad' entidad.id %}">
-                    Editar
-                </a>
+    <a href="{% url 'editar_entidad' entidad.id %}">
+        Editar
+    </a>
 
-                |
+    |
 
-                <a
-    href="{% url 'eliminar_entidad' entidad.id %}"
-    onclick="return confirm('¿Está seguro de eliminar esta entidad?');"
->
-    Eliminar
-</a>
+    {% if entidad.estado %}
 
-            </td>
+        <a
+            href="{% url 'cambiar_estado_entidad' entidad.id %}"
+            onclick="return confirm('¿Desea desactivar esta entidad?');"
+        >
+            Desactivar
+        </a>
 
-        </tr>
+    {% else %}
 
-        {% empty %}
+        <a
+            href="{% url 'cambiar_estado_entidad' entidad.id %}"
+            onclick="return confirm('¿Desea activar esta entidad?');"
+        >
+            Activar
+        </a>
 
-        <tr>
+    {% endif %}
 
-            <td colspan="7">
-                No existen entidades registradas.
-            </td>
-
+</td>
         </tr>
 
         {% endfor %}
