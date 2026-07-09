@@ -1,0 +1,21 @@
+<h2>Editar Configuración</h2>
+
+<form method="POST">
+
+{% csrf_token %}
+
+{{ form.as_p }}
+
+<button>
+
+Actualizar
+
+</button>
+
+</form>
+
+<a href="{% url 'consultar_configuracion' %}">
+
+Volver
+
+</a>

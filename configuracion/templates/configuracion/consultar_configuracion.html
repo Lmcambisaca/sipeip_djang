@@ -1,0 +1,63 @@
+<h2>Configuraciones</h2>
+
+<a href="{% url 'registrar_configuracion' %}">
+
+Nueva Configuración
+
+</a>
+
+<table border="1">
+
+<tr>
+
+<th>Nombre</th>
+
+<th>Valor</th>
+
+<th>Descripción</th>
+
+<th>Estado</th>
+
+<th>Acciones</th>
+
+</tr>
+
+{% for c in configuraciones %}
+
+<tr>
+
+<td>{{ c.nombre }}</td>
+
+<td>{{ c.valor }}</td>
+
+<td>{{ c.descripcion }}</td>
+
+<td>
+
+{% if c.estado %}
+
+Activo
+
+{% else %}
+
+Inactivo
+
+{% endif %}
+
+</td>
+
+<td>
+
+<a href="{% url 'editar_configuracion' c.id %}">
+
+Editar
+
+</a>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</table>

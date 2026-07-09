@@ -26,4 +26,6 @@ urlpatterns = [
     path("roles/", include("roles.urls")),
     path("entidades/", include("entidades.urls")),
     path("planificaciones/", include("planificaciones.urls")),
+    path("configuracion/", include("configuracion.urls")
+),
 ]
