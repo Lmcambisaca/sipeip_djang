@@ -19,4 +19,9 @@ urlpatterns = [
     views.recuperar_password,
     name='recuperar_password'
 ),
+    path(
+    "eliminar/<int:id>/",
+    views.eliminar_usuario,
+    name="eliminar_usuario",
+),
 ]

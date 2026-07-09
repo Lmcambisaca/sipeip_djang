@@ -98,34 +98,34 @@
             </td>
 
             <td>
+                <a href="{% url 'editar_entidad' entidad.id %}">
+                    Editar
+                </a>
 
-    <a href="{% url 'editar_entidad' entidad.id %}">
-        Editar
-    </a>
+                |
 
-    |
+                <a
+                    href="{% url 'eliminar_entidad' entidad.id %}"
+                    onclick="return confirm('¿Eliminar entidad?');">
+                    Eliminar
+                </a>
 
-    {% if entidad.estado %}
+                |
 
-        <a
-            href="{% url 'cambiar_estado_entidad' entidad.id %}"
-            onclick="return confirm('¿Desea desactivar esta entidad?');"
-        >
-            Desactivar
-        </a>
+                {% if entidad.estado %}
 
-    {% else %}
+                <a href="{% url 'cambiar_estado_entidad' entidad.id %}">
+                Desactivar
+                </a>
 
-        <a
-            href="{% url 'cambiar_estado_entidad' entidad.id %}"
-            onclick="return confirm('¿Desea activar esta entidad?');"
-        >
-            Activar
-        </a>
+                {% else %}
 
-    {% endif %}
+                <a href="{% url 'cambiar_estado_entidad' entidad.id %}">
+                Activar
+                </a>
 
-</td>
+                {% endif %}
+            </td>
         </tr>
 
         {% endfor %}

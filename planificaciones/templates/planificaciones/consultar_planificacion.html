@@ -1,0 +1,263 @@
+<h2>Consultar Planificaciones</h2>
+
+<a href="{% url 'registrar_planificacion' %}">
+    Nueva Planificación
+</a>
+
+<br><br>
+
+<form method="GET">
+
+    <input
+        type="text"
+        name="buscar"
+        placeholder="Buscar..."
+        value="{{ buscar }}"
+    >
+
+    <select name="estado">
+
+        <option value="">Todos</option>
+
+        <option value="1"
+        {% if estado == "1" %}selected{% endif %}>
+            Activas
+        </option>
+
+        <option value="0"
+        {% if estado == "0" %}selected{% endif %}>
+            Inactivas
+        </option>
+
+    </select>
+
+    <select name="entidad">
+
+        <option value="">Todas las entidades</option>
+
+        {% for e in entidades %}
+
+        <option
+            value="{{ e.id }}"
+            {% if entidad == e.id|stringformat:"s" %}
+            selected
+            {% endif %}
+        >
+
+            {{ e.nombre }}
+
+        </option>
+
+        {% endfor %}
+
+    </select>
+
+    <button type="submit">
+
+        Buscar
+
+    </button>
+
+</form>
+
+<br>
+
+{% if mensaje %}
+
+<p style="color:red;">
+
+{{ mensaje }}
+
+</p>
+
+{% endif %}
+
+{% if messages %}
+
+{% for message in messages %}
+
+<p style="color:green;">
+
+{{ message }}
+
+</p>
+
+{% endfor %}
+
+{% endif %}
+
+<table border="1">
+
+<thead>
+
+<tr>
+
+<th>ID</th>
+
+<th>Período</th>
+
+<th>Nombre</th>
+
+<th>Entidad</th>
+
+<th>Descripción</th>
+
+<th>Fecha Inicio</th>
+
+<th>Fecha Fin</th>
+
+<th>Estado</th>
+
+<th>Observación</th>
+
+<th>Validada</th>
+
+<th>Aprobada</th>
+
+<th>Acciones</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for p in planificaciones %}
+
+<tr>
+
+<td>{{ p.id }}</td>
+
+<td>{{ p.periodo }}</td>
+
+<td>{{ p.nombre }}</td>
+
+<td>{{ p.entidad.nombre }}</td>
+
+<td>{{ p.descripcion }}</td>
+
+<td>{{ p.fecha_inicio }}</td>
+
+<td>{{ p.fecha_fin }}</td>
+
+<td>
+
+
+{% if p.estado %}
+
+Activa
+
+{% else %}
+
+Inactiva
+
+{% endif %}
+
+</td>
+
+<td>
+
+    {% if p.observacion %}
+
+        {{ p.observacion }}
+
+    {% else %}
+
+        Sin observaciones
+
+    {% endif %}
+
+</td>
+
+<td>
+
+    {% if p.validada %}
+
+        Sí
+
+    {% else %}
+
+        No
+
+    {% endif %}
+
+</td>
+
+<td>
+
+    {% if p.aprobada %}
+
+        Sí
+
+    {% else %}
+
+        No
+
+    {% endif %}
+
+</td>
+
+<td>
+
+    <a href="{% url 'editar_planificacion' p.id %}">
+        Editar
+    </a>
+
+    |
+
+    {% if p.estado %}
+
+        <a
+            href="{% url 'eliminar_planificacion' p.id %}"
+            onclick="return confirm('¿Está seguro de desactivar esta planificación?');"
+        >
+            Desactivar
+        </a>
+
+    {% else %}
+
+        <a
+            href="{% url 'eliminar_planificacion' p.id %}"
+            onclick="return confirm('¿Está seguro de activar esta planificación?');"
+        >
+            Activar
+        </a>
+
+    {% endif %}
+
+    {% if not p.validada %}
+
+        |
+        <a href="{% url 'validar_planificacion' p.id %}">
+            Validar
+        </a>
+
+    {% endif %}
+
+    {% if p.validada and not p.aprobada %}
+
+        |
+        <a href="{% url 'aprobar_planificacion' p.id %}">
+            Aprobar
+        </a>
+
+    {% endif %}
+
+    {% if p.aprobada %}
+
+        |
+        <a href="{% url 'rechazar_planificacion' p.id %}">
+            Rechazar
+        </a>
+
+    {% endif %}
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>

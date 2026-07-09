@@ -1,77 +1,257 @@
-<form action="{% url 'logout' %}" method="post" style="display:inline;">
-    {% csrf_token %}
-    <button type="submit">
-        Cerrar sesión
-    </button>
-</form>
 
-<hr>
+<div class="container mt-4">
 
-<h2>Lista de Usuarios</h2>
+    <div class="card shadow">
 
-{% if messages %}
+        <div class="card-header bg-primary text-white">
 
-    {% for message in messages %}
+            <h3 class="mb-0">
+                Consultar Usuarios
+            </h3>
 
-        <p style="color:green">
+        </div>
 
-            {{ message }}
+        <div class="card-body">
 
-        </p>
+            {% if messages %}
 
-    {% endfor %}
+                {% for message in messages %}
 
-{% endif %}
+                    <div class="alert alert-success">
 
-<table border="1">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Usuario</th>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>Email</th>
-            <th>Rol</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
+                        {{ message }}
 
-    <tbody>
-        {% for u in usuarios %}
-        <tr>
-            <td>{{ u.id }}</td>
-            <td>{{ u.username }}</td>
-            <td>{{ u.first_name }}</td>
-            <td>{{ u.last_name }}</td>
-            <td>{{ u.email }}</td>
-            <td>acciones</td>
-            <td>
-                {% if u.estado %}
-                    Activo
-                {% else %}
-                    Inactivo
-                {% endif %}
-            </td>
-            
-           <td>
+                    </div>
 
-    <a href="{% url 'editar_usuario' u.id %}">
-        Editar
-    </a>
-    |
-    {% if u.estado %}
+                {% endfor %}
 
-        <a href="{% url 'cambiar_estado_usuario' u.id %}">
-            Desactivar
-        </a>
-    {% else %}
-        <a href="{% url 'cambiar_estado_usuario' u.id %}">
-            Activar
-        </a>
-    {% endif %}
-</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+            {% endif %}
+
+            {% if mensaje %}
+
+                <div class="alert alert-warning">
+
+                    {{ mensaje }}
+
+                </div>
+
+            {% endif %}
+
+            <form method="GET" class="row g-3 mb-4">
+
+                <div class="col-md-4">
+
+                    <input
+                        type="text"
+                        name="buscar"
+                        class="form-control"
+                        placeholder="Buscar usuario..."
+                        value="{{ buscar }}"
+                    >
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <select
+                        name="estado"
+                        class="form-select"
+                    >
+
+                        <option value="">
+                            Todos los estados
+                        </option>
+
+                        <option value="1"
+                            {% if estado == "1" %}
+                                selected
+                            {% endif %}
+                        >
+                            Activos
+                        </option>
+
+                        <option value="0"
+                            {% if estado == "0" %}
+                                selected
+                            {% endif %}
+                        >
+                            Inactivos
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <select
+                        name="rol"
+                        class="form-select"
+                    >
+
+                        <option value="">
+                            Todos los roles
+                        </option>
+
+                        {% for r in roles %}
+
+                            <option
+                                value="{{ r.id }}"
+                                {% if rol == r.id|stringformat:"s" %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ r.nombre }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-2 d-grid">
+
+                    <button
+                        class="btn btn-primary"
+                        type="submit"
+                    >
+                        Buscar
+                    </button>
+
+                </div>
+
+            </form>
+
+            <table class="table table-bordered table-hover">
+
+                <thead class="table-dark">
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th width="170">
+                            Acciones
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for u in usuarios %}
+
+                    <tr>
+
+                        <td>{{ u.id }}</td>
+
+                        <td>{{ u.username }}</td>
+
+                        <td>{{ u.first_name }}</td>
+
+                        <td>{{ u.last_name }}</td>
+
+                        <td>{{ u.email }}</td>
+
+                        <td>
+
+                            {% if u.rol %}
+
+                                {{ u.rol.nombre }}
+
+                            {% else %}
+
+                                -
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            {% if u.estado %}
+
+                                <span class="badge bg-success">
+                                    Activo
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-danger">
+                                    Inactivo
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            <a
+                                href="{% url 'editar_usuario' u.id %}"
+                                class="btn btn-warning btn-sm"
+                            >
+                                Editar
+                            </a>
+                            |
+                            <a href="{% url 'eliminar_usuario' u.id %}"
+                            onclick="return confirm('¿Está seguro de eliminar este usuario?');">
+
+                                Eliminar
+
+                            </a>
+                            |
+                            {% if u.estado %}
+
+                                <a
+                                    href="{% url 'cambiar_estado_usuario' u.id %}"
+                                    class="btn btn-danger btn-sm"
+                                >
+                                    Desactivar
+                                </a>
+
+                            {% else %}
+
+                                <a
+                                    href="{% url 'cambiar_estado_usuario' u.id %}"
+                                    class="btn btn-success btn-sm"
+                                >
+                                    Activar
+                                </a>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td colspan="8" class="text-center">
+
+                            No existen usuarios registrados.
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>

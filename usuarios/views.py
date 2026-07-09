@@ -1,38 +1,112 @@
-from django.shortcuts import render, redirect
-from .forms import UsuarioForm
-from django.contrib.auth.hashers import make_password
+from django.shortcuts import (
+    render,
+    redirect,
+    get_object_or_404
+)
+
+from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
+from django.db.models import Q
+
+from .models import Usuario
+from roles.models import Rol
+
+from .forms import (
+    UsuarioForm,
+    UsuarioEditarForm,
+    RecuperarPasswordForm,
+)
 
 
 def registrar_usuario(request):
-    if request.method == 'POST':
+
+    if request.method == "POST":
+
         form = UsuarioForm(request.POST)
+
         if form.is_valid():
-            usuario = form.save(commit=False)
-            usuario.set_password(usuario.password)
-            usuario.save()
-            return redirect('/admin')
+
+            form.save()
+
+            messages.success(
+                request,
+                "Usuario registrado correctamente."
+            )
+
+            return redirect("consultar_usuarios")
+
+        else:
+
+            messages.error(
+                request,
+                "Revise la información ingresada."
+            )
+
     else:
+
         form = UsuarioForm()
 
-    return render(request, 'usuarios/registrar_usuario.html', {
-        'form': form
-    })
-    
-    
-from .models import Usuario
+    return render(
+        request,
+        "usuarios/registrar_usuario.html",
+        {
+            "form": form
+        }
+    )
 
 
 def consultar_usuarios(request):
-    usuarios = Usuario.objects.all()
 
-    return render(request, 'usuarios/consultar_usuario.html', {
-        'usuarios': usuarios
-    })
-    
-from django.shortcuts import get_object_or_404
+    buscar = request.GET.get("buscar", "").strip()
+    estado = request.GET.get("estado", "")
+    rol = request.GET.get("rol", "")
 
-from .forms import UsuarioEditarForm
+    usuarios = Usuario.objects.select_related("rol").all()
+
+    if buscar:
+
+        usuarios = usuarios.filter(
+            Q(username__icontains=buscar)
+            | Q(first_name__icontains=buscar)
+            | Q(last_name__icontains=buscar)
+            | Q(email__icontains=buscar)
+        )
+
+    if estado != "":
+
+        usuarios = usuarios.filter(
+            estado=(estado == "1")
+        )
+
+    if rol:
+
+        usuarios = usuarios.filter(
+            rol_id=rol
+        )
+
+    roles = Rol.objects.filter(
+        estado=True
+    ).order_by("nombre")
+
+    mensaje = ""
+
+    if not usuarios.exists():
+
+        mensaje = "No existen usuarios que coincidan con la búsqueda."
+
+    return render(
+        request,
+        "usuarios/consultar_usuario.html",
+        {
+            "usuarios": usuarios,
+            "roles": roles,
+            "mensaje": mensaje,
+            "buscar": buscar,
+            "estado": estado,
+            "rol": rol,
+        }
+    )
 
 
 def editar_usuario(request, id):
@@ -50,8 +124,17 @@ def editar_usuario(request, id):
         )
 
         if formulario.is_valid():
+
             formulario.save()
-            return redirect('consultar_usuarios')
+
+            messages.success(
+                request,
+                "Usuario actualizado correctamente."
+            )
+
+            return redirect(
+                "consultar_usuarios"
+            )
 
     else:
 
@@ -63,12 +146,10 @@ def editar_usuario(request, id):
         request,
         "usuarios/editar_usuario.html",
         {
-            "form": formulario
+            "form": formulario,
+            "usuario": usuario
         }
     )
-    
-from django.contrib import messages
-
 
 def cambiar_estado_usuario(request, id):
 
@@ -76,6 +157,10 @@ def cambiar_estado_usuario(request, id):
         Usuario,
         pk=id
     )
+    
+    print("Usuario autenticado:", request.user)
+    print("ID autenticado:", request.user.id)
+    print("ID a desactivar:", usuario.id)
 
     usuario.estado = not usuario.estado
     usuario.save()
@@ -92,8 +177,6 @@ def cambiar_estado_usuario(request, id):
         )
 
     return redirect("consultar_usuarios")
-
-from .forms import RecuperarPasswordForm
 
 User = get_user_model()
 
@@ -152,3 +235,41 @@ def recuperar_password(request):
             "form": form
         }
     )
+
+def eliminar_usuario(request, id):
+
+    usuario = get_object_or_404(
+        Usuario,
+        pk=id
+    )
+
+    # No permitir eliminar al propio usuario
+    if request.user.id == usuario.id:
+
+        messages.error(
+            request,
+            "No puede eliminar su propio usuario."
+        )
+
+        return redirect("consultar_usuarios")
+
+    # Si ya está inactivo
+    if not usuario.estado:
+
+        messages.warning(
+            request,
+            "El usuario ya se encuentra inactivo."
+        )
+
+        return redirect("consultar_usuarios")
+
+    # Eliminación lógica
+    usuario.estado = False
+    usuario.save()
+
+    messages.success(
+        request,
+        "Usuario eliminado correctamente."
+    )
+
+    return redirect("consultar_usuarios")

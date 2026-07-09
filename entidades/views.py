@@ -168,6 +168,7 @@ def eliminar_entidad(request, id):
 
     return redirect("consultar_entidades")
 
+
 def cambiar_estado_entidad(request, id):
 
     entidad = get_object_or_404(
@@ -175,11 +176,26 @@ def cambiar_estado_entidad(request, id):
         id=id
     )
 
-    # En el futuro aquí validaremos dependencias
-    # cuando exista el módulo Planificación.
+    from planificaciones.models import Planificacion
 
+    # Si la entidad está activa y se intenta desactivar
+    if entidad.estado:
+
+        tiene_planificaciones = Planificacion.objects.filter(
+            entidad=entidad
+        ).exists()
+
+        if tiene_planificaciones:
+
+            messages.error(
+                request,
+                "No puede desactivar esta entidad porque tiene planificaciones registradas."
+            )
+
+            return redirect("consultar_entidades")
+
+    # Cambiar estado
     entidad.estado = not entidad.estado
-
     entidad.save()
 
     if entidad.estado:
@@ -196,6 +212,4 @@ def cambiar_estado_entidad(request, id):
             "Entidad desactivada correctamente."
         )
 
-    return redirect(
-        "consultar_entidades"
-    )
+    return redirect("consultar_entidades")

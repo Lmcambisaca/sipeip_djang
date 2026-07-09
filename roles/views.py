@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from .decorators import permiso_requerido
 
 from .models import Rol, Permiso
 from .forms import RolForm
+
 
 
 def registrar_rol(request):
@@ -117,6 +119,7 @@ def editar_rol(request, id):
         "rol": rol
     })
 
+@permiso_requerido("Eliminar Rol")
 def eliminar_rol(request, id):
 
     rol = Rol.objects.filter(id=id).first()
@@ -125,7 +128,7 @@ def eliminar_rol(request, id):
         messages.error(request, "El rol solicitado no existe.")
         return redirect("consultar_roles")
 
-    if rol.usuarios.exists():
+    if rol.usuarios.filter(estado=True).exists():
 
         messages.error(
             request,

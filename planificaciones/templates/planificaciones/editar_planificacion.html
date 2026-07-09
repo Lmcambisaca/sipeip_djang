@@ -1,0 +1,33 @@
+<h2>Editar Planificación</h2>
+
+{% if messages %}
+
+    {% for message in messages %}
+
+        <p style="color:red;">
+            {{ message }}
+        </p>
+
+    {% endfor %}
+
+{% endif %}
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">
+
+        Guardar cambios
+
+    </button>
+
+    <a href="{% url 'consultar_planificaciones' %}">
+
+        Cancelar
+
+    </a>
+
+</form>
