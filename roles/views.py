@@ -1,11 +1,25 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .decorators import permiso_requerido
+from django.http import HttpResponseForbidden
 
 from .models import Rol, Permiso
 from .forms import RolForm
 
 
+def tiene_permiso(usuario, nombre_permiso):
+
+    if not usuario.is_authenticated:
+        return False
+
+    if not usuario.rol:
+        return False
+
+    return usuario.rol.permisos.filter(
+        nombre=nombre_permiso,
+        estado=True
+    ).exists()
+    
 
 def registrar_rol(request):
 
@@ -118,6 +132,7 @@ def editar_rol(request, id):
         "form": form,
         "rol": rol
     })
+    
 
 @permiso_requerido("Eliminar Rol")
 def eliminar_rol(request, id):
@@ -132,9 +147,10 @@ def eliminar_rol(request, id):
 
         messages.error(
             request,
-            "No se puede eliminar el rol porque está asignado a usuarios."
+            "No se puede eliminar el rol porque está asignado a usuarios activos."
         )
 
+        return redirect("consultar_roles")
     else:
 
         rol.delete()
@@ -146,7 +162,18 @@ def eliminar_rol(request, id):
 
     return redirect("consultar_roles")
 
+
 def asignar_permiso(request, id):
+    
+    if not tiene_permiso(request.user, "Administrar permisos"):
+
+        messages.error(
+            request,
+            "No tiene permisos para administrar permisos."
+        )
+
+        return redirect("consultar_roles")
+            
 
     rol = Rol.objects.filter(id=id).first()
 
