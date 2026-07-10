@@ -210,21 +210,21 @@
                             |
                             {% if u.estado %}
 
-                                <a
-                                    href="{% url 'cambiar_estado_usuario' u.id %}"
-                                    class="btn btn-danger btn-sm"
-                                >
-                                    Desactivar
-                                </a>
+                            <a
+                                href="{% url 'cambiar_estado_usuario' u.id %}?accion=desactivar"
+                                class="btn btn-danger btn-sm"
+                            >
+                                Desactivar
+                            </a>
 
                             {% else %}
 
-                                <a
-                                    href="{% url 'cambiar_estado_usuario' u.id %}"
-                                    class="btn btn-success btn-sm"
-                                >
-                                    Activar
-                                </a>
+                            <a
+                                href="{% url 'cambiar_estado_usuario' u.id %}?accion=activar"
+                                class="btn btn-success btn-sm"
+                            >
+                                Activar
+                            </a>
 
                             {% endif %}
 

@@ -12,6 +12,9 @@ def tiene_permiso(usuario, nombre_permiso):
     if not usuario.is_authenticated:
         return False
 
+    if not usuario.estado:
+        return False
+
     if not usuario.rol:
         return False
 
@@ -20,7 +23,8 @@ def tiene_permiso(usuario, nombre_permiso):
         estado=True
     ).exists()
     
-
+from django.contrib.auth.decorators import login_required
+@login_required
 def registrar_rol(request):
 
     if request.method == "POST":
@@ -61,6 +65,7 @@ def registrar_rol(request):
         "form": form
     })
 
+@login_required
 def consultar_roles(request):
 
     buscar = request.GET.get("buscar", "")
@@ -76,7 +81,8 @@ def consultar_roles(request):
     return render(request, "roles/consultar_rol.html", {
         "roles": roles
     })
-    
+
+@login_required
 def editar_rol(request, id):
 
     rol = Rol.objects.filter(id=id).first()
@@ -133,7 +139,7 @@ def editar_rol(request, id):
         "rol": rol
     })
     
-
+@login_required
 @permiso_requerido("Eliminar Rol")
 def eliminar_rol(request, id):
 
@@ -162,9 +168,9 @@ def eliminar_rol(request, id):
 
     return redirect("consultar_roles")
 
-
+@login_required
 def asignar_permiso(request, id):
-    
+
     if not tiene_permiso(request.user, "Administrar permisos"):
 
         messages.error(
@@ -173,7 +179,6 @@ def asignar_permiso(request, id):
         )
 
         return redirect("consultar_roles")
-            
 
     rol = Rol.objects.filter(id=id).first()
 
@@ -187,12 +192,39 @@ def asignar_permiso(request, id):
 
         seleccionados = request.POST.getlist("permisos")
 
-        rol.permisos.set(seleccionados)
+        if not seleccionados:
 
-        messages.success(
-            request,
-            "Permisos actualizados correctamente."
+            messages.error(
+                request,
+                "Debe seleccionar al menos un permiso."
+            )
+
+            return redirect(
+                "asignar_permiso",
+                id=id
+            )
+
+        permisos_actuales = list(
+            rol.permisos.values_list("id", flat=True)
         )
+
+        nuevos = list(map(int, seleccionados))
+
+        if permisos_actuales == nuevos:
+
+            messages.info(
+                request,
+                "El rol ya posee esos permisos."
+            )
+
+        else:
+
+            rol.permisos.set(seleccionados)
+
+            messages.success(
+                request,
+                "Permisos actualizados correctamente."
+            )
 
         return redirect("consultar_roles")
 

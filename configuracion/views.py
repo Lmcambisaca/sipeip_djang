@@ -4,7 +4,8 @@ from django.contrib import messages
 from .models import Configuracion
 from .forms import ConfiguracionForm
 
-
+from django.contrib.auth.decorators import login_required
+@login_required
 def registrar_configuracion(request):
 
     if request.method == "POST":
@@ -47,7 +48,7 @@ def registrar_configuracion(request):
         }
     )
 
-
+@login_required
 def consultar_configuracion(request):
 
     configuraciones = Configuracion.objects.all()
@@ -61,6 +62,7 @@ def consultar_configuracion(request):
     )
 
 
+@login_required
 def editar_configuracion(request, id):
 
     configuracion = get_object_or_404(

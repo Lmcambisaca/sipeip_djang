@@ -1,6 +1,7 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import get_user_model
+
 
 from roles.models import Rol
 
@@ -159,6 +160,14 @@ class RecuperarPasswordForm(forms.Form):
             "class": "form-control"
         })
     )
+    
+    password_actual = forms.CharField(
+    label="Contraseña actual",
+    widget=forms.PasswordInput(
+        attrs={
+            "class": "form-control"
+        })
+    )
 
     nueva_password = forms.CharField(
         label="Nueva contraseña",
@@ -172,4 +181,26 @@ class RecuperarPasswordForm(forms.Form):
         widget=forms.PasswordInput(attrs={
             "class": "form-control"
         })
+    )
+    
+class LoginForm(AuthenticationForm):
+
+    username = forms.CharField(
+        label="Usuario",
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Ingrese su usuario"
+            }
+        )
+    )
+
+    password = forms.CharField(
+        label="Contraseña",
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "Ingrese su contraseña"
+            }
+        )
     )

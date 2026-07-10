@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>
+        Iniciar sesión SIPeIP
+    </title>
+
+</head>
+
+<body>
+
+<h2>
+    Iniciar sesión SIPeIP
+</h2>
+
+
+{% if messages %}
+
+    {% for message in messages %}
+
+        <p style="color:red">
+            {{ message }}
+        </p>
+
+    {% endfor %}
+
+{% endif %}
+
+
+
+<form method="POST">
+
+    {% csrf_token %}
+
+
+    {{ form.as_p }}
+
+
+    <button type="submit">
+
+        Ingresar
+
+    </button>
+
+
+</form>
+
+
+<br>
+
+
+<a href="{% url 'recuperar_password' %}">
+    ¿Olvidó su contraseña?
+</a>
+
+
+</body>
+
+</html>

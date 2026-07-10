@@ -7,7 +7,8 @@ from django.utils import timezone
 from .models import Planificacion
 from .forms import PlanificacionForm
 
-
+from django.contrib.auth.decorators import login_required
+@login_required
 def registrar_planificacion(request):
 
     if request.method == "POST":
@@ -95,7 +96,7 @@ def registrar_planificacion(request):
         }
     )
     
-
+@login_required
 def consultar_planificaciones(request):
 
     buscar = request.GET.get("buscar", "").strip()
@@ -163,7 +164,8 @@ def consultar_planificaciones(request):
         }
 
     )
-    
+
+@login_required
 def editar_planificacion(request, id):
 
     planificacion = get_object_or_404(
@@ -231,7 +233,8 @@ def editar_planificacion(request, id):
             "planificacion": planificacion
         }
     )
-    
+
+@login_required
 def eliminar_planificacion(request, id):
 
     planificacion = get_object_or_404(
@@ -264,7 +267,8 @@ def eliminar_planificacion(request, id):
     return redirect(
         "consultar_planificaciones"
     )
-    
+
+@login_required
 def validar_planificacion(request, id):
 
     planificacion = get_object_or_404(
@@ -315,7 +319,7 @@ def validar_planificacion(request, id):
 
     return redirect("consultar_planificaciones")
 
-
+@login_required
 def aprobar_planificacion(request, id):
 
     planificacion = get_object_or_404(
@@ -354,6 +358,7 @@ def aprobar_planificacion(request, id):
         "consultar_planificaciones"
     )
 
+@login_required
 def rechazar_planificacion(request, id):
 
     planificacion = get_object_or_404(

@@ -5,7 +5,8 @@ from .models import Entidad
 from .forms import EntidadForm
 from django.db.models import Q
 
-
+from django.contrib.auth.decorators import login_required
+@login_required
 def registrar_entidad(request):
 
     if request.method == "POST":
@@ -57,6 +58,8 @@ def registrar_entidad(request):
         }
     )
 
+from django.contrib.auth.decorators import login_required
+@login_required
 def consultar_entidades(request):
 
     buscar = request.GET.get("buscar", "").strip()
@@ -96,6 +99,8 @@ def consultar_entidades(request):
         }
     )
 
+from django.contrib.auth.decorators import login_required
+@login_required
 def editar_entidad(request, id):
 
     entidad = get_object_or_404(
@@ -151,7 +156,7 @@ def editar_entidad(request, id):
         }
     )
 
-
+@login_required
 def eliminar_entidad(request, id):
 
     entidad = get_object_or_404(
@@ -169,6 +174,7 @@ def eliminar_entidad(request, id):
     return redirect("consultar_entidades")
 
 
+@login_required
 def cambiar_estado_entidad(request, id):
 
     entidad = get_object_or_404(

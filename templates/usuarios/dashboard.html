@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <h1 class="h3 mb-4 text-gray-800">
+        Dashboard SIPeIP
+    </h1>
+
+    <div class="row">
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <a href="{% url 'consultar_usuarios' %}" class="text-decoration-none">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <h5>Usuarios</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <a href="{% url 'consultar_roles' %}" class="text-decoration-none">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <h5>Roles</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <a href="{% url 'consultar_entidades' %}" class="text-decoration-none">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <h5>Entidades</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <a href="{% url 'consultar_planificaciones' %}" class="text-decoration-none">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <h5>Planificaciones</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+<div class="col-xl-3 col-md-6 mb-4">
+    <a href="{% url 'consultar_configuraciones' %}" class="text-decoration-none">
+        <div class="card border-left-danger shadow h-100 py-2">
+            <div class="card-body">
+                <h5>Configuración</h5>
+            </div>
+        </div>
+    </a>
+</div>
+
+<div class="col-xl-3 col-md-6 mb-4">
+    <a href="{% url 'recuperar_password' %}" class="text-decoration-none">
+        <div class="card border-left-secondary shadow h-100 py-2">
+            <div class="card-body">
+                <h5>Recuperar contraseña</h5>
+            </div>
+        </div>
+    </a>
+</div>
