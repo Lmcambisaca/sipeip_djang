@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+<div class="card shadow">
+
+<div class="card-header">
+
+<h4>
+
+Cronograma
+
+</h4>
+
+</div>
+
+<div class="card-body">
+
+<table class="table table-bordered">
+
+<thead>
+
+<tr>
+
+<th>Proyecto</th>
+
+<th>Actividad</th>
+
+<th>Responsable</th>
+
+<th>Inicio</th>
+
+<th>Fin</th>
+
+<th>Avance</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for c in cronogramas %}
+
+<tr>
+
+<td>{{ c.proyecto }}</td>
+
+<td>{{ c.actividad }}</td>
+
+<td>{{ c.responsable }}</td>
+
+<td>{{ c.fecha_inicio }}</td>
+
+<td>{{ c.fecha_fin }}</td>
+
+<td>
+
+{{ c.porcentaje_avance }} %
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

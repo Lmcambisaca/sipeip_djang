@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'entidades',
     'planificaciones',
     'configuracion',
+    'proyectos',
 ]
 
 MIDDLEWARE = [

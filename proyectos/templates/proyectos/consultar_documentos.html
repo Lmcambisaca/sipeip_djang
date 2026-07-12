@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+<div class="card shadow">
+
+<div class="card-header">
+
+<h4>
+
+Documentos
+
+</h4>
+
+</div>
+
+<div class="card-body">
+
+<table class="table table-bordered">
+
+<thead>
+
+<tr>
+
+<th>Proyecto</th>
+
+<th>Nombre</th>
+
+<th>Descripción</th>
+
+<th>Archivo</th>
+
+<th>Fecha</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for d in documentos %}
+
+<tr>
+
+<td>{{ d.proyecto }}</td>
+
+<td>{{ d.nombre }}</td>
+
+<td>{{ d.descripcion }}</td>
+
+<td>
+
+<a href="{{ d.archivo.url }}" target="_blank">
+
+Ver
+
+</a>
+
+</td>
+
+<td>{{ d.fecha_subida }}</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

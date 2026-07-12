@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+<div class="card shadow mb-4">
+
+<div class="card-header py-3">
+
+<h4 class="m-0 font-weight-bold text-primary">
+
+Consultar Proyectos
+
+</h4>
+
+</div>
+
+<div class="card-body">
+
+<form method="get">
+
+<div class="row">
+
+<div class="col-md-4">
+
+<input
+class="form-control"
+type="text"
+name="buscar"
+placeholder="Buscar..."
+value="{{ buscar }}">
+
+</div>
+
+<div class="col-md-2">
+
+<button
+class="btn btn-primary">
+
+Buscar
+
+</button>
+
+</div>
+
+</div>
+
+</form>
+
+<br>
+
+{% if mensaje %}
+
+<div class="alert alert-warning">
+
+{{ mensaje }}
+
+</div>
+
+{% endif %}
+
+<table class="table table-bordered table-hover">
+
+<thead class="table-dark">
+
+<tr>
+
+<th>Código</th>
+
+<th>Proyecto</th>
+
+<th>Responsable</th>
+
+<th>Presupuesto</th>
+
+<th>Inicio</th>
+
+<th>Fin</th>
+
+<th>Estado</th>
+
+<th>Acciones</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for p in proyectos %}
+
+<tr>
+
+<td>{{ p.codigo }}</td>
+
+<td>{{ p.nombre }}</td>
+
+<td>{{ p.responsable }}</td>
+
+<td>{{ p.presupuesto }}</td>
+
+<td>{{ p.fecha_inicio }}</td>
+
+<td>{{ p.fecha_fin }}</td>
+
+<td>
+
+{% if p.estado %}
+
+<span class="badge bg-success">
+
+Activo
+
+</span>
+
+{% else %}
+
+<span class="badge bg-danger">
+
+Inactivo
+
+</span>
+
+{% endif %}
+
+</td>
+
+<td>
+
+<a
+class="btn btn-warning btn-sm"
+href="{% url 'editar_proyecto' p.id %}">
+
+Editar
+
+</a>
+
+<a
+class="btn btn-danger btn-sm"
+href="{% url 'eliminar_proyecto' p.id %}"
+onclick="return confirm('¿Desea eliminar este proyecto?')">
+
+Eliminar
+
+</a>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}
