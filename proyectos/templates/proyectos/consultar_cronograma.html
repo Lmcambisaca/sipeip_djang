@@ -36,6 +36,8 @@ Cronograma
 
 <th>Avance</th>
 
+<th>Acciones</th>
+
 </tr>
 
 </thead>
@@ -48,7 +50,9 @@ Cronograma
 
 <td>{{ c.proyecto }}</td>
 
-<td>{{ c.actividad }}</td>
+<td>
+    {{ c.actividad }} - ID: {{ c.id }}
+</td>
 
 <td>{{ c.responsable }}</td>
 
@@ -59,6 +63,20 @@ Cronograma
 <td>
 
 {{ c.porcentaje_avance }} %
+
+</td>
+
+<td>
+
+<a
+
+class="btn btn-warning btn-sm"
+
+href="/proyectos/cronograma/editar/{{ c.id }}/">
+
+Editar
+
+</a>
 
 </td>
 

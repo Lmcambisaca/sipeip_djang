@@ -16,6 +16,8 @@ urlpatterns = [
 
     path("cronograma/consultar/", views.consultar_cronogramas, name="consultar_cronogramas"),
     
+    path("cronograma/editar/<int:id>/", views.editar_cronograma, name="editar_cronograma"),
+    
     path("documentos/registrar/", views.registrar_documento, name="registrar_documento"),
 
     path("documentos/consultar/", views.consultar_documentos, name="consultar_documentos"),

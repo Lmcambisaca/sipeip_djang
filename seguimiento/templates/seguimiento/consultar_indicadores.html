@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="card shadow mb-4">
+
+        <div class="card-header py-3">
+
+            <h4 class="m-0 font-weight-bold text-primary">
+
+                Consultar Indicadores
+
+            </h4>
+
+        </div>
+
+        <div class="card-body">
+
+            <table class="table table-bordered table-hover">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Meta</th>
+
+                        <th>Nombre</th>
+
+                        <th>Fórmula</th>
+
+                        <th>Unidad</th>
+
+                        <th>Frecuencia</th>
+
+                        <th>Estado</th>
+
+                        <th>Acciones</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for indicador in indicadores %}
+
+                    <tr>
+
+                        <td>
+
+                            {{ indicador.meta.descripcion }}
+
+                        </td>
+
+                        <td>
+
+                            {{ indicador.nombre }}
+
+                        </td>
+
+                        <td>
+
+                            {{ indicador.formula }}
+
+                        </td>
+
+                        <td>
+
+                            {{ indicador.unidad_medida }}
+
+                        </td>
+
+                        <td>
+
+                            {{ indicador.frecuencia }}
+
+                        </td>
+
+                        <td>
+
+                            {% if indicador.estado %}
+
+                                Activo
+
+                            {% else %}
+
+                                Inactivo
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            <a
+                                class="btn btn-warning btn-sm"
+                                href="{% url 'editar_indicador' indicador.id %}">
+
+                                Editar
+
+                            </a>
+
+                            <a
+                                class="btn btn-info btn-sm"
+                                href="{% url 'grafico_indicador' indicador.id %}">
+
+                                Gráfico
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

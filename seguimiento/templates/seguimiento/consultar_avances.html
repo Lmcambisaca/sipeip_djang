@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+<div class="card shadow">
+
+<div class="card-header">
+
+<h4>
+
+Avances
+
+</h4>
+
+</div>
+
+<div class="card-body">
+
+<table class="table table-bordered">
+
+<thead>
+
+<tr>
+
+<th>Indicador</th>
+
+<th>Meta</th>
+
+<th>Fecha</th>
+
+<th>Valor</th>
+
+<th>% Cumplimiento</th>
+
+<th>Acciones</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for avance in avances %}
+
+<tr>
+
+<td>{{ avance.indicador.nombre }}</td>
+
+<td>{{ avance.indicador.meta.descripcion }}</td>
+
+<td>{{ avance.fecha }}</td>
+
+<td>{{ avance.valor }}</td>
+
+<td>
+
+{{ avance.porcentaje_cumplimiento|floatformat:2 }} %
+
+</td>
+
+<td>
+
+<a
+
+class="btn btn-warning btn-sm"
+
+href="{% url 'editar_avance' avance.id %}">
+
+Editar
+
+</a>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

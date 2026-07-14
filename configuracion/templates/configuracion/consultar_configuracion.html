@@ -1,3 +1,6 @@
+{% extends "base.html" %}
+
+{% block content %}
 <h2>Configuraciones</h2>
 
 <a href="{% url 'registrar_configuracion' %}">
@@ -61,3 +64,4 @@ Editar
 {% endfor %}
 
 </table>
+{% endblock %}

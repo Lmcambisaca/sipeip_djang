@@ -1,3 +1,6 @@
+{% extends "base.html" %}
+
+{% block content %}
 <h2>Registrar Entidad</h2>
 
 {% if messages %}
@@ -25,4 +28,4 @@
 <a href="{% url 'consultar_entidades' %}">
     Consultar entidades
 </a>
-
+{% endblock %}

@@ -353,6 +353,66 @@ def consultar_cronogramas(request):
     )
     
 @login_required
+def editar_cronograma(request, id):
+
+    cronograma = get_object_or_404(
+        Cronograma,
+        pk=id
+    )
+
+    if request.method == "POST":
+
+        form = CronogramaForm(
+            request.POST,
+            instance=cronograma
+        )
+
+        if form.is_valid():
+
+            fecha_inicio = form.cleaned_data["fecha_inicio"]
+            fecha_fin = form.cleaned_data["fecha_fin"]
+
+            if fecha_inicio > fecha_fin:
+
+                messages.error(
+                    request,
+                    "La fecha de inicio no puede ser mayor que la fecha de fin."
+                )
+
+            else:
+
+                form.save()
+
+                messages.success(
+                    request,
+                    "Cronograma actualizado correctamente."
+                )
+
+                return redirect(
+                    "consultar_cronogramas"
+                )
+
+    else:
+
+        form = CronogramaForm(
+            instance=cronograma
+        )
+
+    return render(
+
+        request,
+
+        "proyectos/registrar_cronograma.html",
+
+        {
+
+            "form": form
+
+        }
+
+    )
+    
+@login_required
 def registrar_documento(request):
     
     if not request.user.is_authenticated:

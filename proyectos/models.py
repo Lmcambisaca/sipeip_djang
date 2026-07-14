@@ -129,17 +129,18 @@ class Cronograma(models.Model):
 
         return self.actividad
     
-def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):
 
-    if self.estado:
+        if self.estado:
 
-        self.porcentaje_avance = 100
+            self.porcentaje_avance = 100
 
-    else:
+        else:
 
-        self.porcentaje_avance = 0
+            self.porcentaje_avance = 0
 
-    super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
+        
     
 class Documento(models.Model):
 

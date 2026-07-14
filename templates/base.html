@@ -42,67 +42,378 @@
             <!-- Divider -->
             <hr class="sidebar-divider">
 
+            <!-- USUARIOS -->
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'consultar_usuarios' %}">
+
+                <a class="nav-link collapsed"
+                href="#"
+                data-toggle="collapse"
+                data-target="#collapseUsuarios">
+
                     <i class="fas fa-users"></i>
+
                     <span>Usuarios</span>
+
                 </a>
+
+                <div id="collapseUsuarios"
+                    class="collapse">
+
+                    <div class="bg-white py-2 collapse-inner rounded">
+
+                        <h6 class="collapse-header">
+                            Gestión Usuarios
+                        </h6>
+
+                        <a class="collapse-item"
+                        href="{% url 'registrar_usuario' %}">
+                            Registrar Usuario
+                        </a>
+
+                        <a class="collapse-item"
+                        href="{% url 'consultar_usuarios' %}">
+                            Consultar Usuarios
+                        </a>
+
+                    </div>
+
+                </div>
+
             </li>
 
+            <!-- ROLES -->
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'consultar_roles' %}">
+
+                <a class="nav-link collapsed"
+                href="#"
+                data-toggle="collapse"
+                data-target="#collapseRoles">
+
+
                     <i class="fas fa-user-shield"></i>
+
                     <span>Roles</span>
+
                 </a>
+
+                <div id="collapseRoles"
+                    class="collapse">
+
+                    <div class="bg-white py-2 collapse-inner rounded">
+
+                        <h6 class="collapse-header">
+                            Gestión Roles
+                        </h6>
+
+                        <a class="collapse-item"
+                        href="{% url 'registrar_rol' %}">
+                            Registrar Rol
+                        </a>
+
+                        <a class="collapse-item"
+                        href="{% url 'consultar_roles' %}">
+                            Consultar Roles
+                        </a>
+
+                        <a class="collapse-item"
+                        href="{% url 'consultar_roles' %}">
+                            Administrar Permisos
+                        </a>
+
+                    </div>
+
+                </div>
+
             </li>
 
+            <!-- ENTIDADES -->
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'consultar_entidades' %}">
+
+                <a class="nav-link collapsed"
+                href="#"
+                data-toggle="collapse"
+                data-target="#collapseEntidades">
+
                     <i class="fas fa-building"></i>
+
                     <span>Entidades</span>
+
                 </a>
+
+                <div id="collapseEntidades"
+                    class="collapse">
+
+                    <div class="bg-white py-2 collapse-inner rounded">
+
+                        <h6 class="collapse-header">
+                            Gestión Entidades
+                        </h6>
+
+                        <a class="collapse-item"
+                        href="{% url 'registrar_entidad' %}">
+                            Registrar Entidad
+                        </a>
+
+                        <a class="collapse-item"
+                        href="{% url 'consultar_entidades' %}">
+                            Consultar Entidades
+                        </a>
+
+                    </div>
+
+                </div>
+
             </li>
 
+            <!-- PLANIFICACIONES -->
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'consultar_planificaciones' %}">
+
+                <a class="nav-link collapsed"
+                href="#"
+                data-toggle="collapse"
+                data-target="#collapsePlanificaciones">
+
                     <i class="fas fa-calendar-alt"></i>
+
                     <span>Planificaciones</span>
+
                 </a>
+
+                <div id="collapsePlanificaciones"
+                    class="collapse">
+
+                    <div class="bg-white py-2 collapse-inner rounded">
+
+                        <h6 class="collapse-header">
+                            Gestión Planificación
+                        </h6>
+
+                        <a class="collapse-item"
+                        href="{% url 'registrar_planificacion' %}">
+                            Registrar Planificación
+                        </a>
+
+                        <a class="collapse-item"
+                        href="{% url 'consultar_planificaciones' %}">
+                            Consultar Planificaciones
+                        </a>
+
+                    </div>
+
+                </div>
+
             </li>
 
+            <!-- CONFIGURACIÓN -->
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'consultar_configuracion' %}">
+
+                <a class="nav-link collapsed"
+                href="#"
+                data-toggle="collapse"
+                data-target="#collapseConfiguracion">
+
                     <i class="fas fa-cogs"></i>
+
                     <span>Configuración</span>
-                </a>
-            </li>        
 
+                </a>
+
+                <div id="collapseConfiguracion"
+                    class="collapse">
+
+                    <div class="bg-white py-2 collapse-inner rounded">
+
+                        <h6 class="collapse-header">
+                            Parámetros Sistema
+                        </h6>
+
+                        <a class="collapse-item"
+                        href="{% url 'registrar_configuracion' %}">
+                            Registrar Parámetro
+                        </a>
+
+                        <a class="collapse-item"
+                        href="{% url 'consultar_configuracion' %}">
+                            Consultar Configuración
+                        </a>
+                    </div>
+
+                </div>
+
+            </li>
+
+            <!-- PROYECTOS -->
             <li class="nav-item">
-                <a
-                class="nav-link"
-                href="{% url 'consultar_proyectos' %}">
 
-                <i class="fas fa-fw fa-folder"></i>
+                <a class="nav-link collapsed"
+                href="#"
+                data-toggle="collapse"
+                data-target="#collapseProyectos"
+                aria-expanded="true"
+                aria-controls="collapseProyectos">
 
-                <span>
+                    <i class="fas fa-folder"></i>
 
-                Proyectos
-
-                </span>
+                    <span>Proyectos</span>
 
                 </a>
 
-                </li>
+                <div id="collapseProyectos"
+                    class="collapse">
 
-            <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block">
+                    <div class="bg-white py-2 collapse-inner rounded">
 
-            <!-- Sidebar Toggler (Sidebar) -->
-            <div class="text-center d-none d-md-inline">
-                <button class="rounded-circle border-0" id="sidebarToggle"></button>
-            </div>
+                        <h6 class="collapse-header">
+                            Gestión de Proyectos
+                        </h6>
+
+                        <a class="collapse-item"
+                        href="{% url 'registrar_proyecto' %}">
+                            Registrar Proyecto
+                        </a>
+
+                        <a class="collapse-item"
+                        href="{% url 'consultar_proyectos' %}">
+                            Consultar Proyectos
+                        </a>
+
+                        <div class="collapse-divider"></div>
+
+                        <h6 class="collapse-header">
+                            Cronogramas
+                        </h6>
+
+                        <a class="collapse-item"
+                        href="{% url 'registrar_cronograma' %}">
+                            Registrar Cronograma
+                        </a>
+
+                        <a class="collapse-item"
+                        href="{% url 'consultar_cronogramas' %}">
+                            Consultar Cronogramas
+                        </a>
+
+                        <div class="collapse-divider"></div>
+
+                        <h6 class="collapse-header">
+                            Documentos
+                        </h6>
+
+                        <a class="collapse-item"
+                        href="{% url 'registrar_documento' %}">
+                            Registrar Documento
+                        </a>
+
+                        <a class="collapse-item"
+                        href="{% url 'consultar_documentos' %}">
+                            Consultar Documentos
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </li>
+
+            <!-- METAS -->
+            <!-- Menú Metas -->
+<li class="nav-item">
+
+    <a class="nav-link collapsed"
+       href="#"
+       data-toggle="collapse"
+       data-target="#collapseMetas"
+       aria-expanded="true"
+       aria-controls="collapseMetas">
+
+        <i class="fas fa-bullseye"></i>
+
+        <span>Metas</span>
+
+    </a>
+
+    <div id="collapseMetas"
+         class="collapse"
+         aria-labelledby="headingMetas"
+         data-parent="#accordionSidebar">
+
+        <div class="bg-white py-2 collapse-inner rounded">
+
+            <h6 class="collapse-header">
+
+                Gestión de Metas
+
+            </h6>
+
+            <a class="collapse-item"
+               href="{% url 'registrar_meta' %}">
+
+                Registrar Meta
+
+            </a>
+
+            <a class="collapse-item"
+               href="{% url 'consultar_metas' %}">
+
+                Consultar Metas
+
+            </a>
+
+            <div class="collapse-divider"></div>
+
+            <h6 class="collapse-header">
+
+                Indicadores
+
+            </h6>
+
+            <a class="collapse-item"
+               href="{% url 'registrar_indicador' %}">
+
+                Registrar Indicador
+
+            </a>
+
+            <a class="collapse-item"
+               href="{% url 'consultar_indicadores' %}">
+
+                Consultar Indicadores
+
+            </a>
+
+            <div class="collapse-divider"></div>
+
+            <h6 class="collapse-header">
+
+                Avances
+
+            </h6>
+
+            <a class="collapse-item"
+               href="{% url 'registrar_avance' %}">
+
+                Registrar Avance
+
+            </a>
+
+            <a class="collapse-item"
+               href="{% url 'consultar_avances' %}">
+
+                Consultar Avances
+
+            </a>
+
+        </div>
+
+    </div>
+
+</li>
+        </li>
+
+
+
+
         </ul>
-        <!-- End of Sidebar -->
 
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
@@ -196,7 +507,7 @@
                     </ul>
 
                 </nav>
-                <!-- End of Topbar -->
+                
 
                 <!-- Begin Page Content -->
 
@@ -222,110 +533,6 @@
                 {% endfor %}
 
             {% endif %}
-                
-                <div class="container-fluid">
-                             
-                    <!-- Content Row -->
-
-                    <div class="row">
-
-                        <!-- Area Chart -->
-                        <div class="col-xl-8 col-lg-7">
-                            <div class="card shadow mb-4">
-                                <!-- Card Body -->
-                                <div class="card-body">
-                                    <div class="chart-area">
-                                        <canvas id="myAreaChart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Content Row -->
-                    <div class="row">
-
-                        <!-- Content Column -->
-                        <div class="col-lg-6 mb-4">
-                            <!-- Color System -->
-                            <div class="row">
-                                <div class="col-lg-6 mb-4">
-                                    <div class="card bg-primary text-white shadow">
-                                        <div class="card-body">
-                                            Primary
-                                            <div class="text-white-50 small">#4e73df</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 mb-4">
-                                    <div class="card bg-success text-white shadow">
-                                        <div class="card-body">
-                                            Success
-                                            <div class="text-white-50 small">#1cc88a</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 mb-4">
-                                    <div class="card bg-info text-white shadow">
-                                        <div class="card-body">
-                                            Info
-                                            <div class="text-white-50 small">#36b9cc</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 mb-4">
-                                    <div class="card bg-warning text-white shadow">
-                                        <div class="card-body">
-                                            Warning
-                                            <div class="text-white-50 small">#f6c23e</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 mb-4">
-                                    <div class="card bg-danger text-white shadow">
-                                        <div class="card-body">
-                                            Danger
-                                            <div class="text-white-50 small">#e74a3b</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 mb-4">
-                                    <div class="card bg-secondary text-white shadow">
-                                        <div class="card-body">
-                                            Secondary
-                                            <div class="text-white-50 small">#858796</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 mb-4">
-                                    <div class="card bg-light text-black shadow">
-                                        <div class="card-body">
-                                            Light
-                                            <div class="text-black-50 small">#f8f9fc</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 mb-4">
-                                    <div class="card bg-dark text-white shadow">
-                                        <div class="card-body">
-                                            Dark
-                                            <div class="text-white-50 small">#5a5c69</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <div class="col-lg-6 mb-4">
-                        </div>
-                    </div>
-
-                </div>
-                <!-- /.container-fluid -->
-
-            </div>
-            <!-- End of Main Content -->
 
             <!-- Footer -->
             <footer class="sticky-footer bg-white">
@@ -335,13 +542,8 @@
                     </div>
                 </div>
             </footer>
-            <!-- End of Footer -->
-
         </div>
-        <!-- End of Content Wrapper -->
-
     </div>
-    <!-- End of Page Wrapper -->
 
     <!-- Scroll to Top Button-->
     <a class="scroll-to-top rounded" href="#page-top">

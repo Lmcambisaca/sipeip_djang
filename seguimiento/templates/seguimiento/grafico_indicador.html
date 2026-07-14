@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+<div class="card shadow">
+
+<div class="card-header">
+
+<h4>
+
+Histórico del Indicador
+
+</h4>
+
+</div>
+
+<div class="card-body">
+
+<canvas id="grafico"></canvas>
+
+</div>
+
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+const fechas={{ fechas|safe }};
+
+const valores={{ valores|safe }};
+
+new Chart(
+
+document.getElementById("grafico"),
+
+{
+
+type:"line",
+
+data:{
+
+labels:fechas,
+
+datasets:[{
+
+label:"Valor",
+
+data:valores,
+
+borderWidth:3,
+
+fill:false
+
+}]
+
+},
+
+options:{
+
+responsive:true
+
+}
+
+}
+
+);
+
+</script>
+
+{% endblock %}

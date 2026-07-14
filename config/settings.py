@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'planificaciones',
     'configuracion',
     'proyectos',
+    'seguimiento',
 ]
 
 MIDDLEWARE = [
