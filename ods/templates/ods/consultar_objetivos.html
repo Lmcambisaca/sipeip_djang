@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+
+<div class="container-fluid">
+
+
+<div class="card shadow">
+
+
+<div class="card-header">
+
+<h4>
+
+Objetivos de Desarrollo Sostenible
+
+</h4>
+
+</div>
+
+
+<div class="card-body">
+
+
+<form method="get">
+
+
+<div class="row">
+
+
+<div class="col-md-5">
+
+<input
+
+type="text"
+
+name="buscar"
+
+class="form-control"
+
+placeholder="Buscar descripción"
+
+>
+
+</div>
+
+
+<div class="col-md-5">
+
+<input
+
+type="text"
+
+name="eje"
+
+class="form-control"
+
+placeholder="Buscar eje estratégico"
+
+>
+
+</div>
+
+
+<div class="col-md-2">
+
+<button
+
+class="btn btn-primary">
+
+Buscar
+
+</button>
+
+
+</div>
+
+
+</div>
+
+
+</form>
+
+
+
+<br>
+
+
+{% if mensaje %}
+
+<div class="alert alert-warning">
+
+{{ mensaje }}
+
+</div>
+
+{% endif %}
+
+
+
+<table class="table table-bordered">
+
+
+<thead>
+
+<tr>
+
+<th>Código</th>
+
+<th>Descripción</th>
+
+<th>Eje Estratégico</th>
+
+<th>Periodo</th>
+
+<th>Acciones</th>
+
+</tr>
+
+</thead>
+
+
+<tbody>
+
+
+{% for o in objetivos %}
+
+
+<tr>
+
+
+<td>
+
+{{ o.codigo }}
+
+</td>
+
+
+<td>
+
+{{ o.descripcion }}
+
+</td>
+
+
+<td>
+
+{{ o.eje_estrategico }}
+
+</td>
+
+
+<td>
+
+{{ o.periodo_vigencia }}
+
+</td>
+
+<td>
+
+<a
+
+class="btn btn-warning btn-sm"
+
+href="{% url 'editar_objetivo' o.id %}">
+
+Editar
+
+</a>
+
+<a
+
+class="btn btn-success btn-sm"
+
+href="{% url 'seguimiento_objetivo' o.id %}">
+
+Seguimiento
+
+</a>
+</td>
+
+
+</tr>
+
+
+{% endfor %}
+
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+{% endblock %}

@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django.utils import timezone
 
+
 from .models import Planificacion
 from .forms import PlanificacionForm
 
@@ -242,27 +243,30 @@ def eliminar_planificacion(request, id):
         pk=id
     )
 
-    # Si está activa se intenta desactivar
-    if planificacion.estado:
+    # TAR-81
+    if planificacion.proyectos.exists():
 
-        planificacion.estado = False
+        messages.error(
 
-        messages.success(
             request,
-            "Planificación desactivada correctamente."
+
+            "No es posible eliminar la planificación porque tiene proyectos asociados."
+
         )
 
-    # Si está inactiva se vuelve a activar
-    else:
-
-        planificacion.estado = True
-
-        messages.success(
-            request,
-            "Planificación activada correctamente."
+        return redirect(
+            "consultar_planificaciones"
         )
 
-    planificacion.save()
+    planificacion.delete()
+
+    messages.success(
+
+        request,
+
+        "Planificación eliminada correctamente."
+
+    )
 
     return redirect(
         "consultar_planificaciones"

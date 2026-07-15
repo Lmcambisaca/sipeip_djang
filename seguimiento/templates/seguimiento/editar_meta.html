@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="card shadow mb-4">
+
+        <div class="card-header py-3">
+
+            <h4 class="m-0 font-weight-bold text-primary">
+
+                Editar Meta
+
+            </h4>
+
+        </div>
+
+        <div class="card-body">
+
+            <form method="post">
+
+                {% csrf_token %}
+
+                {{ form.as_p }}
+
+                <button
+                class="btn btn-warning"
+                type="submit">
+
+                Actualizar
+
+                </button>
+
+                <a href="{% url 'consultar_metas' %}" class="btn btn-secondary">
+
+                    Cancelar
+
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

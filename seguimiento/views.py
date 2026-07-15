@@ -179,6 +179,32 @@ def editar_meta(request, id):
                     descripcion="Actualización de la meta."
 
                 )
+                
+                proyecto = form.cleaned_data["proyecto"]
+
+                if not proyecto.objetivos_desarrollo.exists():
+
+                    messages.error(
+
+                        request,
+
+                        "El proyecto seleccionado no está asociado a ningún Objetivo de Desarrollo."
+
+                    )
+
+                    return render(
+
+                        request,
+
+                        "seguimiento/registrar_meta.html",
+
+                        {
+
+                            "form": form
+
+                        }
+
+                    )
 
                 form.save()
 
@@ -199,7 +225,7 @@ def editar_meta(request, id):
 
         request,
 
-        "seguimiento/registrar_meta.html",
+        "seguimiento/editar_meta.html",
 
         {
 
@@ -263,6 +289,65 @@ def consultar_indicadores(request):
         {
 
             "indicadores":indicadores
+
+        }
+
+    )
+    
+@login_required
+def editar_indicador(request, id):
+
+    indicador = get_object_or_404(
+        Indicador,
+        pk=id
+    )
+
+    if request.method == "POST":
+
+        form = IndicadorForm(
+            request.POST,
+            instance=indicador
+        )
+
+        if form.is_valid():
+
+            meta = form.cleaned_data["meta"]
+
+            if not meta:
+
+                messages.error(
+                    request,
+                    "Debe seleccionar una meta."
+                )
+
+            else:
+
+                form.save()
+
+                messages.success(
+                    request,
+                    "Indicador actualizado correctamente."
+                )
+
+                return redirect(
+                    "consultar_indicadores"
+                )
+
+    else:
+
+        form = IndicadorForm(
+            instance=indicador
+        )
+
+    return render(
+
+        request,
+
+        "seguimiento/editar_indicador.html",
+
+        {
+
+            "form": form
 
         }
 
@@ -401,7 +486,7 @@ def editar_avance(request, id):
 
         request,
 
-        "seguimiento/registrar_avance.html",
+        "seguimiento/editar_avance.html",
 
         {
 
@@ -454,63 +539,5 @@ def grafico_indicador(request, id):
 
     )
     
-@login_required
-def editar_indicador(request, id):
-
-    indicador = get_object_or_404(
-        Indicador,
-        pk=id
-    )
-
-    if request.method == "POST":
-
-        form = IndicadorForm(
-            request.POST,
-            instance=indicador
-        )
-
-        if form.is_valid():
-
-            meta = form.cleaned_data["meta"]
-
-            if not meta:
-
-                messages.error(
-                    request,
-                    "Debe seleccionar una meta."
-                )
-
-            else:
-
-                form.save()
-
-                messages.success(
-                    request,
-                    "Indicador actualizado correctamente."
-                )
-
-                return redirect(
-                    "consultar_indicadores"
-                )
-
-    else:
-
-        form = IndicadorForm(
-            instance=indicador
-        )
-
-    return render(
-
-        request,
-
-        "seguimiento/registrar_indicador.html",
-
-        {
-
-            "form": form
-
-        }
-
-    )
     
 

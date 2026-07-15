@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'configuracion',
     'proyectos',
     'seguimiento',
+    "ods",
 ]
 
 MIDDLEWARE = [

@@ -196,6 +196,7 @@ def cambiar_estado_usuario(request, id):
 
     return redirect("consultar_usuarios")
 
+
 def recuperar_password(request):
 
     if request.method == "POST":
@@ -279,6 +280,7 @@ def recuperar_password(request):
         }
     )
 
+
 @login_required
 def eliminar_usuario(request, id):
 
@@ -287,29 +289,27 @@ def eliminar_usuario(request, id):
         pk=id
     )
 
-    # No permitir eliminar al propio usuario
-    if request.user.id == usuario.id:
+    # TAR-15 y TAR-16
+
+    if usuario.cronograma_set.exists():
 
         messages.error(
             request,
-            "No puede eliminar su propio usuario."
+            "No se puede eliminar el usuario porque está asignado como responsable de uno o más cronogramas."
         )
 
         return redirect("consultar_usuarios")
 
-    # Si ya está inactivo
-    if not usuario.estado:
+    if usuario.auditoriaproyecto_set.exists():
 
-        messages.warning(
+        messages.error(
             request,
-            "El usuario ya se encuentra inactivo."
+            "No se puede eliminar el usuario porque posee registros de auditoría."
         )
 
         return redirect("consultar_usuarios")
 
-    # Eliminación lógica
-    usuario.estado = False
-    usuario.save()
+    usuario.delete()
 
     messages.success(
         request,

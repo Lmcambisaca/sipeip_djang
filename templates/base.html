@@ -315,103 +315,151 @@
 
             </li>
 
-            <!-- METAS -->
             <!-- Menú Metas -->
-<li class="nav-item">
+        <li class="nav-item">
 
-    <a class="nav-link collapsed"
-       href="#"
-       data-toggle="collapse"
-       data-target="#collapseMetas"
-       aria-expanded="true"
-       aria-controls="collapseMetas">
+            <a class="nav-link collapsed"
+            href="#"
+            data-toggle="collapse"
+            data-target="#collapseMetas"
+            aria-expanded="true"
+            aria-controls="collapseMetas">
 
-        <i class="fas fa-bullseye"></i>
+                <i class="fas fa-bullseye"></i>
 
-        <span>Metas</span>
-
-    </a>
-
-    <div id="collapseMetas"
-         class="collapse"
-         aria-labelledby="headingMetas"
-         data-parent="#accordionSidebar">
-
-        <div class="bg-white py-2 collapse-inner rounded">
-
-            <h6 class="collapse-header">
-
-                Gestión de Metas
-
-            </h6>
-
-            <a class="collapse-item"
-               href="{% url 'registrar_meta' %}">
-
-                Registrar Meta
+                <span>Metas</span>
 
             </a>
 
-            <a class="collapse-item"
-               href="{% url 'consultar_metas' %}">
+            <div id="collapseMetas"
+                class="collapse"
+                aria-labelledby="headingMetas"
+                data-parent="#accordionSidebar">
 
-                Consultar Metas
+                <div class="bg-white py-2 collapse-inner rounded">
 
-            </a>
+                    <h6 class="collapse-header">
 
-            <div class="collapse-divider"></div>
+                        Gestión de Metas
 
-            <h6 class="collapse-header">
+                    </h6>
 
-                Indicadores
+                    <a class="collapse-item"
+                    href="{% url 'registrar_meta' %}">
 
-            </h6>
+                        Registrar Meta
 
-            <a class="collapse-item"
-               href="{% url 'registrar_indicador' %}">
+                    </a>
 
-                Registrar Indicador
+                    <a class="collapse-item"
+                    href="{% url 'consultar_metas' %}">
 
-            </a>
+                        Consultar Metas
 
-            <a class="collapse-item"
-               href="{% url 'consultar_indicadores' %}">
+                    </a>
 
-                Consultar Indicadores
+                    <div class="collapse-divider"></div>
 
-            </a>
+                    <h6 class="collapse-header">
 
-            <div class="collapse-divider"></div>
+                        Indicadores
 
-            <h6 class="collapse-header">
+                    </h6>
 
-                Avances
+                    <a class="collapse-item"
+                    href="{% url 'registrar_indicador' %}">
 
-            </h6>
+                        Registrar Indicador
 
-            <a class="collapse-item"
-               href="{% url 'registrar_avance' %}">
+                    </a>
 
-                Registrar Avance
+                    <a class="collapse-item"
+                    href="{% url 'consultar_indicadores' %}">
 
-            </a>
+                        Consultar Indicadores
 
-            <a class="collapse-item"
-               href="{% url 'consultar_avances' %}">
+                    </a>
 
-                Consultar Avances
+                    <div class="collapse-divider"></div>
 
-            </a>
+                    <h6 class="collapse-header">
 
-        </div>
+                        Avances
 
-    </div>
+                    </h6>
 
-</li>
+                    <a class="collapse-item"
+                    href="{% url 'registrar_avance' %}">
+
+                        Registrar Avance
+
+                    </a>
+
+                    <a class="collapse-item"
+                    href="{% url 'consultar_avances' %}">
+
+                        Consultar Avances
+
+                    </a>
+
+                </div>
+
+            </div>
+
         </li>
 
+        <!-- ODS -->
+            <li class="nav-item">
 
+                <a class="nav-link collapsed"
+                href="#"
+                data-toggle="collapse"
+                data-target="#collapseODS">
 
+                    <i class="fas fa-globe"></i>
+
+                    <span>ODS</span>
+
+                </a>
+
+                <div id="collapseODS"
+                    class="collapse">
+
+                    <div class="bg-white py-2 collapse-inner rounded">
+
+                        <h6 class="collapse-header">
+
+                            Objetivos de Desarrollo
+
+                        </h6>
+
+                        <a class="collapse-item"
+                        href="{% url 'registrar_objetivo' %}">
+
+                            Registrar ODS
+
+                        </a>
+
+                        <a class="collapse-item"
+                        href="{% url 'consultar_objetivos' %}">
+
+                            Consultar ODS
+
+                        </a>
+
+                        <a class="collapse-item"
+                        href="{% url 'dashboard_ods' %}">
+
+                            Dashboard ODS
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </li>
+        </li>
 
         </ul>
 

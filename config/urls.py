@@ -30,4 +30,5 @@ urlpatterns = [
     path("configuracion/", include("configuracion.urls")),
     path("proyectos/", include("proyectos.urls")),
     path("metas/", include("seguimiento.urls")),
+    path("ods/", include("ods.urls")),
 ]
