@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="card shadow mb-4">
+
+        <div class="card-header">
+
+            <h4>
+                Consulta de Objetivos Institucionales
+            </h4>
+
+        </div>
+
+
+        <div class="card-body">
+
+
+            {% if mensaje %}
+
+            <div class="alert alert-warning">
+
+                {{ mensaje }}
+
+            </div>
+
+            {% endif %}
+
+
+
+            <form method="get">
+
+
+                <div class="row">
+
+
+                    <div class="col-md-4">
+
+                        <label>
+                            Período de vigencia
+                        </label>
+
+                        <input type="text"
+                               name="periodo"
+                               class="form-control"
+                               placeholder="Ejemplo: 2025-2030">
+
+                    </div>
+
+
+
+                    <div class="col-md-4">
+
+                        <label>
+                            Estado
+                        </label>
+
+
+                        <select name="estado"
+                                class="form-select">
+
+
+                            <option value="">
+                                Todos
+                            </option>
+
+
+                            <option value="True">
+                                Activo
+                            </option>
+
+
+                            <option value="False">
+                                Inactivo
+                            </option>
+
+
+                        </select>
+
+
+                    </div>
+
+
+
+                    <div class="col-md-4 d-flex align-items-end">
+
+
+                        <button class="btn btn-primary">
+
+                            Buscar
+
+                        </button>
+
+
+                        <a href="{% url 'consultar_objetivos_institucionales' %}"
+
+                           class="btn btn-secondary ms-2">
+
+                            Limpiar
+
+                        </a>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </form>
+
+
+
+            <hr>
+
+
+
+            <a href="{% url 'registrar_objetivo_institucional' %}"
+
+               class="btn btn-success mb-3">
+
+                Nuevo Objetivo
+
+            </a>
+
+
+
+
+            <table class="table table-bordered table-hover">
+
+
+                <thead class="table-light">
+
+
+                    <tr>
+
+
+                        <th>
+                            Código
+                        </th>
+
+
+                        <th>
+                            Descripción
+                        </th>
+
+
+                        <th>
+                            Período
+                        </th>
+
+
+                        <th>
+                            Responsable
+                        </th>
+
+                        <th>
+                            Proyectos
+                        </th>
+
+
+                        <th>
+                            Estado
+                        </th>
+
+
+                        <th>
+                            Acciones
+                        </th>
+
+
+                    </tr>
+
+
+                </thead>
+
+
+
+                <tbody>
+
+
+                {% for o in objetivos %}
+
+
+                    <tr>
+
+
+                        <td>
+                            {{ o.codigo }}
+                        </td>
+
+
+
+                        <td>
+                            {{ o.descripcion }}
+                        </td>
+
+
+
+                        <td>
+                            {{ o.periodo_vigencia }}
+                        </td>
+
+
+
+                        <td>
+                            {{ o.responsable }}
+                        </td>
+
+                        <td>
+
+                            {% for p in o.proyectos.all %}
+
+                            {{ p.nombre }}<br>
+
+                            {% empty %}
+
+                            Sin proyectos asociados
+
+                            {% endfor %}
+
+                        </td>
+
+
+
+                        <td>
+
+
+                            {% if o.estado %}
+
+
+                                <span class="badge bg-success">
+
+                                    Activo
+
+                                </span>
+
+
+                            {% else %}
+
+
+                                <span class="badge bg-danger">
+
+                                    Inactivo
+
+                                </span>
+
+
+                            {% endif %}
+
+
+                        </td>
+
+
+
+                        <td>
+
+
+                            <a href="{% url 'editar_objetivo_institucional' o.id %}"
+
+                               class="btn btn-warning btn-sm">
+
+                                Editar
+
+                            </a>
+
+                            <a class="btn btn-info btn-sm"
+
+                            href="{% url 'seguimiento_objetivo_institucional' o.id %}">
+
+                            Seguimiento
+
+                            </a>
+
+
+                        </td>
+
+
+
+                    </tr>
+
+
+                {% endfor %}
+
+
+                </tbody>
+
+
+            </table>
+
+
+
+        </div>
+
+    </div>
+
+</div>
+
+
+{% endblock %}

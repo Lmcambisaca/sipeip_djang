@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+<h3>
+
+Dashboard Objetivos Institucionales
+
+</h3>
+
+<table class="table table-bordered">
+
+<thead>
+
+<tr>
+
+<th>Objetivo</th>
+
+<th>Cumplimiento</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for d in datos %}
+
+<tr>
+
+<td>
+
+{{ d.objetivo.codigo }}
+
+</td>
+
+<td>
+
+<div class="progress">
+
+    <div class="progress-bar
+
+    {% if d.porcentaje < 40 %}
+
+        bg-danger
+
+    {% elif d.porcentaje < 70 %}
+
+        bg-warning
+
+    {% else %}
+
+        bg-success
+
+    {% endif %}"
+
+    role="progressbar"
+
+    style="width: {{ d.porcentaje }}%;">
+
+        {{ d.porcentaje }}%
+
+    </div>
+
+</div>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+{% endblock %}

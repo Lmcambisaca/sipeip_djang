@@ -459,6 +459,62 @@
                 </div>
 
             </li>
+
+           <!-- OBJETIVOS INSTITUCIONALES -->
+            <li class="nav-item">
+
+                <a class="nav-link collapsed"
+                href="#"
+                data-toggle="collapse"
+                data-target="#collapseObjetivosInstitucionales"
+                aria-expanded="false"
+                aria-controls="collapseObjetivosInstitucionales">
+
+                    <i class="fas fa-bullseye"></i>
+
+                    <span>Objetivos Institucionales</span>
+
+                </a>
+
+                <div id="collapseObjetivosInstitucionales"
+                    class="collapse"
+                    aria-labelledby="headingObjetivosInstitucionales"
+                    data-parent="#accordionSidebar">
+
+                    <div class="bg-white py-2 collapse-inner rounded">
+
+                        <h6 class="collapse-header">
+
+                            Gestión Objetivos
+
+                        </h6>
+
+                        <a class="collapse-item"
+                        href="{% url 'registrar_objetivo_institucional' %}">
+
+                            Registrar Objetivo
+
+                        </a>
+
+                        <a class="collapse-item"
+                        href="{% url 'consultar_objetivos_institucionales' %}">
+
+                            Consultar Objetivos
+
+                        </a>
+
+                        <a class="collapse-item"
+                        href="{% url 'dashboard_objetivos_institucionales' %}">
+
+                            Dashboard
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </li>
         </li>
 
         </ul>
