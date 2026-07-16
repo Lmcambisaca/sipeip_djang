@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'seguimiento',
     "ods",
     "objetivosI",
+    "objetivosE",
 ]
 
 MIDDLEWARE = [

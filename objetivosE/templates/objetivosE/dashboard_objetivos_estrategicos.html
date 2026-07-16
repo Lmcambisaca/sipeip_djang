@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+<h3>
+
+Dashboard Objetivos Estratégicos
+
+</h3>
+
+{% for d in datos %}
+
+<div class="card shadow mb-3">
+
+<div class="card-body">
+
+<h5>
+
+{{ d.objetivo.codigo }}
+
+</h5>
+
+<p>
+
+{{ d.objetivo.descripcion }}
+
+</p>
+
+<div class="progress mb-2">
+
+<div
+
+class="progress-bar
+
+{% if d.porcentaje < 40 %}
+
+bg-danger
+
+{% elif d.porcentaje < 70 %}
+
+bg-warning
+
+{% else %}
+
+bg-success
+
+{% endif %}"
+
+style="width: {{ d.porcentaje }}%;">
+
+{{ d.porcentaje }}%
+
+</div>
+
+</div>
+
+{% if d.porcentaje < 40 %}
+
+<span class="badge bg-danger">
+
+Crítico
+
+</span>
+
+{% elif d.porcentaje < 70 %}
+
+<span class="badge bg-warning">
+
+En progreso
+
+</span>
+
+{% else %}
+
+<span class="badge bg-success">
+
+Cumplido
+
+</span>
+
+{% endif %}
+
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+{% endblock %}

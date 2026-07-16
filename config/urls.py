@@ -32,4 +32,5 @@ urlpatterns = [
     path("metas/", include("seguimiento.urls")),
     path("ods/", include("ods.urls")),
     path("objetivosI/", include("objetivosI.urls")),
+    path("objetivosE/", include("objetivosE.urls")),
 ]

@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+<div class="card shadow">
+
+<div class="card-header">
+
+<h4>
+
+Seguimiento Objetivo Estratégico
+
+</h4>
+
+</div>
+
+<div class="card-body">
+
+<h5>
+
+{{ objetivo.codigo }}
+
+</h5>
+
+<p>
+
+{{ objetivo.descripcion }}
+
+</p>
+
+<hr>
+
+<h5>
+
+Cumplimiento General
+
+</h5>
+
+<div class="progress mb-4">
+
+<div
+
+class="progress-bar
+
+{% if porcentaje < 40 %}
+
+bg-danger
+
+{% elif porcentaje < 70 %}
+
+bg-warning
+
+{% else %}
+
+bg-success
+
+{% endif %}"
+
+role="progressbar"
+
+style="width: {{ porcentaje }}%;">
+
+{{ porcentaje }}%
+
+</div>
+
+</div>
+
+<table class="table table-bordered">
+
+<thead>
+
+<tr>
+
+<th>Objetivo Institucional</th>
+
+<th>Proyecto</th>
+
+<th>Metas</th>
+
+<th>Indicadores</th>
+
+<th>Cumplimiento</th>
+
+<th>Semáforo</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for r in registros %}
+
+<tr>
+
+<td>{{ r.objetivo.codigo }}</td>
+
+<td>{{ r.proyecto.nombre }}</td>
+
+<td>{{ r.metas }}</td>
+
+<td>{{ r.indicadores }}</td>
+
+<td>{{ r.porcentaje }}%</td>
+
+<td>
+
+{% if r.porcentaje < 40 %}
+
+<span class="badge bg-danger">
+
+Crítico
+
+</span>
+
+{% elif r.porcentaje < 70 %}
+
+<span class="badge bg-warning">
+
+En progreso
+
+</span>
+
+{% else %}
+
+<span class="badge bg-success">
+
+Cumplido
+
+</span>
+
+{% endif %}
+
+</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+
+<td colspan="3">
+
+No existen objetivos institucionales asociados.
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}
