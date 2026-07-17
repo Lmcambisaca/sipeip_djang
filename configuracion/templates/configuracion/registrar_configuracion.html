@@ -1,25 +1,67 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Registrar Configuración</h2>
 
-<form method="POST">
+<div class="container-fluid">
 
-{% csrf_token %}
+    <div class="card shadow mb-4">
 
-{{ form.as_p }}
+        <div class="card-header py-3">
 
-<button>
+            <h4 class="m-0 font-weight-bold text-primary">
 
-Guardar
+                Registrar Configuración
 
-</button>
+            </h4>
 
-</form>
+        </div>
 
-<a href="{% url 'consultar_configuracion' %}">
+        <div class="card-body">
 
-Volver
+            {% if messages %}
 
-</a>
+                {% for message in messages %}
+
+                    <div class="alert alert-warning">
+
+                        {{ message }}
+
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                {{ form.as_p }}
+
+                <hr>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary">
+
+                    Guardar
+
+                </button>
+
+                <a
+                    href="{% url 'consultar_configuracion' %}"
+                    class="btn btn-secondary">
+
+                    Cancelar
+
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
 {% endblock %}

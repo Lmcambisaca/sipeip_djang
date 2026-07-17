@@ -1,267 +1,366 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Consultar Planificaciones</h2>
 
-<a href="{% url 'registrar_planificacion' %}">
-    Nueva Planificación
-</a>
+<div class="container-fluid">
 
-<br><br>
+    <div class="card shadow mb-4">
 
-<form method="GET">
+        <div class="card-header py-3">
 
-    <input
-        type="text"
-        name="buscar"
-        placeholder="Buscar..."
-        value="{{ buscar }}"
-    >
+            <h4 class="m-0 font-weight-bold text-primary">
 
-    <select name="estado">
+                Gestión de Planificaciones
 
-        <option value="">Todos</option>
+            </h4>
 
-        <option value="1"
-        {% if estado == "1" %}selected{% endif %}>
-            Activas
-        </option>
+        </div>
 
-        <option value="0"
-        {% if estado == "0" %}selected{% endif %}>
-            Inactivas
-        </option>
+        <div class="card-body">
 
-    </select>
+            {% if messages %}
 
-    <select name="entidad">
+                {% for message in messages %}
 
-        <option value="">Todas las entidades</option>
+                    <div class="alert alert-success">
 
-        {% for e in entidades %}
+                        {{ message }}
 
-        <option
-            value="{{ e.id }}"
-            {% if entidad == e.id|stringformat:"s" %}
-            selected
+                    </div>
+
+                {% endfor %}
+
             {% endif %}
-        >
 
-            {{ e.nombre }}
+            {% if mensaje %}
 
-        </option>
+                <div class="alert alert-warning">
 
-        {% endfor %}
+                    {{ mensaje }}
 
-    </select>
+                </div>
 
-    <button type="submit">
+            {% endif %}
 
-        Buscar
+            <form method="GET">
 
-    </button>
+                <div class="row mb-3">
 
-</form>
+                    <div class="col-md-4">
 
-<br>
+                        <label>Buscar</label>
 
-{% if mensaje %}
+                        <input
+                            type="text"
+                            name="buscar"
+                            class="form-control"
+                            value="{{ buscar }}"
+                            placeholder="Nombre o período">
 
-<p style="color:red;">
+                    </div>
 
-{{ mensaje }}
+                    <div class="col-md-3">
 
-</p>
+                        <label>Entidad</label>
 
-{% endif %}
+                        <select
+                            name="entidad"
+                            class="form-control">
 
-{% if messages %}
+                            <option value="">
+                                Todas
+                            </option>
 
-{% for message in messages %}
+                            {% for e in entidades %}
 
-<p style="color:green;">
+                            <option
+                                value="{{ e.id }}"
+                                {% if entidad == e.id|stringformat:"s" %}
+                                selected
+                                {% endif %}
+                            >
 
-{{ message }}
+                                {{ e.nombre }}
 
-</p>
+                            </option>
 
-{% endfor %}
+                            {% endfor %}
 
-{% endif %}
+                        </select>
 
-<table border="1">
+                    </div>
 
-<thead>
+                    <div class="col-md-2">
 
-<tr>
+                        <label>Estado</label>
 
-<th>ID</th>
+                        <select
+                            name="estado"
+                            class="form-control">
 
-<th>Período</th>
+                            <option value="">
+                                Todos
+                            </option>
 
-<th>Nombre</th>
+                            <option value="1"
+                            {% if estado == "1" %}
+                            selected
+                            {% endif %}>
+                                Activas
+                            </option>
 
-<th>Entidad</th>
+                            <option value="0"
+                            {% if estado == "0" %}
+                            selected
+                            {% endif %}>
+                                Inactivas
+                            </option>
 
-<th>Descripción</th>
+                        </select>
 
-<th>Fecha Inicio</th>
+                    </div>
 
-<th>Fecha Fin</th>
+                    <div class="col-md-3 d-flex align-items-end">
 
-<th>Estado</th>
+                        <button
+                            class="btn btn-primary me-2"
+                            type="submit">
 
-<th>Observación</th>
+                            Buscar
 
-<th>Validada</th>
+                        </button>
 
-<th>Aprobada</th>
+                        <a
+                            href="{% url 'consultar_planificaciones' %}"
+                            class="btn btn-secondary">
 
-<th>Acciones</th>
+                            Limpiar
 
-</tr>
+                        </a>
 
-</thead>
+                    </div>
 
-<tbody>
+                </div>
 
-{% for p in planificaciones %}
+            </form>
 
-<tr>
+            <hr>
 
-<td>{{ p.id }}</td>
+            <div class="mb-3">
 
-<td>{{ p.periodo }}</td>
+                <a
+                    href="{% url 'registrar_planificacion' %}"
+                    class="btn btn-success">
 
-<td>{{ p.nombre }}</td>
+                    Nueva Planificación
 
-<td>{{ p.entidad.nombre }}</td>
+                </a>
 
-<td>{{ p.descripcion }}</td>
+            </div>
 
-<td>{{ p.fecha_inicio }}</td>
+            <table class="table table-bordered table-hover">
 
-<td>{{ p.fecha_fin }}</td>
+                <thead>
 
-<td>
+                    <tr class="text-center">
 
+                        <th>ID</th>
+                        <th>Período</th>
+                        <th>Nombre</th>
+                        <th>Entidad</th>
+                        <th>Estado</th>
+                        <th>Validada</th>
+                        <th>Aprobada</th>
+                        <th width="360">
 
-{% if p.estado %}
+                            Acciones
 
-Activa
+                        </th>
 
-{% else %}
+                    </tr>
 
-Inactiva
+                </thead>
 
-{% endif %}
+                <tbody>
 
-</td>
+                    {% for p in planificaciones %}
 
-<td>
+                    <tr>
 
-    {% if p.observacion %}
+                        <td>{{ p.id }}</td>
 
-        {{ p.observacion }}
+                        <td>{{ p.periodo }}</td>
 
-    {% else %}
+                        <td>{{ p.nombre }}</td>
 
-        Sin observaciones
+                        <td>{{ p.entidad.nombre }}</td>
 
-    {% endif %}
+                        <td class="text-center">
 
-</td>
+                            {% if p.estado %}
 
-<td>
+                                <span class="badge bg-success">
 
-    {% if p.validada %}
+                                    Activa
 
-        Sí
+                                </span>
 
-    {% else %}
+                            {% else %}
 
-        No
+                                <span class="badge bg-danger">
 
-    {% endif %}
+                                    Inactiva
 
-</td>
+                                </span>
 
-<td>
+                            {% endif %}
 
-    {% if p.aprobada %}
+                        </td>
 
-        Sí
+                        <td class="text-center">
 
-    {% else %}
+                            {% if p.validada %}
 
-        No
+                                <span class="badge bg-primary">
 
-    {% endif %}
+                                    Sí
 
-</td>
+                                </span>
 
-<td>
+                            {% else %}
 
-    <a href="{% url 'editar_planificacion' p.id %}">
-        Editar
-    </a>
+                                <span class="badge bg-secondary">
 
-    |
+                                    No
 
-    {% if p.estado %}
+                                </span>
 
-        <a
-            href="{% url 'eliminar_planificacion' p.id %}"
-            onclick="return confirm('¿Está seguro de desactivar esta planificación?');"
-        >
-            Desactivar
-        </a>
+                            {% endif %}
 
-    {% else %}
+                        </td>
 
-        <a
-            href="{% url 'eliminar_planificacion' p.id %}"
-            onclick="return confirm('¿Está seguro de activar esta planificación?');"
-        >
-            Activar
-        </a>
+                        <td class="text-center">
 
-    {% endif %}
+                            {% if p.aprobada %}
 
-    {% if not p.validada %}
+                                <span class="badge bg-success">
 
-        |
-        <a href="{% url 'validar_planificacion' p.id %}">
-            Validar
-        </a>
+                                    Sí
 
-    {% endif %}
+                                </span>
 
-    {% if p.validada and not p.aprobada %}
+                            {% else %}
 
-        |
-        <a href="{% url 'aprobar_planificacion' p.id %}">
-            Aprobar
-        </a>
+                                <span class="badge bg-warning text-dark">
 
-    {% endif %}
+                                    No
 
-    {% if p.aprobada %}
+                                </span>
 
-        |
-        <a href="{% url 'rechazar_planificacion' p.id %}">
-            Rechazar
-        </a>
+                            {% endif %}
 
-    {% endif %}
+                        </td>
 
-</td>
+                        <td>
 
-</tr>
+                            <div class="d-flex justify-content-center gap-1 flex-wrap">
 
-{% endfor %}
+                                <a
+                                    href="{% url 'editar_planificacion' p.id %}"
+                                    class="btn btn-warning btn-sm">
 
-</tbody>
+                                    Editar
 
-</table>
+                                </a>
+
+                                {% if p.estado %}
+
+                                <a
+                                    href="{% url 'eliminar_planificacion' p.id %}"
+                                    class="btn btn-danger btn-sm"
+                                    onclick="return confirm('¿Desea desactivar esta planificación?');">
+
+                                    Desactivar
+
+                                </a>
+
+                                {% else %}
+
+                                <a
+                                    href="{% url 'eliminar_planificacion' p.id %}"
+                                    class="btn btn-success btn-sm"
+                                    onclick="return confirm('¿Desea activar esta planificación?');">
+
+                                    Activar
+
+                                </a>
+
+                                {% endif %}
+
+                                {% if not p.validada %}
+
+                                <a
+                                    href="{% url 'validar_planificacion' p.id %}"
+                                    class="btn btn-info btn-sm">
+
+                                    Validar
+
+                                </a>
+
+                                {% endif %}
+
+                                {% if p.validada and not p.aprobada %}
+
+                                <a
+                                    href="{% url 'aprobar_planificacion' p.id %}"
+                                    class="btn btn-primary btn-sm">
+
+                                    Aprobar
+
+                                </a>
+
+                                {% endif %}
+
+                                {% if p.aprobada %}
+
+                                <a
+                                    href="{% url 'rechazar_planificacion' p.id %}"
+                                    class="btn btn-secondary btn-sm">
+
+                                    Rechazar
+
+                                </a>
+
+                                {% endif %}
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td colspan="8" class="text-center">
+
+                            No existen planificaciones registradas.
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
 {% endblock %}

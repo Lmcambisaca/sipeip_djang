@@ -1,35 +1,75 @@
 {% extends "base.html" %}
 
 {% block content %}
-<head>
-    <title>Registrar Rol</title>
-</head>
-<body>
 
-<h2>Registrar Rol</h2>
+<div class="container-fluid">
 
-{% if messages %}
-    {% for message in messages %}
-        <p style="color:green">{{ message }}</p>
-    {% endfor %}
-{% endif %}
+    <div class="card shadow mb-4">
 
-<form method="POST">
-    {% csrf_token %}
+        <div class="card-header py-3">
 
-    {{ form.as_p }}
+            <h4 class="m-0 font-weight-bold text-primary">
 
-    <button type="submit">
-        Guardar
-    </button>
+                Registrar Rol
 
-</form>
+            </h4>
 
-<br>
+        </div>
 
-<a href="{% url 'consultar_roles' %}">
-    Consultar Roles
-</a>
+        <div class="card-body">
 
-</body>
+
+            {% if messages %}
+
+                {% for message in messages %}
+
+                    <div class="alert alert-warning">
+
+                        {{ message }}
+
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                {{ form.as_p }}
+
+
+                <hr>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary">
+
+                    Guardar
+
+                </button>
+
+
+                <a
+                    href="{% url 'consultar_roles' %}"
+                    class="btn btn-secondary">
+
+                    Cancelar
+
+                </a>
+
+
+            </form>
+
+
+        </div>
+
+    </div>
+
+</div>
+
+
 {% endblock %}

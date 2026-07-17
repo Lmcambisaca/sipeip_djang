@@ -1,24 +1,22 @@
-from django.shortcuts import (
-    render,
-    redirect,
-    get_object_or_404
-)
-
+from django.shortcuts import (render, redirect, get_object_or_404)
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password, check_password
 from django.db.models import Q
 from django.contrib.auth import authenticate, login, logout
 from .forms import LoginForm
-
 from .models import (Usuario, RecuperacionPassword, AuditoriaSesion)
 from roles.models import Rol
-
-from .forms import (
-    UsuarioForm,
-    UsuarioEditarForm,
-    RecuperarPasswordForm,
-)
+from .forms import (UsuarioForm, UsuarioEditarForm, RecuperarPasswordForm,)
+from roles.models import Rol
+from entidades.models import Entidad
+from planificaciones.models import Planificacion
+from configuracion.models import Configuracion
+from proyectos.models import Proyecto
+from seguimiento.models import Meta
+from ods.models import ObjetivoDesarrollo
+from objetivosI.models import ObjetivoInstitucional
+from objetivosE.models import ObjetivoEstrategico
 
 from django.contrib.auth.decorators import login_required
 @login_required
@@ -437,10 +435,36 @@ def logout_usuario(request):
 @login_required
 def dashboard(request):
 
-    if not request.user.is_authenticated:
-        return redirect("login")
+    contexto = {
+
+        "usuarios": Usuario.objects.count(),
+
+        "roles": Rol.objects.count(),
+
+        "entidades": Entidad.objects.count(),
+
+        "planificaciones": Planificacion.objects.count(),
+
+        "configuraciones": Configuracion.objects.count(),
+
+        "proyectos": Proyecto.objects.count(),
+
+        "metas": Meta.objects.count(),
+
+        "ods": ObjetivoDesarrollo.objects.count(),
+
+        "objetivos_i": ObjetivoInstitucional.objects.count(),
+
+        "objetivos_e": ObjetivoEstrategico.objects.count(),
+
+    }
 
     return render(
+
         request,
-        "usuarios/dashboard.html"
+
+        "usuarios/dashboard.html",
+
+        contexto
+
     )

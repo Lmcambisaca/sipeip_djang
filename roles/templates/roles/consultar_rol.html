@@ -1,110 +1,209 @@
 {% extends "base.html" %}
 
 {% block content %}
-<head>
-    <title>Consultar Roles</title>
-</head>
-<body>
 
-<h2>Lista de Roles</h2>
+<div class="container-fluid">
 
-{% if messages %}
-    {% for message in messages %}
-        <p style="color:green">{{ message }}</p>
-    {% endfor %}
-{% endif %}
+    <div class="card shadow mb-4">
 
-<a href="{% url 'registrar_rol' %}">
-    Nuevo Rol
-</a>
+        <div class="card-header py-3">
 
-<br><br>
+            <h4 class="m-0 font-weight-bold text-primary">
 
-<form method="GET">
+                Gestión de Roles
 
-    <input
-        type="text"
-        name="buscar"
-        placeholder="Buscar rol">
+            </h4>
 
-    <button>
-        Buscar
-    </button>
+        </div>
 
-</form>
+        <div class="card-body">
 
-<br>
+            {% if messages %}
 
-<table border="1">
+                {% for message in messages %}
 
-<tr>
+                    <div class="alert alert-success">
 
-<th>ID</th>
+                        {{ message }}
 
-<th>Nombre</th>
+                    </div>
 
-<th>Descripción</th>
+                {% endfor %}
 
-<th>Estado</th>
+            {% endif %}
 
-<th>Acciones</th>
+            <form method="GET">
 
-</tr>
+                <div class="row mb-3">
 
-{% for rol in roles %}
+                    <div class="col-md-8">
 
-<tr>
+                        <label>
 
-<td>{{ rol.id }}</td>
+                            Buscar Rol
 
-<td>{{ rol.nombre }}</td>
+                        </label>
 
-<td>{{ rol.descripcion }}</td>
+                        <input
+                            type="text"
+                            name="buscar"
+                            class="form-control"
+                            value="{{ request.GET.buscar }}">
 
-<td>
+                    </div>
 
-{% if rol.estado %}
+                    <div class="col-md-4 d-flex align-items-end">
 
-Activo
+                        <button
+                            class="btn btn-primary me-2">
 
-{% else %}
+                            Buscar
 
-Inactivo
+                        </button>
 
-{% endif %}
+                        <a
+                            href="{% url 'consultar_roles' %}"
+                            class="btn btn-secondary">
 
-</td>
+                            Limpiar
 
-<td>
+                        </a>
 
-<a href="{% url 'editar_rol' rol.id %}">
+                    </div>
 
-Editar
+                </div>
 
-</a>
+            </form>
 
-|
+            <hr>
 
-<a href="{% url 'eliminar_rol' rol.id %}"
-   onclick="return confirm('¿Está seguro de eliminar este rol?')">
-    Eliminar
-</a>
+            <div class="mb-3">
 
-|
+                <a
+                    href="{% url 'registrar_rol' %}"
+                    class="btn btn-success">
 
-<a href="{% url 'asignar_permiso' rol.id %}">
+                    Nuevo Rol
 
-Permisos
+                </a>
 
-</a>
+            </div>
 
-</td>
+            <table class="table table-bordered">
 
-</tr>
+                <thead>
 
-{% endfor %}
+                    <tr class="text-center">
 
-</table>
+                        <th>ID</th>
 
-</body>
+                        <th>Nombre</th>
+
+                        <th>Descripción</th>
+
+                        <th>Estado</th>
+
+                        <th width="260">
+
+                            Acciones
+
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for rol in roles %}
+
+                    <tr>
+
+                        <td>{{ rol.id }}</td>
+
+                        <td>{{ rol.nombre }}</td>
+
+                        <td>{{ rol.descripcion }}</td>
+
+                        <td class="text-center">
+
+                            {% if rol.estado %}
+
+                                <span class="badge bg-success">
+
+                                    Activo
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-danger">
+
+                                    Inactivo
+
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            <div class="d-flex justify-content-center gap-1 flex-wrap">
+
+                                <a
+                                    href="{% url 'editar_rol' rol.id %}"
+                                    class="btn btn-warning btn-sm">
+
+                                    Editar
+
+                                </a>
+
+                                <a
+                                    href="{% url 'eliminar_rol' rol.id %}"
+                                    class="btn btn-danger btn-sm"
+                                    onclick="return confirm('¿Está seguro de eliminar este rol?')">
+
+                                    Eliminar
+
+                                </a>
+
+                                <a
+                                    href="{% url 'asignar_permiso' rol.id %}"
+                                    class="btn btn-info btn-sm">
+
+                                    Permisos
+
+                                </a>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td colspan="5" class="text-center">
+
+                            No existen roles registrados.
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
 {% endblock %}

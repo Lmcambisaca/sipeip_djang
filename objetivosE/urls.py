@@ -4,46 +4,13 @@ from . import views
 
 urlpatterns = [
 
-    path(
+    path("registrar/", views.registrar_objetivo_estrategico, name="registrar_objetivo_estrategico"),
 
-        "registrar/",
+    path("consultar/", views.consultar_objetivos_estrategicos, name="consultar_objetivos_estrategicos"),
 
-        views.registrar_objetivo_estrategico,
-
-        name="registrar_objetivo_estrategico"
-
-    ),
-
-    path(
-
-        "consultar/",
-
-        views.consultar_objetivos_estrategicos,
-
-        name="consultar_objetivos_estrategicos"
-
-    ),
-
-    path(
-
-        "editar/<int:id>/",
-
-        views.editar_objetivo_estrategico,
-
-        name="editar_objetivo_estrategico"
-
-    ),
+    path("editar/<int:id>/", views.editar_objetivo_estrategico, name="editar_objetivo_estrategico"),
     
-    path(
-    "seguimiento/<int:id>/",
-    views.seguimiento_objetivo_estrategico,
-    name="seguimiento_objetivo_estrategico"
-    ),
+    path("seguimiento/<int:id>/", views.seguimiento_objetivo_estrategico, name="seguimiento_objetivo_estrategico"),
 
-    path(
-        "dashboard/",
-        views.dashboard_objetivos_estrategicos,
-        name="dashboard_objetivos_estrategicos"
-    ),
-
-]
+    path("dashboard/", views.dashboard_objetivos_estrategicos, name="dashboard_objetivos_estrategicos"),
+    ]

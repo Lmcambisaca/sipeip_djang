@@ -1,67 +1,147 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Configuraciones</h2>
 
-<a href="{% url 'registrar_configuracion' %}">
+<div class="container-fluid">
 
-Nueva Configuración
+    <div class="card shadow mb-4">
 
-</a>
+        <div class="card-header py-3">
 
-<table border="1">
+            <h4 class="m-0 font-weight-bold text-primary">
 
-<tr>
+                Gestión de Configuración
 
-<th>Nombre</th>
+            </h4>
 
-<th>Valor</th>
+        </div>
 
-<th>Descripción</th>
+        <div class="card-body">
 
-<th>Estado</th>
+            {% if messages %}
 
-<th>Acciones</th>
+                {% for message in messages %}
 
-</tr>
+                    <div class="alert alert-success">
 
-{% for c in configuraciones %}
+                        {{ message }}
 
-<tr>
+                    </div>
 
-<td>{{ c.nombre }}</td>
+                {% endfor %}
 
-<td>{{ c.valor }}</td>
+            {% endif %}
 
-<td>{{ c.descripcion }}</td>
+            <div class="mb-3">
 
-<td>
+                <a
+                    href="{% url 'registrar_configuracion' %}"
+                    class="btn btn-success">
 
-{% if c.estado %}
+                    Nueva Configuración
 
-Activo
+                </a>
 
-{% else %}
+            </div>
 
-Inactivo
+            <table class="table table-bordered table-hover">
 
-{% endif %}
+                <thead>
 
-</td>
+                    <tr class="text-center">
 
-<td>
+                        <th>Nombre</th>
 
-<a href="{% url 'editar_configuracion' c.id %}">
+                        <th>Valor</th>
 
-Editar
+                        <th>Descripción</th>
 
-</a>
+                        <th>Estado</th>
 
-</td>
+                        <th width="120">
 
-</tr>
+                            Acciones
 
-{% endfor %}
+                        </th>
 
-</table>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for c in configuraciones %}
+
+                    <tr>
+
+                        <td>{{ c.nombre }}</td>
+
+                        <td>{{ c.valor }}</td>
+
+                        <td>{{ c.descripcion }}</td>
+
+                        <td class="text-center">
+
+                            {% if c.estado %}
+
+                                <span class="badge bg-success">
+
+                                    Activo
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-danger">
+
+                                    Inactivo
+
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            <div class="d-flex justify-content-center">
+
+                                <a
+                                    href="{% url 'editar_configuracion' c.id %}"
+                                    class="btn btn-warning btn-sm">
+
+                                    Editar
+
+                                </a>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td colspan="5" class="text-center">
+
+                            No existen configuraciones registradas.
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
 {% endblock %}

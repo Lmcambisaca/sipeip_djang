@@ -2,35 +2,80 @@
 
 {% block content %}
 
-<head>
-    <title>Editar Rol</title>
-</head>
-<body>
+<div class="container-fluid">
 
-<h2>Editar Rol</h2>
+    <div class="card shadow mb-4">
 
-<form method="POST">
 
-{% csrf_token %}
+        <div class="card-header py-3">
 
-{{ form.as_p }}
+            <h4 class="m-0 font-weight-bold text-primary">
 
-<button>
+                Editar Rol
 
-Actualizar
+            </h4>
 
-</button>
+        </div>
 
-</form>
 
-<br>
+        <div class="card-body">
 
-<a href="{% url 'consultar_roles' %}">
 
-Volver
+            {% if messages %}
 
-</a>
+                {% for message in messages %}
 
-</body>
+                    <div class="alert alert-warning">
+
+                        {{ message }}
+
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+
+                {{ form.as_p }}
+
+
+                <hr>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary">
+
+                    Actualizar
+
+                </button>
+
+
+                <a
+                    href="{% url 'consultar_roles' %}"
+                    class="btn btn-secondary">
+
+                    Cancelar
+
+                </a>
+
+
+            </form>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
 
 {% endblock %}

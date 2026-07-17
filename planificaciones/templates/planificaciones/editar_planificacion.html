@@ -2,37 +2,66 @@
 
 {% block content %}
 
-<h2>Editar Planificación</h2>
+<div class="container-fluid">
 
-{% if messages %}
+    <div class="card shadow mb-4">
 
-    {% for message in messages %}
+        <div class="card-header py-3">
 
-        <p style="color:red;">
-            {{ message }}
-        </p>
+            <h4 class="m-0 font-weight-bold text-primary">
 
-    {% endfor %}
+                Editar Planificación
 
-{% endif %}
+            </h4>
 
-<form method="POST">
+        </div>
 
-    {% csrf_token %}
+        <div class="card-body">
 
-    {{ form.as_p }}
+            {% if messages %}
 
-    <button type="submit">
+                {% for message in messages %}
 
-        Guardar cambios
+                    <div class="alert alert-warning">
 
-    </button>
+                        {{ message }}
 
-    <a href="{% url 'consultar_planificaciones' %}">
+                    </div>
 
-        Cancelar
+                {% endfor %}
 
-    </a>
+            {% endif %}
 
-</form>
+            <form method="POST">
+
+                {% csrf_token %}
+
+                {{ form.as_p }}
+
+                <hr>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary">
+
+                    Guardar Cambios
+
+                </button>
+
+                <a
+                    href="{% url 'consultar_planificaciones' %}"
+                    class="btn btn-secondary">
+
+                    Cancelar
+
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
 {% endblock %}

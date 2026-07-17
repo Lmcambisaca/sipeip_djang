@@ -1,31 +1,67 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Registrar Entidad</h2>
 
-{% if messages %}
-    {% for message in messages %}
-        <p style="color:green;">
-            {{ message }}
-        </p>
-    {% endfor %}
-{% endif %}
+<div class="container-fluid">
 
-<form method="POST">
+    <div class="card shadow mb-4">
 
-    {% csrf_token %}
+        <div class="card-header py-3">
 
-    {{ form.as_p }}
+            <h4 class="m-0 font-weight-bold text-primary">
 
-    <button type="submit">
-        Guardar
-    </button>
+                Registrar Entidad
 
-</form>
+            </h4>
 
-<br>
+        </div>
 
-<a href="{% url 'consultar_entidades' %}">
-    Consultar entidades
-</a>
+        <div class="card-body">
+
+            {% if messages %}
+
+                {% for message in messages %}
+
+                    <div class="alert alert-warning">
+
+                        {{ message }}
+
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                {{ form.as_p }}
+
+                <hr>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary">
+
+                    Guardar
+
+                </button>
+
+                <a
+                    href="{% url 'consultar_entidades' %}"
+                    class="btn btn-secondary">
+
+                    Cancelar
+
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
 {% endblock %}

@@ -62,96 +62,109 @@ Buscar
 
 <table class="table table-bordered table-hover">
 
-<thead class="table-dark">
+    <thead>
 
-<tr>
+        <tr class="text-center">
 
-<th>Código</th>
+            <th>Código</th>
+            <th>Proyecto</th>
+            <th>Responsable</th>
+            <th>Presupuesto</th>
+            <th>Inicio</th>
+            <th>Fin</th>
+            <th>Estado</th>
+            <th width="180">
 
-<th>Proyecto</th>
+                Acciones
 
-<th>Responsable</th>
+            </th>
 
-<th>Presupuesto</th>
+        </tr>
 
-<th>Inicio</th>
+    </thead>
 
-<th>Fin</th>
+    <tbody>
 
-<th>Estado</th>
+        {% for p in proyectos %}
 
-<th>Acciones</th>
+        <tr>
 
-</tr>
+            <td>{{ p.codigo }}</td>
 
-</thead>
+            <td>{{ p.nombre }}</td>
 
-<tbody>
+            <td>{{ p.responsable }}</td>
 
-{% for p in proyectos %}
+            <td>${{ p.presupuesto }}</td>
 
-<tr>
+            <td>{{ p.fecha_inicio }}</td>
 
-<td>{{ p.codigo }}</td>
+            <td>{{ p.fecha_fin }}</td>
 
-<td>{{ p.nombre }}</td>
+            <td class="text-center">
 
-<td>{{ p.responsable }}</td>
+                {% if p.estado %}
 
-<td>{{ p.presupuesto }}</td>
+                    <span class="badge bg-success">
 
-<td>{{ p.fecha_inicio }}</td>
+                        Activo
 
-<td>{{ p.fecha_fin }}</td>
+                    </span>
 
-<td>
+                {% else %}
 
-{% if p.estado %}
+                    <span class="badge bg-danger">
 
-<span class="badge bg-success">
+                        Inactivo
 
-Activo
+                    </span>
 
-</span>
+                {% endif %}
 
-{% else %}
+            </td>
 
-<span class="badge bg-danger">
+            <td>
 
-Inactivo
+                <div class="d-flex justify-content-center gap-1">
 
-</span>
+                    <a
+                        href="{% url 'editar_proyecto' p.id %}"
+                        class="btn btn-warning btn-sm">
 
-{% endif %}
+                        Editar
 
-</td>
+                    </a>
 
-<td>
+                    <a
+                        href="{% url 'eliminar_proyecto' p.id %}"
+                        class="btn btn-danger btn-sm"
+                        onclick="return confirm('¿Desea eliminar este proyecto?');">
 
-<a
-class="btn btn-warning btn-sm"
-href="{% url 'editar_proyecto' p.id %}">
+                        Eliminar
 
-Editar
+                    </a>
 
-</a>
+                </div>
 
-<a
-class="btn btn-danger btn-sm"
-href="{% url 'eliminar_proyecto' p.id %}"
-onclick="return confirm('¿Desea eliminar este proyecto?')">
+            </td>
 
-Eliminar
+        </tr>
 
-</a>
+        {% empty %}
 
-</td>
+        <tr>
 
-</tr>
+            <td colspan="8" class="text-center">
 
-{% endfor %}
+                No existen proyectos registrados.
 
-</tbody>
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
 
 </table>
 

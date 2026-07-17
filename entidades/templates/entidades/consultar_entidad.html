@@ -1,139 +1,411 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Consultar Entidades</h2>
 
-<a href="{% url 'registrar_entidad' %}">
-    Nueva Entidad
-</a>
+<div class="container-fluid">
 
-<br><br>
+    <div class="card shadow mb-4">
 
-<form method="GET">
 
-    <input
-        type="text"
-        name="buscar"
-        placeholder="Buscar por código, nombre o responsable"
-        value="{{ buscar }}"
-    >
+        <div class="card-header py-3">
 
-    <select name="estado">
+            <h4 class="m-0 font-weight-bold text-primary">
 
-        <option value="">Todos</option>
+                Gestión de Entidades
 
-        <option value="1" {% if estado == "1" %}selected{% endif %}>
-            Activas
-        </option>
+            </h4>
 
-        <option value="0" {% if estado == "0" %}selected{% endif %}>
-            Inactivas
-        </option>
+        </div>
 
-    </select>
 
-    <button type="submit">
-        Buscar
-    </button>
+        <div class="card-body">
 
-</form>
 
-<br>
+            {% if messages %}
 
-{% if messages %}
+                {% for message in messages %}
 
-    {% for message in messages %}
+                    <div class="alert alert-success">
 
-        <p style="color:green;">
-            {{ message }}
-        </p>
+                        {{ message }}
 
-    {% endfor %}
+                    </div>
 
-{% endif %}
+                {% endfor %}
 
-{% if mensaje %}
+            {% endif %}
 
-<p style="color:red;">
-    {{ mensaje }}
-</p>
 
-{% endif %}
+            {% if mensaje %}
 
-<table border="1">
+                <div class="alert alert-warning">
 
-    <thead>
+                    {{ mensaje }}
 
-        <tr>
+                </div>
 
-            <th>ID</th>
-            <th>Código</th>
-            <th>Nombre</th>
-            <th>Descripción</th>
-            <th>Responsable</th>
-            <th>Estado</th>
-            <th>Acciones</th>
+            {% endif %}
 
-        </tr>
 
-    </thead>
 
-    <tbody>
+            <form method="GET">
 
-        {% for entidad in entidades %}
 
-        <tr>
+                <div class="row mb-3">
 
-            <td>{{ entidad.id }}</td>
-            <td>{{ entidad.codigo }}</td>
-            <td>{{ entidad.nombre }}</td>
-            <td>{{ entidad.descripcion }}</td>
-            <td>{{ entidad.responsable }}</td>
 
-            <td>
+                    <div class="col-md-5">
 
-                {% if entidad.estado %}
-                    Activa
-                {% else %}
-                    Inactiva
-                {% endif %}
+                        <label>
 
-            </td>
+                            Buscar entidad
 
-            <td>
-                <a href="{% url 'editar_entidad' entidad.id %}">
-                    Editar
-                </a>
+                        </label>
 
-                |
+
+                        <input
+
+                            type="text"
+
+                            name="buscar"
+
+                            class="form-control"
+
+                            placeholder="Código, nombre o responsable"
+
+                            value="{{ buscar }}"
+
+                        >
+
+                    </div>
+
+
+
+                    <div class="col-md-3">
+
+
+                        <label>
+
+                            Estado
+
+                        </label>
+
+
+                        <select
+
+                            name="estado"
+
+                            class="form-control">
+
+                            <option value="">
+
+                                Todos
+
+                            </option>
+
+
+                            <option value="1"
+
+                            {% if estado == "1" %}
+
+                            selected
+
+                            {% endif %}>
+
+                                Activas
+
+                            </option>
+
+
+                            <option value="0"
+
+                            {% if estado == "0" %}
+
+                            selected
+
+                            {% endif %}>
+
+                                Inactivas
+
+                            </option>
+
+
+                        </select>
+
+
+                    </div>
+
+
+
+                    <div class="col-md-4 d-flex align-items-end">
+
+
+                        <button
+
+                            class="btn btn-primary me-2"
+
+                            type="submit">
+
+                            Buscar
+
+                        </button>
+
+
+
+                        <a
+
+                            href="{% url 'consultar_entidades' %}"
+
+                            class="btn btn-secondary">
+
+                            Limpiar
+
+                        </a>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </form>
+
+
+            <hr>
+
+
+            <div class="mb-3">
+
 
                 <a
-                    href="{% url 'eliminar_entidad' entidad.id %}"
-                    onclick="return confirm('¿Eliminar entidad?');">
-                    Eliminar
+
+                    href="{% url 'registrar_entidad' %}"
+
+                    class="btn btn-success">
+
+                    Nueva Entidad
+
                 </a>
 
-                |
 
-                {% if entidad.estado %}
+            </div>
 
-                <a href="{% url 'cambiar_estado_entidad' entidad.id %}">
-                Desactivar
-                </a>
 
-                {% else %}
 
-                <a href="{% url 'cambiar_estado_entidad' entidad.id %}">
-                Activar
-                </a>
+            <table class="table table-bordered">
 
-                {% endif %}
-            </td>
-        </tr>
 
-        {% endfor %}
+                <thead>
 
-    </tbody>
 
-</table>
+                    <tr class="text-center">
+
+
+                        <th>ID</th>
+
+                        <th>Código</th>
+
+                        <th>Nombre</th>
+
+                        <th>Descripción</th>
+
+                        <th>Responsable</th>
+
+                        <th>Estado</th>
+
+                        <th width="260">
+
+                            Acciones
+
+                        </th>
+
+
+                    </tr>
+
+
+                </thead>
+
+
+
+                <tbody>
+
+
+                    {% for entidad in entidades %}
+
+
+                    <tr>
+
+
+                        <td>
+
+                            {{ entidad.id }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{ entidad.codigo }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{ entidad.nombre }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{ entidad.descripcion }}
+
+                        </td>
+
+
+                        <td>
+
+                            {{ entidad.responsable }}
+
+                        </td>
+
+
+
+                        <td class="text-center">
+
+
+                            {% if entidad.estado %}
+
+
+                                <span class="badge bg-success">
+
+                                    Activa
+
+                                </span>
+
+
+                            {% else %}
+
+
+                                <span class="badge bg-danger">
+
+                                    Inactiva
+
+                                </span>
+
+
+                            {% endif %}
+
+
+
+                        </td>
+
+
+
+                        <td>
+
+
+                            <div class="d-flex justify-content-center gap-1 flex-wrap">
+
+
+
+                                <a
+
+                                    href="{% url 'editar_entidad' entidad.id %}"
+
+                                    class="btn btn-warning btn-sm">
+
+                                    Editar
+
+                                </a>
+
+
+
+                                <a
+
+                                    href="{% url 'eliminar_entidad' entidad.id %}"
+
+                                    class="btn btn-danger btn-sm"
+
+                                    onclick="return confirm('¿Está seguro de eliminar esta entidad?');">
+
+                                    Eliminar
+
+                                </a>
+
+
+
+                                <a
+
+                                    href="{% url 'cambiar_estado_entidad' entidad.id %}"
+
+                                    class="btn btn-info btn-sm">
+
+
+                                    {% if entidad.estado %}
+
+                                        Desactivar
+
+                                    {% else %}
+
+                                        Activar
+
+                                    {% endif %}
+
+
+                                </a>
+
+
+
+                            </div>
+
+
+                        </td>
+
+
+
+                    </tr>
+
+
+
+                    {% empty %}
+
+
+                    <tr>
+
+
+                        <td colspan="7" class="text-center">
+
+
+                            No existen entidades registradas.
+
+
+                        </td>
+
+
+                    </tr>
+
+
+                    {% endfor %}
+
+
+                </tbody>
+
+
+
+            </table>
+
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
 {% endblock %}

@@ -2,50 +2,66 @@
 
 {% block content %}
 
-<head>
+<div class="container-fluid">
 
-    <title>Registrar Planificación</title>
+    <div class="card shadow mb-4">
 
-</head>
+        <div class="card-header py-3">
 
-<body>
+            <h4 class="m-0 font-weight-bold text-primary">
 
-<h2>Registrar Planificación</h2>
+                Registrar Planificación
 
-{% if messages %}
+            </h4>
 
-    {% for message in messages %}
+        </div>
 
-        <p style="color:green;">
-            {{ message }}
-        </p>
+        <div class="card-body">
 
-    {% endfor %}
+            {% if messages %}
 
-{% endif %}
+                {% for message in messages %}
 
-<form method="POST">
+                    <div class="alert alert-warning">
 
-    {% csrf_token %}
+                        {{ message }}
 
-    {{ form.as_p }}
+                    </div>
 
-    <button type="submit">
+                {% endfor %}
 
-        Guardar
+            {% endif %}
 
-    </button>
+            <form method="POST">
 
-</form>
+                {% csrf_token %}
 
-<br>
+                {{ form.as_p }}
 
-<a href="{% url 'consultar_planificaciones' %}">
+                <hr>
 
-    Consultar Planificaciones
+                <button
+                    type="submit"
+                    class="btn btn-primary">
 
-</a>
+                    Guardar
 
-</body>
+                </button>
+
+                <a
+                    href="{% url 'consultar_planificaciones' %}"
+                    class="btn btn-secondary">
+
+                    Cancelar
+
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
 
 {% endblock %}

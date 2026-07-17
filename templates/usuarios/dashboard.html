@@ -10,41 +10,141 @@
 
     <div class="row">
 
+        <!-- Usuarios -->
         <div class="col-xl-3 col-md-6 mb-4">
             <a href="{% url 'consultar_usuarios' %}" class="text-decoration-none">
                 <div class="card border-left-primary shadow h-100 py-2">
                     <div class="card-body">
-                        <h5>Usuarios</h5>
+                        <h6 class="text-primary font-weight-bold text-uppercase">
+                            Usuarios
+                        </h6>
+                        <h3>{{ usuarios }}</h3>
                     </div>
                 </div>
             </a>
         </div>
 
+        <!-- Roles -->
         <div class="col-xl-3 col-md-6 mb-4">
             <a href="{% url 'consultar_roles' %}" class="text-decoration-none">
                 <div class="card border-left-success shadow h-100 py-2">
                     <div class="card-body">
-                        <h5>Roles</h5>
+                        <h6 class="text-success font-weight-bold text-uppercase">
+                            Roles
+                        </h6>
+                        <h3>{{ roles }}</h3>
                     </div>
                 </div>
             </a>
         </div>
 
+        <!-- Entidades -->
         <div class="col-xl-3 col-md-6 mb-4">
             <a href="{% url 'consultar_entidades' %}" class="text-decoration-none">
                 <div class="card border-left-info shadow h-100 py-2">
                     <div class="card-body">
-                        <h5>Entidades</h5>
+                        <h6 class="text-info font-weight-bold text-uppercase">
+                            Entidades
+                        </h6>
+                        <h3>{{ entidades }}</h3>
                     </div>
                 </div>
             </a>
         </div>
 
+        <!-- Planificaciones -->
         <div class="col-xl-3 col-md-6 mb-4">
             <a href="{% url 'consultar_planificaciones' %}" class="text-decoration-none">
                 <div class="card border-left-warning shadow h-100 py-2">
                     <div class="card-body">
-                        <h5>Planificaciones</h5>
+                        <h6 class="text-warning font-weight-bold text-uppercase">
+                            Planificaciones
+                        </h6>
+                        <h3>{{ planificaciones }}</h3>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Configuración -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <a href="{% url 'consultar_configuracion' %}" class="text-decoration-none">
+                <div class="card border-left-danger shadow h-100 py-2">
+                    <div class="card-body">
+                        <h6 class="text-danger font-weight-bold text-uppercase">
+                            Configuración
+                        </h6>
+                        <h3>{{ configuraciones }}</h3>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Proyectos -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <a href="{% url 'consultar_proyectos' %}" class="text-decoration-none">
+                <div class="card border-left-secondary shadow h-100 py-2">
+                    <div class="card-body">
+                        <h6 class="text-secondary font-weight-bold text-uppercase">
+                            Proyectos
+                        </h6>
+                        <h3>{{ proyectos }}</h3>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Metas -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <a href="{% url 'consultar_metas' %}" class="text-decoration-none">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <h6 class="text-primary font-weight-bold text-uppercase">
+                            Metas
+                        </h6>
+                        <h3>{{ metas }}</h3>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- ODS -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <a href="{% url 'consultar_objetivos' %}" class="text-decoration-none">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <h6 class="text-success font-weight-bold text-uppercase">
+                            ODS
+                        </h6>
+                        <h3>{{ ods }}</h3>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Objetivos Institucionales -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <a href="{% url 'consultar_objetivos_institucionales' %}" class="text-decoration-none">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <h6 class="text-info font-weight-bold text-uppercase">
+                            Objetivos Institucionales
+                        </h6>
+                        <h3>{{ objetivos_i }}</h3>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Objetivos Estratégicos -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <a href="{% url 'consultar_objetivos_estrategicos' %}" class="text-decoration-none">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <h6 class="text-warning font-weight-bold text-uppercase">
+                            Objetivos Estratégicos
+                        </h6>
+                        <h3>{{ objetivos_e }}</h3>
                     </div>
                 </div>
             </a>
@@ -55,22 +155,3 @@
 </div>
 
 {% endblock %}
-<div class="col-xl-3 col-md-6 mb-4">
-    <a href="{% url 'consultar_configuraciones' %}" class="text-decoration-none">
-        <div class="card border-left-danger shadow h-100 py-2">
-            <div class="card-body">
-                <h5>Configuración</h5>
-            </div>
-        </div>
-    </a>
-</div>
-
-<div class="col-xl-3 col-md-6 mb-4">
-    <a href="{% url 'recuperar_password' %}" class="text-decoration-none">
-        <div class="card border-left-secondary shadow h-100 py-2">
-            <div class="card-body">
-                <h5>Recuperar contraseña</h5>
-            </div>
-        </div>
-    </a>
-</div>

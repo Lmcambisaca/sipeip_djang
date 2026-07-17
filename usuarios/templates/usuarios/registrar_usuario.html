@@ -1,12 +1,67 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Registrar Usuario</h2>
 
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
+<div class="container-fluid">
 
-    <button type="submit">Guardar</button>
-</form>
+    <div class="card shadow mb-4">
+
+        <div class="card-header py-3">
+
+            <h4 class="m-0 font-weight-bold text-primary">
+
+                Registrar Usuario
+
+            </h4>
+
+        </div>
+
+        <div class="card-body">
+
+            {% if messages %}
+
+                {% for message in messages %}
+
+                    <div class="alert alert-warning">
+
+                        {{ message }}
+
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                {{ form.as_p }}
+
+                <hr>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary">
+
+                    Guardar
+
+                </button>
+
+                <a
+                    href="{% url 'consultar_usuarios' %}"
+                    class="btn btn-secondary">
+
+                    Cancelar
+
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
 {% endblock %}
