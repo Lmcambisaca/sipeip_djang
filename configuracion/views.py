@@ -1,12 +1,20 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 from .models import Configuracion
 from .forms import ConfiguracionForm
-
-from django.contrib.auth.decorators import login_required
+from usuarios.permisos import validar_permiso
 @login_required
 def registrar_configuracion(request):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar configuración"
+    )
+
+    if permiso:
+        return permiso
 
     if request.method == "POST":
 
@@ -50,6 +58,14 @@ def registrar_configuracion(request):
 
 @login_required
 def consultar_configuracion(request):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar configuración"
+    )
+
+    if permiso:
+        return permiso
 
     configuraciones = Configuracion.objects.all()
 
@@ -64,6 +80,14 @@ def consultar_configuracion(request):
 
 @login_required
 def editar_configuracion(request, id):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar configuración"
+    )
+
+    if permiso:
+        return permiso
 
     configuracion = get_object_or_404(
         Configuracion,

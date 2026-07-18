@@ -1,13 +1,33 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Meta, HistorialMeta, Indicador, AvanceIndicador
-from .forms import MetaForm, IndicadorForm, AvanceIndicadorForm
-from django.db.models import Avg
 import json
+
+from .models import (
+    Meta,
+    HistorialMeta,
+    Indicador,
+    AvanceIndicador,
+)
+
+from .forms import (
+    MetaForm,
+    IndicadorForm,
+    AvanceIndicadorForm,
+)
+
+from usuarios.permisos import validar_permiso
 
 @login_required
 def registrar_meta(request):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar metas"
+    )
+
+    if permiso:
+        return permiso
 
     if request.method=="POST":
 
@@ -82,6 +102,14 @@ def registrar_meta(request):
     
 @login_required
 def consultar_metas(request):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar metas"
+    )
+
+    if permiso:
+        return permiso
 
     buscar = request.GET.get("buscar", "")
 
@@ -119,6 +147,14 @@ def consultar_metas(request):
     
 @login_required
 def editar_meta(request, id):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar metas"
+    )
+
+    if permiso:
+        return permiso
 
     meta = get_object_or_404(
         Meta,
@@ -237,6 +273,14 @@ def editar_meta(request, id):
     
 @login_required
 def registrar_indicador(request):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar indicadores"
+    )
+
+    if permiso:
+        return permiso
 
     if request.method=="POST":
 
@@ -275,6 +319,14 @@ def registrar_indicador(request):
     
 @login_required
 def consultar_indicadores(request):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar indicadores"
+    )
+
+    if permiso:
+        return permiso
 
     indicadores=Indicador.objects.select_related(
         "meta"
@@ -296,6 +348,14 @@ def consultar_indicadores(request):
     
 @login_required
 def editar_indicador(request, id):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar indicadores"
+    )
+
+    if permiso:
+        return permiso
 
     indicador = get_object_or_404(
         Indicador,
@@ -356,6 +416,14 @@ def editar_indicador(request, id):
 
 @login_required
 def registrar_avance(request):
+    
+    permiso = validar_permiso(
+    request,
+    "Registrar avances"
+    )
+
+    if permiso:
+        return permiso
 
     if request.method == "POST":
 
@@ -410,6 +478,14 @@ def registrar_avance(request):
     
 @login_required
 def consultar_avances(request):
+    
+    permiso = validar_permiso(
+    request,
+    "Registrar avances"
+    )
+
+    if permiso:
+        return permiso
 
     avances = AvanceIndicador.objects.select_related(
         "indicador",
@@ -432,6 +508,14 @@ def consultar_avances(request):
     
 @login_required
 def editar_avance(request, id):
+    
+    permiso = validar_permiso(
+    request,
+    "Registrar avances"
+    )
+
+    if permiso:
+        return permiso
 
     avance = get_object_or_404(
         AvanceIndicador,
@@ -498,6 +582,14 @@ def editar_avance(request, id):
 
 @login_required
 def grafico_indicador(request, id):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar indicadores"
+    )
+
+    if permiso:
+        return permiso
 
     indicador = get_object_or_404(
         Indicador,

@@ -1,26 +1,36 @@
-from django.shortcuts import (render, redirect, get_object_or_404)
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth import get_user_model
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password, check_password
 from django.db.models import Q
-from django.contrib.auth import authenticate, login, logout
-from .forms import LoginForm
-from .models import (Usuario, RecuperacionPassword, AuditoriaSesion)
-from roles.models import Rol
-from .forms import (UsuarioForm, UsuarioEditarForm, RecuperarPasswordForm,)
-from roles.models import Rol
-from entidades.models import Entidad
-from planificaciones.models import Planificacion
-from configuracion.models import Configuracion
-from proyectos.models import Proyecto
-from seguimiento.models import Meta
-from ods.models import ObjetivoDesarrollo
-from objetivosI.models import ObjetivoInstitucional
-from objetivosE.models import ObjetivoEstrategico
 
-from django.contrib.auth.decorators import login_required
+from .forms import (
+    LoginForm,
+    UsuarioForm,
+    UsuarioEditarForm,
+    RecuperarPasswordForm,
+)
+
+from .models import (
+    Usuario,
+    RecuperacionPassword,
+    AuditoriaSesion,
+)
+
+from roles.models import Rol
+
+from .permisos import validar_permiso
 @login_required
 def registrar_usuario(request):
+
+    permiso = validar_permiso(
+        request,
+        "Administrar usuarios"
+    )
+
+    if permiso:
+        return permiso
 
     if request.method == "POST":
 
@@ -59,6 +69,14 @@ def registrar_usuario(request):
 
 @login_required
 def consultar_usuarios(request):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar usuarios"
+    )
+
+    if permiso:
+        return permiso
 
     buscar = request.GET.get("buscar", "").strip()
     estado = request.GET.get("estado", "")
@@ -113,6 +131,14 @@ def consultar_usuarios(request):
 
 @login_required
 def editar_usuario(request, id):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar usuarios"
+    )
+
+    if permiso:
+        return permiso
 
     usuario = get_object_or_404(
         Usuario,
@@ -156,6 +182,14 @@ def editar_usuario(request, id):
     
 @login_required
 def cambiar_estado_usuario(request, id):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar usuarios"
+)
+
+    if permiso:
+        return permiso
 
     usuario = get_object_or_404(
         Usuario,
@@ -194,93 +228,16 @@ def cambiar_estado_usuario(request, id):
 
     return redirect("consultar_usuarios")
 
-
-def recuperar_password(request):
-
-    if request.method == "POST":
-
-        form = RecuperarPasswordForm(request.POST)
-
-        if form.is_valid():
-
-            email = form.cleaned_data["email"]
-
-            actual = form.cleaned_data["password_actual"]
-
-            nueva = form.cleaned_data["nueva_password"]
-
-            confirmar = form.cleaned_data["confirmar_password"]
-
-            if nueva != confirmar:
-
-                messages.error(
-                    request,
-                    "Las contraseñas no coinciden."
-                )
-
-            else:
-
-                try:
-
-                    usuario = User.objects.get(email=email)
-                    
-                    if not check_password(
-                        actual,
-                        usuario.password
-                    ):
-
-                        messages.error(
-                            request,
-                            "La contraseña actual es incorrecta."
-                        )
-
-                        return render(
-                            request,
-                            "usuarios/recuperar_password.html",
-                            {
-                                "form": form
-                            }
-                        )
-
-                    usuario.password = make_password(nueva)
-
-                    usuario.save()
-                    
-                    RecuperacionPassword.objects.create(
-                        usuario=usuario
-                    )
-                    
-                    
-
-                    messages.success(
-                        request,
-                        "Contraseña actualizada correctamente."
-                    )
-
-                    return redirect("login")
-
-                except User.DoesNotExist:
-
-                    messages.error(
-                        request,
-                        "No existe un usuario con ese correo."
-                    )
-
-    else:
-
-        form = RecuperarPasswordForm()
-
-    return render(
-        request,
-        "usuarios/recuperar_password.html",
-        {
-            "form": form
-        }
-    )
-
-
 @login_required
 def eliminar_usuario(request, id):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar usuarios"
+    )
+
+    if permiso:
+        return permiso
 
     usuario = get_object_or_404(
         Usuario,
@@ -416,6 +373,90 @@ def login_usuario(request):
             "form": form
         }
     )
+    
+def recuperar_password(request):
+
+    if request.method == "POST":
+
+        form = RecuperarPasswordForm(request.POST)
+
+        if form.is_valid():
+
+            email = form.cleaned_data["email"]
+
+            actual = form.cleaned_data["password_actual"]
+
+            nueva = form.cleaned_data["nueva_password"]
+
+            confirmar = form.cleaned_data["confirmar_password"]
+
+            if nueva != confirmar:
+
+                messages.error(
+                    request,
+                    "Las contraseñas no coinciden."
+                )
+
+            else:
+
+                try:
+
+                    usuario = Usuario.objects.get(email=email)
+                    
+                    if not check_password(
+                        actual,
+                        usuario.password
+                    ):
+
+                        messages.error(
+                            request,
+                            "La contraseña actual es incorrecta."
+                        )
+
+                        return render(
+                            request,
+                            "usuarios/recuperar_password.html",
+                            {
+                                "form": form
+                            }
+                        )
+
+                    usuario.password = make_password(nueva)
+
+                    usuario.save()
+                    
+                    RecuperacionPassword.objects.create(
+                        usuario=usuario
+                    )
+                    
+                    
+
+                    messages.success(
+                        request,
+                        "Contraseña actualizada correctamente."
+                    )
+
+                    return redirect("login")
+
+                except Usuario.DoesNotExist:
+
+                    messages.error(
+                        request,
+                        "No existe un usuario con ese correo."
+                    )
+
+    else:
+
+        form = RecuperarPasswordForm()
+
+    return render(
+        request,
+        "usuarios/recuperar_password.html",
+        {
+            "form": form
+        }
+    )
+
 
 
 def logout_usuario(request):
@@ -435,36 +476,15 @@ def logout_usuario(request):
 @login_required
 def dashboard(request):
 
-    contexto = {
+    rol = None
 
-        "usuarios": Usuario.objects.count(),
-
-        "roles": Rol.objects.count(),
-
-        "entidades": Entidad.objects.count(),
-
-        "planificaciones": Planificacion.objects.count(),
-
-        "configuraciones": Configuracion.objects.count(),
-
-        "proyectos": Proyecto.objects.count(),
-
-        "metas": Meta.objects.count(),
-
-        "ods": ObjetivoDesarrollo.objects.count(),
-
-        "objetivos_i": ObjetivoInstitucional.objects.count(),
-
-        "objetivos_e": ObjetivoEstrategico.objects.count(),
-
-    }
+    if hasattr(request.user, "rol") and request.user.rol:
+        rol = request.user.rol.nombre
 
     return render(
-
         request,
-
         "usuarios/dashboard.html",
-
-        contexto
-
+        {
+            "rol": rol
+        }
     )

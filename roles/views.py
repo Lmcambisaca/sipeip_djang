@@ -1,31 +1,23 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib import messages
-from .decorators import permiso_requerido
-from django.http import HttpResponseForbidden
+from django.contrib.auth.decorators import login_required
 
+from .decorators import permiso_requerido
 from .models import Rol, Permiso
 from .forms import RolForm
+from usuarios.permisos import validar_permiso
 
-
-def tiene_permiso(usuario, nombre_permiso):
-
-    if not usuario.is_authenticated:
-        return False
-
-    if not usuario.estado:
-        return False
-
-    if not usuario.rol:
-        return False
-
-    return usuario.rol.permisos.filter(
-        nombre=nombre_permiso,
-        estado=True
-    ).exists()
-    
 from django.contrib.auth.decorators import login_required
 @login_required
 def registrar_rol(request):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar roles"
+    )
+
+    if permiso:
+        return permiso
 
     if request.method == "POST":
 
@@ -67,6 +59,14 @@ def registrar_rol(request):
 
 @login_required
 def consultar_roles(request):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar roles"
+    )
+
+    if permiso:
+        return permiso
 
     buscar = request.GET.get("buscar", "")
 
@@ -84,6 +84,14 @@ def consultar_roles(request):
 
 @login_required
 def editar_rol(request, id):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar roles"
+    )
+
+    if permiso:
+        return permiso
 
     rol = Rol.objects.filter(id=id).first()
 
@@ -142,6 +150,14 @@ def editar_rol(request, id):
 @login_required
 @permiso_requerido("Eliminar Rol")
 def eliminar_rol(request, id):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar roles"
+    )
+
+    if permiso:
+        return permiso
 
     rol = Rol.objects.filter(id=id).first()
 
@@ -170,15 +186,14 @@ def eliminar_rol(request, id):
 
 @login_required
 def asignar_permiso(request, id):
+    
+    permiso = validar_permiso(
+    request,
+    "Asignar permisos"
+    )
 
-    if not tiene_permiso(request.user, "Administrar permisos"):
-
-        messages.error(
-            request,
-            "No tiene permisos para administrar permisos."
-        )
-
-        return redirect("consultar_roles")
+    if permiso:
+        return permiso
 
     rol = Rol.objects.filter(id=id).first()
 

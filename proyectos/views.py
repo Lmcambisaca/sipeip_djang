@@ -1,24 +1,33 @@
-from django.shortcuts import (
-    render,
-    redirect,
-    get_object_or_404
-)
-
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.db.models import Q
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 
 from .models import (
     Proyecto,
     AuditoriaProyecto,
-    Cronograma, 
+    Cronograma,
     Documento
 )
 
-from .forms import (ProyectoForm, CronogramaForm, DocumentoForm)
+from .forms import (
+    ProyectoForm,
+    CronogramaForm,
+    DocumentoForm
+)
+
+from usuarios.permisos import validar_permiso
 
 @login_required
 def registrar_proyecto(request):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar proyectos"
+    )
+
+    if permiso:
+        return permiso
 
     if request.method == "POST":
 
@@ -99,6 +108,14 @@ def registrar_proyecto(request):
 
 @login_required
 def consultar_proyectos(request):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar proyectos"
+    )
+
+    if permiso:
+        return permiso
 
     buscar = request.GET.get(
         "buscar",
@@ -150,6 +167,14 @@ def consultar_proyectos(request):
     
 @login_required
 def editar_proyecto(request, id):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar proyectos"
+    )
+
+    if permiso:
+        return permiso
 
     proyecto = get_object_or_404(
         Proyecto,
@@ -235,6 +260,14 @@ def editar_proyecto(request, id):
 
 @login_required
 def eliminar_proyecto(request, id):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar proyectos"
+    )
+
+    if permiso:
+        return permiso
 
     proyecto = get_object_or_404(
 
@@ -289,6 +322,14 @@ def eliminar_proyecto(request, id):
     
 @login_required
 def registrar_cronograma(request):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar proyectos"
+    )
+
+    if permiso:
+        return permiso
 
     if request.method == "POST":
 
@@ -332,6 +373,14 @@ def registrar_cronograma(request):
 
 @login_required
 def consultar_cronogramas(request):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar proyectos"
+    )
+
+    if permiso:
+        return permiso
 
     cronogramas = Cronograma.objects.select_related(
         "proyecto",
@@ -354,6 +403,14 @@ def consultar_cronogramas(request):
     
 @login_required
 def editar_cronograma(request, id):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar proyectos"
+    )
+
+    if permiso:
+        return permiso
 
     cronograma = get_object_or_404(
         Cronograma,
@@ -415,21 +472,13 @@ def editar_cronograma(request, id):
 @login_required
 def registrar_documento(request):
     
-    if not request.user.is_authenticated:
+    permiso = validar_permiso(
+    request,
+    "Administrar documentos"
+    )
 
-        return redirect("login")
-    
-    if request.user.rol and request.user.rol.nombre not in [
-        "Administrador",
-        "Planificador"
-    ]:
-
-        messages.error(
-            request,
-            "No tiene permisos para registrar documentos."
-        )
-
-        return redirect("dashboard")
+    if permiso:
+        return permiso
 
     if request.method == "POST":
 
@@ -513,6 +562,14 @@ def registrar_documento(request):
     
 @login_required
 def consultar_documentos(request):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar documentos"
+    )
+
+    if permiso:
+        return permiso
 
     documentos = Documento.objects.select_related(
         "proyecto"

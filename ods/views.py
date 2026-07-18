@@ -1,21 +1,33 @@
 from django.shortcuts import render, redirect, get_object_or_404
-
 from django.contrib.auth.decorators import login_required
-
 from django.contrib import messages
 
-from .models import ObjetivoDesarrollo
+from .models import (
+    ObjetivoDesarrollo,
+    HistorialObjetivo,
+)
 
 from .forms import ObjetivoDesarrolloForm
 
-from seguimiento.models import Meta, Indicador
+from seguimiento.models import (
+    Meta,
+    Indicador,
+)
 
-from .models import HistorialObjetivo
+from usuarios.permisos import validar_permiso
 
 
 @login_required
 def registrar_objetivo(request):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar ODS"
+    )
 
+    if permiso:
+        return permiso
+    
     if request.method == "POST":
 
         form = ObjetivoDesarrolloForm(request.POST)
@@ -74,7 +86,15 @@ def registrar_objetivo(request):
     
 @login_required
 def consultar_objetivos(request):
+    
+    permiso = validar_permiso(
+    request,
+    "Consultar ODS"
+    )
 
+    if permiso:
+        return permiso
+    
     objetivos = ObjetivoDesarrollo.objects.all()
 
 
@@ -134,7 +154,15 @@ def consultar_objetivos(request):
     
 @login_required
 def editar_objetivo(request, id):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar ODS"
+    )
 
+    if permiso:
+        return permiso
+    
     objetivo = get_object_or_404(
         ObjetivoDesarrollo,
         pk=id
@@ -215,7 +243,15 @@ def editar_objetivo(request, id):
         
 @login_required
 def seguimiento_objetivo(request, id):
+    
+    permiso = validar_permiso(
+    request,
+    "Consultar ODS"
+    )
 
+    if permiso:
+        return permiso
+    
     objetivo = get_object_or_404(
         ObjetivoDesarrollo,
         pk=id
@@ -272,7 +308,15 @@ def seguimiento_objetivo(request, id):
 
 @login_required
 def dashboard_ods(request):
+    
+    permiso = validar_permiso(
+    request,
+    "Consultar ODS"
+    )
 
+    if permiso:
+        return permiso
+    
     objetivos = ObjetivoDesarrollo.objects.all()
 
     datos = []

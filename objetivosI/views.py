@@ -1,16 +1,31 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import (
+    render,
+    redirect,
+    get_object_or_404
+)
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
-from .forms import ObjetivoInstitucionalForm
 from .models import (
     ObjetivoInstitucional,
     HistorialObjetivoInstitucional
 )
 
+from .forms import ObjetivoInstitucionalForm
 
+from usuarios.permisos import validar_permiso
 @login_required
 def registrar_objetivo_institucional(request):
+
+    permiso = validar_permiso(
+        request,
+        "Administrar objetivos institucionales"
+    )
+
+    if permiso:
+        return permiso
+
 
     if request.method == "POST":
 
@@ -21,6 +36,7 @@ def registrar_objetivo_institucional(request):
             codigo = form.cleaned_data["codigo"].strip()
 
             descripcion = form.cleaned_data["descripcion"].strip()
+
 
             if not codigo:
 
@@ -48,16 +64,14 @@ def registrar_objetivo_institucional(request):
             else:
 
                 objetivo = form.save()
-                
+
+
                 HistorialObjetivoInstitucional.objects.create(
-
                     objetivo=objetivo,
-
                     usuario=request.user,
-
                     accion="Registro"
-
                 )
+
 
                 messages.success(
                     request,
@@ -68,28 +82,41 @@ def registrar_objetivo_institucional(request):
                     "consultar_objetivos_institucionales"
                 )
 
+
     else:
 
         form = ObjetivoInstitucionalForm()
 
+
     return render(
-
         request,
-
         "objetivosI/registrar_objetivo.html",
-
         {
-
-            "form": form
-
+            "form":form
         }
-
     )
 
 @login_required
 def consultar_objetivos_institucionales(request):
 
+    permiso = validar_permiso(
+        request,
+        "Consultar objetivos institucionales"
+    )
+
+    if permiso:
+
+        permiso = validar_permiso(
+            request,
+            "Administrar objetivos institucionales"
+        )
+
+        if permiso:
+            return permiso
+
+
     objetivos = ObjetivoInstitucional.objects.all()
+
 
     periodo = request.GET.get(
         "periodo",
@@ -128,33 +155,34 @@ def consultar_objetivos_institucionales(request):
         )
 
 
-    mensaje = ""
+    mensaje=""
 
 
     if not objetivos.exists():
 
-        mensaje = "No existen objetivos institucionales registrados."
+        mensaje="No existen objetivos institucionales registrados."
 
 
     return render(
-
         request,
-
         "objetivosI/consultar_objetivo.html",
-
         {
-
-            "objetivos": objetivos,
-
-            "mensaje": mensaje
-
+            "objetivos":objetivos,
+            "mensaje":mensaje
         }
-
     )
 
 
 @login_required
 def editar_objetivo_institucional(request, id):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar objetivos institucionales"
+    )
+
+    if permiso:
+        return permiso
 
     objetivo = get_object_or_404(
         ObjetivoInstitucional,
@@ -307,7 +335,22 @@ def editar_objetivo_institucional(request, id):
     )
     
 @login_required
-def seguimiento_objetivo_institucional(request, id):
+def seguimiento_objetivo_institucional(request,id):
+
+    permiso = validar_permiso(
+        request,
+        "Consultar objetivos institucionales"
+    )
+
+    if permiso:
+        
+        permiso = validar_permiso(
+            request,
+            "Administrar objetivos institucionales"
+        )
+
+        if permiso:
+            return permiso
 
     objetivo = get_object_or_404(
         ObjetivoInstitucional,
@@ -361,6 +404,21 @@ def seguimiento_objetivo_institucional(request, id):
     
 @login_required
 def dashboard_objetivos_institucionales(request):
+
+    permiso = validar_permiso(
+        request,
+        "Consultar objetivos institucionales"
+    )
+
+    if permiso:
+
+        permiso = validar_permiso(
+            request,
+            "Administrar objetivos institucionales"
+        )
+
+        if permiso:
+            return permiso
 
     datos = []
 

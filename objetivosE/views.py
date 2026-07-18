@@ -1,14 +1,30 @@
+from django.shortcuts import (
+    render,
+    redirect,
+    get_object_or_404
+)
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect, get_object_or_404
 
-from .models import ObjetivoEstrategico
+from .models import (
+    ObjetivoEstrategico,
+    HistorialObjetivoEstrategico
+)
+
 from .forms import ObjetivoEstrategicoForm
-from .models import (ObjetivoEstrategico, HistorialObjetivoEstrategico)
 
-
+from usuarios.permisos import validar_permiso
 @login_required
 def registrar_objetivo_estrategico(request):
+
+    permiso = validar_permiso(
+        request,
+        "Administrar objetivos estratégicos"
+    )
+
+    if permiso:
+        return permiso
 
     if request.method == "POST":
 
@@ -45,7 +61,9 @@ def registrar_objetivo_estrategico(request):
 
             else:
                 
-                if not form.cleaned_data["objetivos_institucionales"]:
+                objetivos = form.cleaned_data["objetivos_institucionales"]
+
+                if not objetivos.exists():
 
                     messages.error(
 
@@ -86,6 +104,21 @@ def registrar_objetivo_estrategico(request):
 
 @login_required
 def consultar_objetivos_estrategicos(request):
+
+    permiso = validar_permiso(
+        request,
+        "Consultar objetivos estratégicos"
+    )
+
+    if permiso:
+
+        permiso = validar_permiso(
+            request,
+            "Administrar objetivos estratégicos"
+        )
+
+        if permiso:
+            return permiso
 
     objetivos = ObjetivoEstrategico.objects.all()
 
@@ -137,7 +170,15 @@ def consultar_objetivos_estrategicos(request):
 
 
 @login_required
-def editar_objetivo_estrategico(request, id):
+def editar_objetivo_estrategico(request,id):
+
+    permiso = validar_permiso(
+        request,
+        "Administrar objetivos estratégicos"
+    )
+
+    if permiso:
+        return permiso
 
     objetivo = get_object_or_404(
         ObjetivoEstrategico,
@@ -235,7 +276,22 @@ def editar_objetivo_estrategico(request, id):
     )
     
 @login_required
-def seguimiento_objetivo_estrategico(request, id):
+def seguimiento_objetivo_estrategico(request,id):
+
+    permiso = validar_permiso(
+        request,
+        "Consultar objetivos estratégicos"
+    )
+
+    if permiso:
+
+        permiso = validar_permiso(
+            request,
+            "Administrar objetivos estratégicos"
+        )
+
+        if permiso:
+            return permiso
 
     objetivo = get_object_or_404(
         ObjetivoEstrategico,
@@ -326,6 +382,21 @@ def seguimiento_objetivo_estrategico(request, id):
 
 @login_required
 def dashboard_objetivos_estrategicos(request):
+
+    permiso = validar_permiso(
+        request,
+        "Consultar objetivos estratégicos"
+    )
+
+    if permiso:
+
+        permiso = validar_permiso(
+            request,
+            "Administrar objetivos estratégicos"
+        )
+
+        if permiso:
+            return permiso
 
     datos = []
 

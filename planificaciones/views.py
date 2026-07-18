@@ -1,16 +1,24 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.shortcuts import get_object_or_404
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.utils import timezone
 
-
 from .models import Planificacion
 from .forms import PlanificacionForm
+from entidades.models import Entidad
+from usuarios.permisos import validar_permiso
 
-from django.contrib.auth.decorators import login_required
 @login_required
 def registrar_planificacion(request):
+
+    permiso = validar_permiso(
+        request,
+        "Administrar planificación"
+    )
+
+    if permiso:
+        return permiso
 
     if request.method == "POST":
 
@@ -100,6 +108,14 @@ def registrar_planificacion(request):
 @login_required
 def consultar_planificaciones(request):
 
+    permiso = validar_permiso(
+        request,
+        "Consultar planificación"
+    )
+
+    if permiso:
+        return permiso
+
     buscar = request.GET.get("buscar", "").strip()
     estado = request.GET.get("estado", "")
     entidad = request.GET.get("entidad", "")
@@ -129,8 +145,6 @@ def consultar_planificaciones(request):
         planificaciones = planificaciones.filter(
             entidad_id=entidad
         )
-
-    from entidades.models import Entidad
 
     entidades = Entidad.objects.filter(
         estado=True
@@ -168,6 +182,14 @@ def consultar_planificaciones(request):
 
 @login_required
 def editar_planificacion(request, id):
+
+    permiso = validar_permiso(
+        request,
+        "Editar planificación"
+    )
+
+    if permiso:
+        return permiso
 
     planificacion = get_object_or_404(
         Planificacion,
@@ -238,6 +260,14 @@ def editar_planificacion(request, id):
 @login_required
 def eliminar_planificacion(request, id):
 
+    permiso = validar_permiso(
+        request,
+        "Eliminar planificación"
+    )
+
+    if permiso:
+        return permiso
+
     planificacion = get_object_or_404(
         Planificacion,
         pk=id
@@ -275,6 +305,14 @@ def eliminar_planificacion(request, id):
 @login_required
 def validar_planificacion(request, id):
 
+    permiso = validar_permiso(
+        request,
+        "Validar planificación"
+    )
+
+    if permiso:
+        return permiso
+
     planificacion = get_object_or_404(
         Planificacion,
         pk=id
@@ -300,9 +338,7 @@ def validar_planificacion(request, id):
     if errores:
 
         planificacion.validada = False
-
         planificacion.observacion = "\n".join(errores)
-
         planificacion.save()
 
         messages.error(
@@ -325,6 +361,14 @@ def validar_planificacion(request, id):
 
 @login_required
 def aprobar_planificacion(request, id):
+
+    permiso = validar_permiso(
+        request,
+        "Aprobar planificación"
+    )
+
+    if permiso:
+        return permiso
 
     planificacion = get_object_or_404(
         Planificacion,
@@ -364,6 +408,14 @@ def aprobar_planificacion(request, id):
 
 @login_required
 def rechazar_planificacion(request, id):
+
+    permiso = validar_permiso(
+        request,
+        "Aprobar planificación"
+    )
+
+    if permiso:
+        return permiso
 
     planificacion = get_object_or_404(
         Planificacion,

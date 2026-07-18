@@ -1,13 +1,23 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 
 from .models import Entidad
 from .forms import EntidadForm
-from django.db.models import Q
+from planificaciones.models import Planificacion
 
-from django.contrib.auth.decorators import login_required
+from usuarios.permisos import validar_permiso
 @login_required
 def registrar_entidad(request):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar entidades"
+    )
+
+    if permiso:
+        return permiso
 
     if request.method == "POST":
 
@@ -61,6 +71,14 @@ def registrar_entidad(request):
 from django.contrib.auth.decorators import login_required
 @login_required
 def consultar_entidades(request):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar entidades"
+    )
+
+    if permiso:
+        return permiso
 
     buscar = request.GET.get("buscar", "").strip()
     estado = request.GET.get("estado", "")
@@ -102,6 +120,14 @@ def consultar_entidades(request):
 from django.contrib.auth.decorators import login_required
 @login_required
 def editar_entidad(request, id):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar entidades"
+    )
+
+    if permiso:
+        return permiso
 
     entidad = get_object_or_404(
         Entidad,
@@ -158,6 +184,14 @@ def editar_entidad(request, id):
 
 @login_required
 def eliminar_entidad(request, id):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar entidades"
+    )
+
+    if permiso:
+        return permiso
 
     entidad = get_object_or_404(
         Entidad,
@@ -176,15 +210,20 @@ def eliminar_entidad(request, id):
 
 @login_required
 def cambiar_estado_entidad(request, id):
+    
+    permiso = validar_permiso(
+    request,
+    "Administrar entidades"
+    )
+
+    if permiso:
+        return permiso
 
     entidad = get_object_or_404(
         Entidad,
         id=id
     )
 
-    from planificaciones.models import Planificacion
-
-    # Si la entidad está activa y se intenta desactivar
     if entidad.estado:
 
         tiene_planificaciones = Planificacion.objects.filter(
