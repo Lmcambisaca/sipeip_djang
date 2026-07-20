@@ -4,6 +4,8 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password, check_password
 from django.db.models import Q
+from usuarios.models import AuditoriaSesion
+
 
 from .forms import (
     LoginForm,
@@ -37,6 +39,14 @@ def registrar_usuario(request):
         form = UsuarioForm(request.POST)
 
         if form.is_valid():
+            
+            registrar_auditoria(
+
+                request.user,
+
+                "Registró un usuario"
+
+            )
 
             form.save()
 
@@ -323,6 +333,14 @@ def login_usuario(request):
 
                 login(request, usuario)
                 
+                registrar_auditoria(
+
+                    user,
+
+                    "Inicio de sesión"
+
+                )
+                
                 AuditoriaSesion.objects.create(
                     usuario=usuario,
                     accion="Inicio de sesión"
@@ -467,6 +485,14 @@ def logout_usuario(request):
             usuario=request.user,
             accion="Cierre de sesión"
         )
+        
+        registrar_auditoria(
+
+        request.user,
+
+        "Cierre de sesión"
+
+        )
 
     logout(request)
 
@@ -480,11 +506,57 @@ def dashboard(request):
 
     if hasattr(request.user, "rol") and request.user.rol:
         rol = request.user.rol.nombre
+        
+    permisos = []
+
+    if request.user.is_authenticated and request.user.rol:
+
+        permisos = list(
+            request.user.rol.permisos.filter(
+                estado=True
+            ).values_list(
+                "nombre",
+                flat=True
+            )
+        )
 
     return render(
         request,
         "usuarios/dashboard.html",
         {
-            "rol": rol
+            "permisos": permisos,
         }
+    )
+    
+def registrar_auditoria(usuario, accion):
+
+    AuditoriaSesion.objects.create(
+
+        usuario=usuario,
+
+        accion=accion
+
+    )
+    
+@login_required
+def consultar_auditoria(request):
+
+    auditorias = AuditoriaSesion.objects.select_related(
+
+        "usuario"
+
+    ).order_by("-fecha")
+
+    return render(
+
+        request,
+
+        "usuarios/consultar_auditoria.html",
+
+        {
+
+            "auditorias": auditorias
+
+        }
+
     )

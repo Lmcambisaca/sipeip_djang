@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+
+<div class="container-fluid">
+
+
+<h2>
+Reporte Institucional Consolidado
+</h2>
+
+
+<table class="table table-bordered">
+
+
+<tr>
+
+<th>Usuarios registrados</th>
+
+<td>
+{{ informacion.usuarios }}
+</td>
+
+</tr>
+
+
+<tr>
+
+<th>Entidades</th>
+
+<td>
+{{ informacion.entidades }}
+</td>
+
+</tr>
+
+
+<tr>
+
+<th>Proyectos</th>
+
+<td>
+{{ informacion.proyectos }}
+</td>
+
+</tr>
+
+
+<tr>
+
+<th>Metas</th>
+
+<td>
+{{ informacion.metas }}
+</td>
+
+</tr>
+
+
+<tr>
+
+<th>Indicadores</th>
+
+<td>
+{{ informacion.indicadores }}
+</td>
+
+</tr>
+
+
+</table>
+
+
+</div>
+
+
+{% endblock %}

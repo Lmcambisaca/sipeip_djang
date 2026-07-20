@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "ods",
     "objetivosI",
     "objetivosE",
+    "reportes",
 ]
 
 MIDDLEWARE = [

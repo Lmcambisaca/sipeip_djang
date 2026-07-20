@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+<h2>Consultar Reportes</h2>
+
+<form method="get" class="mb-3">
+
+<div class="row">
+
+<div class="col-md-4">
+
+<select
+name="tipo"
+class="form-control">
+
+<option value="">Todos</option>
+
+<option value="Usuarios">Usuarios</option>
+<option value="Entidades">Entidades</option>
+<option value="Planificaciones">Planificaciones</option>
+<option value="Proyectos">Proyectos</option>
+<option value="ODS">ODS</option>
+<option value="Metas">Metas</option>
+<option value="Indicadores">Indicadores</option>
+<option value="Avances">Avances</option>
+
+</select>
+
+</div>
+
+<div class="col-md-3">
+
+<input
+type="date"
+name="fecha"
+class="form-control">
+
+</div>
+
+<div class="col-md-2">
+
+<button
+class="btn btn-primary">
+
+Buscar
+
+</button>
+
+</div>
+
+</div>
+
+</form>
+
+<table class="table table-bordered">
+
+<thead>
+
+<tr>
+
+<th>Tipo</th>
+
+<th>Usuario</th>
+
+<th>Fecha</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for r in reportes %}
+
+<tr>
+
+<td>{{ r.tipo }}</td>
+
+<td>{{ r.usuario }}</td>
+
+<td>{{ r.fecha_generacion }}</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+
+<td colspan="3">
+
+No existen reportes.
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+{% endblock %}

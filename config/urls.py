@@ -33,4 +33,5 @@ urlpatterns = [
     path("ods/", include("ods.urls")),
     path("objetivosI/", include("objetivosI.urls")),
     path("objetivosE/", include("objetivosE.urls")),
+    path("reportes/", include("reportes.urls")),
 ]

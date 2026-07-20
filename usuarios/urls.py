@@ -11,4 +11,5 @@ urlpatterns = [
     path('estado/<int:id>/', views.cambiar_estado_usuario, name='cambiar_estado_usuario'),
     path('recuperar-password/', views.recuperar_password, name='recuperar_password'),
     path("eliminar/<int:id>/", views.eliminar_usuario, name="eliminar_usuario",),
+    path("auditoria/", views.consultar_auditoria, name="consultar_auditoria"),
 ]

@@ -11,7 +11,7 @@ class Meta(models.Model):
     )
 
     descripcion = models.CharField(
-        max_length=250
+        max_length=1000
     )
 
     periodo = models.CharField(
@@ -73,7 +73,7 @@ class Indicador(models.Model):
     )
 
     nombre = models.CharField(
-        max_length=150
+        max_length=1000
     )
 
     formula = models.CharField(
