@@ -27,11 +27,10 @@ def generar_reporte(request):
 
     if request.method == "POST":
         
-        if not datos:
-
+        if Proyecto.objects.count() == 0:
             messages.warning(
                 request,
-                "No existe información disponible para generar el reporte."
+                "No existe información disponible para generar el reporte"
             )
 
             return redirect("generar_reporte")

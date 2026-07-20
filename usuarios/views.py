@@ -335,7 +335,7 @@ def login_usuario(request):
                 
                 registrar_auditoria(
 
-                    user,
+                    usuario,
 
                     "Inicio de sesión"
 
