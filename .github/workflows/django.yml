@@ -22,19 +22,29 @@ jobs:
 
     services:
 
-      mysql:
+  mysql:
 
-        image: mysql:8.0
+    image: mysql:8.0
 
-        env:
+    env:
 
-          MYSQL_DATABASE: sipeip
+      MYSQL_DATABASE: sipeip_django
 
-          MYSQL_USER: root
+      MYSQL_ROOT_PASSWORD: root
 
-          MYSQL_PASSWORD: root
+    ports:
 
-          MYSQL_ROOT_PASSWORD: root
+      - 3306:3306
+
+    options: >-
+
+      --health-cmd="mysqladmin ping -h localhost -uroot -proot"
+
+      --health-interval=10s
+
+      --health-timeout=5s
+
+      --health-retries=5
 
         ports:
 
@@ -72,20 +82,20 @@ jobs:
           pip install -r requirements.txt
 
 
+
       - name: Run Tests
+      
+      env:
 
-        env:
+        DB_NAME: sipeip_django
 
-          DB_NAME: sipeip
+        DB_USER: root
 
-          DB_USER: root
+        DB_PASSWORD: root
 
-          DB_PASSWORD: root
+        DB_HOST: 127.0.0.1
 
-          DB_HOST: 127.0.0.1
-
-          DB_PORT: 3306
-
+        DB_PORT: 3306
         run:
 
           python manage.py test
