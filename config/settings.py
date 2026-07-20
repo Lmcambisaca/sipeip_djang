@@ -85,14 +85,32 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+import os
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'sipeip_django',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'NAME': os.environ.get(
+            'DB_NAME',
+            'sipeip_django'
+        ),
+        'USER': os.environ.get(
+            'DB_USER',
+            'root'
+        ),
+        'PASSWORD': os.environ.get(
+            'DB_PASSWORD',
+            ''
+        ),
+        'HOST': os.environ.get(
+            'DB_HOST',
+            '127.0.0.1'
+        ),
+        'PORT': os.environ.get(
+            'DB_PORT',
+            '3306'
+        ),
     }
 }
 
