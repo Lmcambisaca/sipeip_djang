@@ -50,6 +50,8 @@
 
                     <tr class="text-center">
 
+                        <th>Categoría</th>
+
                         <th>Nombre</th>
 
                         <th>Valor</th>
@@ -73,6 +75,8 @@
                     {% for c in configuraciones %}
 
                     <tr>
+
+                        <td>{{ c.categoria }}</td>
 
                         <td>{{ c.nombre }}</td>
 
@@ -124,7 +128,7 @@
 
                     <tr>
 
-                        <td colspan="5" class="text-center">
+                        <td colspan="6" class="text-center">
 
                             No existen configuraciones registradas.
 

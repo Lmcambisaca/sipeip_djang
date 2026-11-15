@@ -2,6 +2,11 @@ from django.db import models
 
 
 class Configuracion(models.Model):
+    
+    categoria = models.CharField(
+        max_length=100,
+        default="General",
+    )
 
     nombre = models.CharField(
         max_length=100,
