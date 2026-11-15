@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 import json
+from decimal import Decimal, ROUND_HALF_UP
 
 from .models import (
     Meta,
@@ -147,112 +148,41 @@ def consultar_metas(request):
     
 @login_required
 def editar_meta(request, id):
-    
-    permiso = validar_permiso(
-    request,
-    "Administrar metas"
-    )
-
+    permiso = validar_permiso(request, "Administrar metas")
     if permiso:
         return permiso
 
-    meta = get_object_or_404(
-        Meta,
-        pk=id
-    )
+    meta = get_object_or_404(Meta, pk=id)
 
     if request.method == "POST":
-
-        form = MetaForm(
-            request.POST,
-            instance=meta
-        )
+        form = MetaForm(request.POST, instance=meta)
 
         if form.is_valid():
+            proyecto = form.cleaned_data["proyecto"]
 
-            descripcion = form.cleaned_data["descripcion"].strip()
-
-            periodo = form.cleaned_data["periodo"].strip()
-
-            unidad = form.cleaned_data["unidad_medida"].strip()
-
-            valor = form.cleaned_data["valor_esperado"]
-
-            if not descripcion:
-
+            if not proyecto.objetivos_desarrollo.exists():
                 messages.error(
                     request,
-                    "La descripción es obligatoria."
+                    "El proyecto seleccionado no está asociado a ningún Objetivo de Desarrollo."
                 )
-
-            elif not periodo:
-
-                messages.error(
-                    request,
-                    "El período es obligatorio."
-                )
-
-            elif not unidad:
-
-                messages.error(
-                    request,
-                    "La unidad es obligatoria."
-                )
-
-            elif valor <= 0:
-
-                messages.error(
-                    request,
-                    "El valor esperado debe ser mayor que cero."
-                )
-
+            
             else:
-                
-                HistorialMeta.objects.create(
-
-                    meta=meta,
-
-                    descripcion="Actualización de la meta."
-
-                )
-                
-                proyecto = form.cleaned_data["proyecto"]
-
-                if not proyecto.objetivos_desarrollo.exists():
-
-                    messages.error(
-
-                        request,
-
-                        "El proyecto seleccionado no está asociado a ningún Objetivo de Desarrollo."
-
-                    )
-
-                    return render(
-
-                        request,
-
-                        "seguimiento/registrar_meta.html",
-
-                        {
-
-                            "form": form
-
-                        }
-
-                    )
-
                 form.save()
+
+                HistorialMeta.objects.create(
+            
+                    meta=meta,
+            
+                    descripcion="Actualización de la meta."
+            
+                )
+
 
                 messages.success(
                     request,
                     "Meta actualizada correctamente."
                 )
-
-                return redirect(
-                    "consultar_metas"
-                )
-
+                return redirect("consultar_metas")
     else:
 
         form = MetaForm(instance=meta)
@@ -262,13 +192,7 @@ def editar_meta(request, id):
         request,
 
         "seguimiento/editar_meta.html",
-
-        {
-
-            "form": form
-
-        }
-
+        {"form": form}
     )
     
 @login_required
@@ -416,64 +340,46 @@ def editar_indicador(request, id):
 
 @login_required
 def registrar_avance(request):
-    
-    permiso = validar_permiso(
-    request,
-    "Registrar avances"
-    )
-
+    permiso = validar_permiso(request, "Registrar avances")
     if permiso:
         return permiso
 
     if request.method == "POST":
-
-        form = AvanceIndicadorForm(
-            request.POST
-        )
+        form = AvanceIndicadorForm(request.POST)
 
         if form.is_valid():
-
+       
             avance = form.save(commit=False)
+            valor_esperado = avance.indicador.meta.valor_esperado
 
-            meta = avance.indicador.meta
+            if valor_esperado <= 0:
+                form.add_error(
+                    "indicador",
+                    "La meta asociada debe tener un valor esperado mayor que cero."
+                )
+            else:
+                porcentaje = (
+                    avance.valor / valor_esperado * Decimal("100")
+                ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
-            porcentaje = (
-                float(avance.valor) /
-                float(meta.valor_esperado)
-            ) * 100
+                avance.porcentaje_cumplimiento = min(
+                    porcentaje,
+                    Decimal("100.00")
+                )
+                avance.save()
 
-            if porcentaje > 100:
-                porcentaje = 100
-
-            avance.porcentaje_cumplimiento = porcentaje
-
-            avance.save()
-
-            messages.success(
-                request,
-                "Avance registrado correctamente."
-            )
-
-            return redirect(
-                "consultar_avances"
-            )
-
+                messages.success(request, "Avance registrado correctamente.")
+                return redirect("consultar_avances")
     else:
-
+       
         form = AvanceIndicadorForm()
 
     return render(
-
+       
         request,
-
+       
         "seguimiento/registrar_avance.html",
-
-        {
-
-            "form": form
-
-        }
-
+        {"form": form}
     )
     
 @login_required
@@ -508,76 +414,51 @@ def consultar_avances(request):
     
 @login_required
 def editar_avance(request, id):
-    
-    permiso = validar_permiso(
-    request,
-    "Registrar avances"
-    )
-
+    permiso = validar_permiso(request, "Registrar avances")
     if permiso:
         return permiso
 
-    avance = get_object_or_404(
-        AvanceIndicador,
-        pk=id
-    )
+    avance_original = get_object_or_404(AvanceIndicador, pk=id)
 
     if request.method == "POST":
-
+       
         form = AvanceIndicadorForm(
             request.POST,
-            instance=avance
+            instance=avance_original
         )
 
         if form.is_valid():
-
+       
             avance = form.save(commit=False)
+            valor_esperado = avance.indicador.meta.valor_esperado
 
-            meta = avance.indicador.meta
+            if valor_esperado <= 0:
+                form.add_error(
+                    "indicador",
+                    "La meta asociada debe tener un valor esperado mayor que cero."
+                )
+            else:
+                porcentaje = (
+                    avance.valor / valor_esperado * Decimal("100")
+                ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
-            porcentaje = (
-                float(avance.valor) /
-                float(meta.valor_esperado)
-            ) * 100
+                avance.porcentaje_cumplimiento = min(
+                    porcentaje,
+                    Decimal("100.00")
+                )
+                avance.save()
 
-            if porcentaje > 100:
-
-                porcentaje = 100
-
-            avance.porcentaje_cumplimiento = porcentaje
-
-            avance.save()
-
-            messages.success(
-
-                request,
-
-                "Avance actualizado correctamente."
-
-            )
-
-            return redirect(
-                "consultar_avances"
-            )
-
+                messages.success(request, "Avance actualizado correctamente.")
+                return redirect("consultar_avances")
     else:
-
-        form = AvanceIndicadorForm(
-            instance=avance
-        )
+        form = AvanceIndicadorForm(instance=avance_original)
 
     return render(
-
+       
         request,
-
+       
         "seguimiento/editar_avance.html",
-
-        {
-
-            "form": form
-
-        }
-
+        {"form": form}
     )
 
 @login_required
@@ -631,5 +512,3 @@ def grafico_indicador(request, id):
 
     )
     
-    
-

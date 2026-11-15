@@ -61,6 +61,23 @@ class MetaForm(forms.ModelForm):
         self.fields["proyecto"].queryset = Proyecto.objects.filter(
             eliminado=False
         )
+    
+    def clean(self):
+        cleaned_data = super().clean()
+
+        for campo in ("descripcion", "periodo", "unidad_medida"):
+            valor = cleaned_data.get(campo)
+            if valor and not valor.strip():
+                self.add_error(campo, "Este campo no puede quedar vacío.")
+
+        valor_esperado = cleaned_data.get("valor_esperado")
+        if valor_esperado is not None and valor_esperado <= 0:
+            self.add_error(
+                "valor_esperado",
+                "El valor esperado debe ser mayor que cero."
+            )
+
+        return cleaned_data
         
 class IndicadorForm(forms.ModelForm):
 
@@ -111,6 +128,16 @@ class IndicadorForm(forms.ModelForm):
             )
 
         }
+            
+    def clean(self):
+        cleaned_data = super().clean()
+
+        for campo in ("nombre", "formula", "unidad_medida", "frecuencia"):
+            valor = cleaned_data.get(campo)
+            if valor and not valor.strip():
+                self.add_error(campo, "Este campo no puede quedar vacío.")
+
+        return cleaned_data
         
 class AvanceIndicadorForm(forms.ModelForm):
 
@@ -148,3 +175,12 @@ class AvanceIndicadorForm(forms.ModelForm):
             )
 
         }
+        
+    def clean(self):
+        cleaned_data = super().clean()
+
+        valor = cleaned_data.get("valor")
+        if valor is not None and valor < 0:
+            self.add_error("valor", "El valor del avance no puede ser negativo.")
+
+        return cleaned_data
