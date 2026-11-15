@@ -1,8 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-
-from .decorators import permiso_requerido
 from .models import Rol, Permiso
 from .forms import RolForm
 from usuarios.permisos import validar_permiso
@@ -148,7 +146,7 @@ def editar_rol(request, id):
     })
     
 @login_required
-@permiso_requerido("Eliminar Rol")
+
 def eliminar_rol(request, id):
     
     permiso = validar_permiso(
@@ -165,23 +163,15 @@ def eliminar_rol(request, id):
         messages.error(request, "El rol solicitado no existe.")
         return redirect("consultar_roles")
 
-    if rol.usuarios.filter(estado=True).exists():
-
+    if rol.usuarios.exists():
         messages.error(
             request,
-            "No se puede eliminar el rol porque está asignado a usuarios activos."
+            "No se puede eliminar el rol porque está asignado a uno o más usuarios.",
         )
-
         return redirect("consultar_roles")
-    else:
 
-        rol.delete()
-
-        messages.success(
-            request,
-            "Rol eliminado correctamente."
-        )
-
+    rol.delete()
+    messages.success(request, "Rol eliminado correctamente.")
     return redirect("consultar_roles")
 
 @login_required
@@ -204,41 +194,38 @@ def asignar_permiso(request, id):
     permisos = Permiso.objects.filter(estado=True)
 
     if request.method == "POST":
-
+        
         seleccionados = request.POST.getlist("permisos")
 
-        if not seleccionados:
+        try:
+            nuevos = {int(permiso_id) for permiso_id in seleccionados}
+        except ValueError:
+            messages.error(request, "La selección de permisos no es válida.")
+            return redirect("asignar_permiso", id=id)
 
-            messages.error(
-                request,
-                "Debe seleccionar al menos un permiso."
-            )
-
-            return redirect(
-                "asignar_permiso",
-                id=id
-            )
-
-        permisos_actuales = list(
-            rol.permisos.values_list("id", flat=True)
+        permisos_disponibles = set(
+            permisos.values_list("id", flat=True)
         )
 
-        nuevos = list(map(int, seleccionados))
+        if not nuevos.issubset(permisos_disponibles):
+            messages.error(
+                request,
+                "La selección contiene permisos inválidos o inactivos.",
+            )
+            return redirect("asignar_permiso", id=id)
 
-        if permisos_actuales == nuevos:
+        actuales = set(rol.permisos.values_list("id", flat=True))
 
+        if actuales == nuevos:
             messages.info(
                 request,
-                "El rol ya posee esos permisos."
+                "El rol ya tiene esa configuración de permisos.",
             )
-
         else:
-
-            rol.permisos.set(seleccionados)
-
+            rol.permisos.set(nuevos)
             messages.success(
                 request,
-                "Permisos actualizados correctamente."
+                "Permisos actualizados correctamente.",
             )
 
         return redirect("consultar_roles")
