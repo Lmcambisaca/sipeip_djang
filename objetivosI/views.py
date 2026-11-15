@@ -1,20 +1,13 @@
-from django.shortcuts import (
-    render,
-    redirect,
-    get_object_or_404
-)
-
+from django.shortcuts import (render, redirect, get_object_or_404)
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
-from .models import (
-    ObjetivoInstitucional,
-    HistorialObjetivoInstitucional
-)
-
+from .models import (ObjetivoInstitucional, HistorialObjetivoInstitucional)
 from .forms import ObjetivoInstitucionalForm
 
 from usuarios.permisos import validar_permiso
+from usuarios.models import Usuario
+
 @login_required
 def registrar_objetivo_institucional(request):
 
@@ -155,22 +148,26 @@ def consultar_objetivos_institucionales(request):
         )
 
 
-    mensaje=""
-
+        mensaje = ""
 
     if not objetivos.exists():
-
-        mensaje="No existen objetivos institucionales registrados."
-
+        mensaje = "No existen objetivos institucionales registrados."
 
     return render(
         request,
         "objetivosI/consultar_objetivo.html",
         {
-            "objetivos":objetivos,
-            "mensaje":mensaje
+            "objetivos": objetivos,
+            "mensaje": mensaje,
+            "responsables": Usuario.objects.filter(
+                is_active=True
+            ).order_by("last_name", "first_name"),
+            "responsable_seleccionado": responsable,
+            "periodo": periodo,
+            "estado_seleccionado": estado,
         }
     )
+    
 
 
 @login_required
@@ -275,7 +272,20 @@ def editar_objetivo_institucional(request, id):
                     cambios.append(
                         "Estado actualizado"
                     )
+                    
+                    
+                proyectos_anteriores = set(
+                
+                    objetivo.proyectos.values_list("pk", flat=True)
+                )
+                
+                proyectos_nuevos = set(
+                
+                    form.cleaned_data["proyectos"].values_list("pk", flat=True)
+                )
 
+                if proyectos_anteriores != proyectos_nuevos:
+                    cambios.append("Proyectos asociados actualizados")
 
                 objetivo = form.save()
 

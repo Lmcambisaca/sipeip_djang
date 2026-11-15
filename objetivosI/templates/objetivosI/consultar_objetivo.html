@@ -32,6 +32,21 @@
 
             <form method="get">
 
+                <div class="col-md-4">
+                    <label for="responsable">Responsable</label>
+                    <select name="responsable" id="responsable" class="form-select">
+                        <option value="">Todos</option>
+                        {% for usuario in responsables %}
+                            <option value="{{ usuario.id }}"
+                                {% if responsable_seleccionado == usuario.id|stringformat:"s" %}
+                                    selected
+                                {% endif %}>
+                                {{ usuario.get_full_name|default:usuario.username }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
 
                 <div class="row">
 
