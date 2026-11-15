@@ -8,6 +8,7 @@ from .models import Planificacion
 from .forms import PlanificacionForm
 from entidades.models import Entidad
 from usuarios.permisos import validar_permiso
+from django.views.decorators.http import require_POST
 
 @login_required
 def registrar_planificacion(request):
@@ -258,65 +259,43 @@ def editar_planificacion(request, id):
     )
 
 @login_required
+@require_POST
 def eliminar_planificacion(request, id):
-
-    permiso = validar_permiso(
-        request,
-        "Eliminar planificación"
-    )
-
+    permiso = validar_permiso(request, "Eliminar planificación")
     if permiso:
         return permiso
 
-    planificacion = get_object_or_404(
-        Planificacion,
-        pk=id
-    )
+    planificacion = get_object_or_404(Planificacion, pk=id)
+    accion = request.POST.get("accion")
 
-    # TAR-81
-    if planificacion.proyectos.exists():
+    if accion not in {"activar", "desactivar"}:
+        messages.error(request, "La acción solicitada no es válida.")
+        return redirect("consultar_planificaciones")
 
-        messages.error(
+    nuevo_estado = accion == "activar"
 
-            request,
+    if planificacion.estado == nuevo_estado:
+        messages.info(request, "La planificación ya se encuentra en ese estado.")
+        return redirect("consultar_planificaciones")
 
-            "No es posible eliminar la planificación porque tiene proyectos asociados."
+    planificacion.estado = nuevo_estado
+    planificacion.save(update_fields=["estado"])
 
-        )
+    if nuevo_estado:
+        messages.success(request, "Planificación activada correctamente.")
+    else:
+        messages.success(request, "Planificación desactivada correctamente.")
 
-        return redirect(
-            "consultar_planificaciones"
-        )
-
-    planificacion.delete()
-
-    messages.success(
-
-        request,
-
-        "Planificación eliminada correctamente."
-
-    )
-
-    return redirect(
-        "consultar_planificaciones"
-    )
+    return redirect("consultar_planificaciones")
 
 @login_required
+@require_POST
 def validar_planificacion(request, id):
-
-    permiso = validar_permiso(
-        request,
-        "Validar planificación"
-    )
-
+    permiso = validar_permiso(request, "Validar planificación")
     if permiso:
         return permiso
 
-    planificacion = get_object_or_404(
-        Planificacion,
-        pk=id
-    )
+    planificacion = get_object_or_404(Planificacion, pk=id)
 
     errores = []
 
@@ -329,109 +308,95 @@ def validar_planificacion(request, id):
     if not planificacion.descripcion.strip():
         errores.append("No tiene descripción.")
 
-    if planificacion.fecha_inicio > planificacion.fecha_fin:
-        errores.append("Las fechas son inconsistentes.")
+    if (
+        planificacion.fecha_inicio
+        and planificacion.fecha_fin
+        and planificacion.fecha_inicio > planificacion.fecha_fin
+    ):
+        errores.append("La fecha de inicio es posterior a la fecha de fin.")
 
-    if planificacion.entidad is None:
+    if not planificacion.entidad_id:
         errores.append("No tiene entidad asignada.")
 
+    planificacion.validada = not errores
+    planificacion.observacion = (
+        "\n".join(errores)
+        if errores
+        else "Planificación validada correctamente."
+    )
+    planificacion.save(update_fields=["validada", "observacion"])
+
     if errores:
-
-        planificacion.validada = False
-        planificacion.observacion = "\n".join(errores)
-        planificacion.save()
-
-        messages.error(
-            request,
-            "La planificación no puede validarse."
-        )
-
+        messages.error(request, "La planificación no puede validarse.")
     else:
-
-        planificacion.validada = True
-        planificacion.observacion = "Planificación validada correctamente."
-        planificacion.save()
-
-        messages.success(
-            request,
-            "Planificación validada correctamente."
-        )
+        messages.success(request, "Planificación validada correctamente.")
 
     return redirect("consultar_planificaciones")
 
+
 @login_required
+@require_POST
 def aprobar_planificacion(request, id):
-
-    permiso = validar_permiso(
-        request,
-        "Aprobar planificación"
-    )
-
+    permiso = validar_permiso(request, "Aprobar planificación")
     if permiso:
         return permiso
 
-    planificacion = get_object_or_404(
-        Planificacion,
-        pk=id
-    )
+    planificacion = get_object_or_404(Planificacion, pk=id)
 
-    if not planificacion.validada:
-
-        messages.error(
-            request,
-            "Primero debe validar la planificación."
-        )
-
+    if not planificacion.estado:
+        messages.error(request, "No se puede aprobar una planificación inactiva.")
+    elif not planificacion.validada:
+        messages.error(request, "Primero debe validar la planificación.")
     elif planificacion.aprobada:
-
-        messages.warning(
-            request,
-            "La planificación ya fue aprobada."
-        )
-
+        messages.warning(request, "La planificación ya fue aprobada.")
     else:
-
         planificacion.aprobada = True
         planificacion.aprobada_por = request.user
         planificacion.fecha_aprobacion = timezone.now()
-
-        planificacion.save()
-
-        messages.success(
-            request,
-            "Planificación aprobada correctamente."
+        planificacion.save(
+            update_fields=[
+                "aprobada",
+                "aprobada_por",
+                "fecha_aprobacion",
+            ]
         )
+        messages.success(request, "Planificación aprobada correctamente.")
 
-    return redirect(
-        "consultar_planificaciones"
-    )
+    return redirect("consultar_planificaciones")
+
 
 @login_required
+@require_POST
 def rechazar_planificacion(request, id):
-
-    permiso = validar_permiso(
-        request,
-        "Aprobar planificación"
-    )
-
+    permiso = validar_permiso(request, "Aprobar planificación")
     if permiso:
         return permiso
 
-    planificacion = get_object_or_404(
-        Planificacion,
-        pk=id
-    )
+    planificacion = get_object_or_404(Planificacion, pk=id)
+    observacion = request.POST.get("observacion", "").strip()
 
-    planificacion.aprobada = False
-    planificacion.validada = False
+    if not (planificacion.validada or planificacion.aprobada):
+        messages.error(
+            request,
+            "Solo se puede rechazar una planificación que haya sido validada o aprobada.",
+        )
+    elif not observacion:
+        messages.error(request, "Escribe el motivo del rechazo.")
+    else:
+        planificacion.validada = False
+        planificacion.aprobada = False
+        planificacion.aprobada_por = None
+        planificacion.fecha_aprobacion = None
+        planificacion.observacion = observacion
+        planificacion.save(
+            update_fields=[
+                "validada",
+                "aprobada",
+                "aprobada_por",
+                "fecha_aprobacion",
+                "observacion",
+            ]
+        )
+        messages.success(request, "Planificación rechazada.")
 
-    planificacion.save()
-
-    messages.success(
-        request,
-        "Planificación rechazada."
-    )
-
-    return redirect(
-        "consultar_planificaciones"
-    )
+    return redirect("consultar_planificaciones")

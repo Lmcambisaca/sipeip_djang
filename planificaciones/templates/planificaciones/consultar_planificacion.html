@@ -274,63 +274,111 @@
                                 </a>
 
                                 {% if p.estado %}
-
-                                <a
-                                    href="{% url 'eliminar_planificacion' p.id %}"
-                                    class="btn btn-danger btn-sm"
-                                    onclick="return confirm('¿Desea desactivar esta planificación?');">
-
-                                    Desactivar
-
-                                </a>
-
+                                
+                                <form method="post"
+                                
+                                    action="{% url 'eliminar_planificacion' p.id %}"
+                                    class="d-inline"
+                                    onsubmit="return confirm('¿Desea desactivar esta planificación?');">
+                                    
+                                    {% csrf_token %}
+                                    
+                                    <input type="hidden" name="accion" value="desactivar">
+                                    
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                    
+                                        Desactivar
+                                    
+                                    </button>
+                                
+                                </form>
+                                
                                 {% else %}
-
-                                <a
-                                    href="{% url 'eliminar_planificacion' p.id %}"
-                                    class="btn btn-success btn-sm"
-                                    onclick="return confirm('¿Desea activar esta planificación?');">
-
-                                    Activar
-
-                                </a>
-
+                                
+                                <form method="post"
+                                   
+                                    action="{% url 'eliminar_planificacion' p.id %}"
+                                    class="d-inline"
+                                    onsubmit="return confirm('¿Desea activar esta planificación?');">
+                                
+                                    {% csrf_token %}
+                                
+                                    <input type="hidden" name="accion" value="activar">
+                                    
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        
+                                        Activar
+                                
+                                    </button>
+                                
+                                </form>
+                                
                                 {% endif %}
 
                                 {% if not p.validada %}
-
-                                <a
-                                    href="{% url 'validar_planificacion' p.id %}"
-                                    class="btn btn-info btn-sm">
-
-                                    Validar
-
-                                </a>
-
+                               
+                                <form method="post"
+                               
+                                    action="{% url 'validar_planificacion' p.id %}"
+                                    class="d-inline">
+                                    
+                                    {% csrf_token %}
+                                    
+                                    <button type="submit" class="btn btn-info btn-sm">
+                                    
+                                        Validar
+                                    
+                                    </button>
+                                
+                                </form>
+                                
                                 {% endif %}
 
                                 {% if p.validada and not p.aprobada %}
-
-                                <a
-                                    href="{% url 'aprobar_planificacion' p.id %}"
-                                    class="btn btn-primary btn-sm">
-
-                                    Aprobar
-
-                                </a>
-
+                                
+                                <form method="post"
+                                
+                                    action="{% url 'aprobar_planificacion' p.id %}"
+                                    class="d-inline"
+                                    onsubmit="return confirm('¿Desea aprobar esta planificación?');">
+                                    
+                                    {% csrf_token %}
+                                    
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                    
+                                        Aprobar
+                                    
+                                    </button>
+                                
+                                </form>
+                                
                                 {% endif %}
 
-                                {% if p.aprobada %}
-
-                                <a
-                                    href="{% url 'rechazar_planificacion' p.id %}"
-                                    class="btn btn-secondary btn-sm">
-
-                                    Rechazar
-
-                                </a>
-
+                                {% if p.validada or p.aprobada %}
+                                
+                                <form method="post"
+                                    action="{% url 'rechazar_planificacion' p.id %}"
+                                    class="mt-2">
+                                
+                                    {% csrf_token %}
+                                
+                                    <textarea
+                                
+                                        name="observacion"
+                                        class="form-control form-control-sm mb-1"
+                                        rows="2"
+                                        maxlength="2000"
+                                        required
+                                        placeholder="Motivo del rechazo"></textarea>
+                                    
+                                    <button type="submit" class="btn btn-secondary btn-sm">
+                                    
+                                        Rechazar
+                                    
+                                    </button>
+                                
+                                </form>
+                                
                                 {% endif %}
 
                             </div>

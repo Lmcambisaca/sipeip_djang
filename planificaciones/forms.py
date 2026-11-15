@@ -58,48 +58,39 @@ class PlanificacionForm(forms.ModelForm):
         }
 
 def clean(self):
+        cleaned_data = super().clean()
 
-    cleaned_data = super().clean()
+        for campo in ("periodo", "nombre", "descripcion"):
+            valor = cleaned_data.get(campo)
 
-    periodo = cleaned_data.get("periodo")
-    nombre = cleaned_data.get("nombre")
-    descripcion = cleaned_data.get("descripcion")
-    fecha_inicio = cleaned_data.get("fecha_inicio")
-    fecha_fin = cleaned_data.get("fecha_fin")
+            if valor:
+                valor = valor.strip()
+                cleaned_data[campo] = valor
 
-    if periodo:
-        cleaned_data["periodo"] = periodo.strip()
+                if not valor:
+                    self.add_error(campo, "Este campo es obligatorio.")
 
-    if nombre:
-        cleaned_data["nombre"] = nombre.strip()
+        fecha_inicio = cleaned_data.get("fecha_inicio")
+        fecha_fin = cleaned_data.get("fecha_fin")
 
-    if descripcion:
-        cleaned_data["descripcion"] = descripcion.strip()
-
-    if fecha_inicio and fecha_fin:
-
-        if fecha_inicio > fecha_fin:
-
-            raise forms.ValidationError(
-                "La fecha de inicio no puede ser mayor que la fecha de fin."
+        if fecha_inicio and fecha_fin and fecha_inicio > fecha_fin:
+            self.add_error(
+                "fecha_fin",
+                "La fecha de fin no puede ser anterior a la fecha de inicio.",
             )
 
-    if nombre:
+        nombre = cleaned_data.get("nombre")
 
-        existe = Planificacion.objects.filter(
-            nombre__iexact=nombre
-        )
+        if nombre:
+            existentes = Planificacion.objects.filter(nombre__iexact=nombre)
 
-        if self.instance.pk:
+            if self.instance.pk:
+                existentes = existentes.exclude(pk=self.instance.pk)
 
-            existe = existe.exclude(
-                pk=self.instance.pk
-            )
+            if existentes.exists():
+                self.add_error(
+                    "nombre",
+                    "Ya existe una planificación con ese nombre.",
+                )
 
-        if existe.exists():
-
-            raise forms.ValidationError(
-                "Ya existe una planificación con ese nombre."
-            )
-
-    return cleaned_data
+        return cleaned_data
