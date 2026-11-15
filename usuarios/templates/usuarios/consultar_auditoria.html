@@ -6,17 +6,47 @@
 
 <h2>Auditoría del Sistema</h2>
 
+<form method="get" class="form-inline mb-3">
+    <select name="usuario" class="form-control mr-2">
+        <option value="">Todos los usuarios</option>
+        {% for usuario in usuarios %}
+        <option value="{{ usuario.pk }}"
+                {% if usuario_id == usuario.pk|stringformat:"s" %}selected{% endif %}>
+            {{ usuario.username }}
+        </option>
+        {% endfor %}
+    </select>
+
+    <input type="text"
+           name="accion"
+           value="{{ accion }}"
+           class="form-control mr-2"
+           placeholder="Acción">
+
+    <input type="date"
+           name="fecha"
+           value="{{ fecha }}"
+           class="form-control mr-2">
+
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+</form>
+
 <table class="table table-bordered">
 
 <thead>
 
 <tr>
-
+{% endfor %}
 <th>Usuario</th>
 
 <th>Acción</th>
 
 <th>Fecha</th>
+
+{% empty %}
+<tr>
+    <td colspan="3">No hay registros de auditoría para estos filtros.</td>
+</tr>
 
 </tr>
 

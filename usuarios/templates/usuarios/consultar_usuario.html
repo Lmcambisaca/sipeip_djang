@@ -222,6 +222,12 @@
 
                         <th>Apellido</th>
 
+                        <th>Identificación</th>
+
+                        <th>Cargo</th>
+
+                        <th>Entidad</th>
+
                         <th>Correo</th>
 
                         <th>Rol</th>
@@ -245,6 +251,24 @@
                         <td>{{ u.first_name }}</td>
 
                         <td>{{ u.last_name }}</td>
+
+                        <td>{{ u.identificacion|default:"-" }}</td>
+
+                        <td>{{ u.cargo|default:"-" }}</td>
+                        
+                        <td>
+
+                            {% if u.entidad %}
+
+                                {{ u.entidad.nombre }}
+
+                            {% else %}
+
+                                -
+
+                            {% endif %}
+
+                        </td>
 
                         <td>{{ u.email }}</td>
 
@@ -294,29 +318,38 @@
                                 Editar
                             </a>
 
-                            <a
-                                href="{% url 'eliminar_usuario' u.id %}"
-                                class="btn btn-danger btn-sm"
-                                onclick="return confirm('¿Está seguro de eliminar este usuario?');">
-                                Eliminar
-                            </a>
+                           <form method="post"
+                                action="{% url 'eliminar_usuario' u.id %}"
+                                class="d-inline"
+                                onsubmit="return confirm('¿Está seguro de eliminar este usuario?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    Eliminar
+                                </button>
+                            </form>
 
                             {% if u.estado %}
-
-                            <a
-                                href="{% url 'cambiar_estado_usuario' u.id %}?accion=desactivar"
-                                class="btn btn-secondary btn-sm">
-                                Desactivar
-                            </a>
-
+                            <form method="post"
+                                action="{% url 'cambiar_estado_usuario' u.id %}"
+                                class="d-inline"
+                                onsubmit="return confirm('¿Desea desactivar esta cuenta?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="accion" value="desactivar">
+                                <button type="submit" class="btn btn-secondary btn-sm">
+                                    Desactivar
+                                </button>
+                            </form>
                             {% else %}
-
-                            <a
-                                href="{% url 'cambiar_estado_usuario' u.id %}?accion=activar"
-                                class="btn btn-success btn-sm">
-                                Activar
-                            </a>
-
+                            <form method="post"
+                                action="{% url 'cambiar_estado_usuario' u.id %}"
+                                class="d-inline"
+                                onsubmit="return confirm('¿Desea activar esta cuenta?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="accion" value="activar">
+                                <button type="submit" class="btn btn-success btn-sm">
+                                    Activar
+                                </button>
+                            </form>
                             {% endif %}
 
                         </div>
@@ -331,7 +364,7 @@
 
                         <td colspan="7" class="text-center">
 
-                            No existen usuarios registrados.
+                            colspan="10"
 
                         </td>
 

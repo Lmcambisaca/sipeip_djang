@@ -5,6 +5,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password, check_password
 from django.db.models import Q
 from usuarios.models import AuditoriaSesion
+from django.views.decorators.http import require_POST
+from django.contrib.auth.views import PasswordResetConfirmView
+from django.db.models.deletion import ProtectedError
+
 
 
 from .forms import (
@@ -23,6 +27,7 @@ from .models import (
 from roles.models import Rol
 
 from .permisos import validar_permiso
+
 @login_required
 def registrar_usuario(request):
 
@@ -79,10 +84,10 @@ def registrar_usuario(request):
 
 @login_required
 def consultar_usuarios(request):
-    
+   
     permiso = validar_permiso(
-    request,
-    "Administrar usuarios"
+        request,
+        "Administrar usuarios",
     )
 
     if permiso:
@@ -92,37 +97,44 @@ def consultar_usuarios(request):
     estado = request.GET.get("estado", "")
     rol = request.GET.get("rol", "")
 
-    usuarios = Usuario.objects.select_related("rol").all()
+    usuarios = Usuario.objects.select_related(
+        "rol",
+        "entidad",
+    ).all()
 
     if buscar:
-
+    
         usuarios = usuarios.filter(
             Q(username__icontains=buscar)
             | Q(first_name__icontains=buscar)
             | Q(last_name__icontains=buscar)
+            | Q(identificacion__icontains=buscar)
+            | Q(cargo__icontains=buscar)
             | Q(email__icontains=buscar)
+            | Q(entidad__nombre__icontains=buscar)
         )
 
-    if estado != "":
+    if estado in {"0", "1"}:
+        usuarios = usuarios.filter(estado=(estado == "1"))
+    else:
+        estado = ""
 
-        usuarios = usuarios.filter(
-            estado=(estado == "1")
-        )
+    if rol.isdecimal():
+        usuarios = usuarios.filter(rol_id=rol)
+    else:
+        rol = ""
 
-    if rol:
+    usuarios = usuarios.order_by(
+        "last_name",
+        "first_name",
+        "username",
+    )
 
-        usuarios = usuarios.filter(
-            rol_id=rol
-        )
-
-    roles = Rol.objects.filter(
-        estado=True
-    ).order_by("nombre")
-
+    roles = Rol.objects.filter(estado=True).order_by("nombre")
     mensaje = ""
 
     if not usuarios.exists():
-
+     
         mensaje = "No existen usuarios que coincidan con la búsqueda."
 
     return render(
@@ -135,10 +147,9 @@ def consultar_usuarios(request):
             "buscar": buscar,
             "estado": estado,
             "rol": rol,
-        }
+        },
     )
-
-
+    
 @login_required
 def editar_usuario(request, id):
     
@@ -191,96 +202,94 @@ def editar_usuario(request, id):
     )
     
 @login_required
+@require_POST
 def cambiar_estado_usuario(request, id):
-    
-    permiso = validar_permiso(
-    request,
-    "Administrar usuarios"
-)
-
+    permiso = validar_permiso(request, "Administrar usuarios")
     if permiso:
         return permiso
 
-    usuario = get_object_or_404(
-        Usuario,
-        pk=id
-    )
+    usuario = get_object_or_404(Usuario, pk=id)
+    accion = request.POST.get("accion")
 
-    if request.user.id == usuario.id:
-
-        messages.error(
-            request,
-            "No puede desactivar su propia cuenta mientras tiene la sesión iniciada."
-        )
-
+    if accion not in {"activar", "desactivar"}:
+        messages.error(request, "La acción solicitada no es válida.")
         return redirect("consultar_usuarios")
 
-    usuario.estado = not usuario.estado
+    if accion == "desactivar" and request.user.pk == usuario.pk:
+        messages.error(
+            request,
+            "No puede desactivar su propia cuenta mientras tiene la sesión iniciada.",
+        )
+        return redirect("consultar_usuarios")
 
-    if usuario.estado:
+    nuevo_estado = accion == "activar"
 
+    if usuario.estado == nuevo_estado:
+        messages.info(
+            request,
+            "La cuenta ya se encuentra en ese estado.",
+        )
+        return redirect("consultar_usuarios")
+
+    usuario.estado = nuevo_estado
+    usuario.is_active = nuevo_estado
+
+    if nuevo_estado:
         usuario.intentos_fallidos = 0
         usuario.bloqueado = False
-
-        messages.success(
-            request,
-            "Usuario activado correctamente."
-        )
-
+        messages.success(request, "Usuario activado correctamente.")
     else:
+        messages.success(request, "Usuario desactivado correctamente.")
 
-        messages.success(
-            request,
-            "Usuario desactivado correctamente."
-        )
-
-    usuario.save()
-
+    usuario.save(
+        update_fields=[
+            "estado",
+            "is_active",
+            "intentos_fallidos",
+            "bloqueado",
+        ]
+    )
     return redirect("consultar_usuarios")
 
-@login_required
-def eliminar_usuario(request, id):
-    
-    permiso = validar_permiso(
-    request,
-    "Administrar usuarios"
-    )
 
+@login_required
+@require_POST
+def eliminar_usuario(request, id):
+    permiso = validar_permiso(request, "Administrar usuarios")
     if permiso:
         return permiso
 
-    usuario = get_object_or_404(
-        Usuario,
-        pk=id
-    )
+    usuario = get_object_or_404(Usuario, pk=id)
 
-    # TAR-15 y TAR-16
-
-    if usuario.cronograma_set.exists():
-
-        messages.error(
-            request,
-            "No se puede eliminar el usuario porque está asignado como responsable de uno o más cronogramas."
-        )
-
+    if usuario.pk == request.user.pk:
+        messages.error(request, "No puede eliminar su propia cuenta.")
         return redirect("consultar_usuarios")
 
-    if usuario.auditoriaproyecto_set.exists():
-
-        messages.error(
-            request,
-            "No se puede eliminar el usuario porque posee registros de auditoría."
-        )
-
-        return redirect("consultar_usuarios")
-
-    usuario.delete()
-
-    messages.success(
-        request,
-        "Usuario eliminado correctamente."
+    dependencias = (
+        ("cronograma_set", "responsable de actividades de cronograma"),
+        ("proyectos", "responsable de proyectos"),
+        ("auditoriaproyecto_set", "registros de auditoría de proyectos"),
+        ("auditorias", "registros de auditoría de sesiones"),
     )
 
+    for relacion, descripcion in dependencias:
+        if getattr(usuario, relacion).exists():
+            messages.error(
+                request,
+                f"No se puede eliminar el usuario porque tiene {descripcion}.",
+            )
+            return redirect("consultar_usuarios")
+
+    try:
+        usuario.delete()
+    except ProtectedError:
+        messages.error(
+            request,
+            "No se puede eliminar el usuario porque tiene información relacionada.",
+        )
+        return redirect("consultar_usuarios")
+
+    messages.success(request, "Usuario eliminado correctamente.")
     return redirect("consultar_usuarios")
 
 
@@ -294,10 +303,10 @@ def login_usuario(request):
 
     if request.method == "POST":
 
-        username = request.POST.get("username")
+        email = request.POST.get("username", "").strip()
 
         usuario_bd = Usuario.objects.filter(
-            username=username
+            email__iexact=email
         ).first()
 
         if usuario_bd and usuario_bd.bloqueado:
@@ -340,16 +349,7 @@ def login_usuario(request):
                     "Inicio de sesión"
 
                 )
-                
-                AuditoriaSesion.objects.create(
-                    usuario=usuario,
-                    accion="Inicio de sesión"
-                )
 
-                messages.success(
-                    request,
-                    "Bienvenido al sistema."
-                )
 
                 return redirect("dashboard")
 
@@ -392,91 +392,7 @@ def login_usuario(request):
         }
     )
     
-def recuperar_password(request):
-
-    if request.method == "POST":
-
-        form = RecuperarPasswordForm(request.POST)
-
-        if form.is_valid():
-
-            email = form.cleaned_data["email"]
-
-            actual = form.cleaned_data["password_actual"]
-
-            nueva = form.cleaned_data["nueva_password"]
-
-            confirmar = form.cleaned_data["confirmar_password"]
-
-            if nueva != confirmar:
-
-                messages.error(
-                    request,
-                    "Las contraseñas no coinciden."
-                )
-
-            else:
-
-                try:
-
-                    usuario = Usuario.objects.get(email=email)
-                    
-                    if not check_password(
-                        actual,
-                        usuario.password
-                    ):
-
-                        messages.error(
-                            request,
-                            "La contraseña actual es incorrecta."
-                        )
-
-                        return render(
-                            request,
-                            "usuarios/recuperar_password.html",
-                            {
-                                "form": form
-                            }
-                        )
-
-                    usuario.password = make_password(nueva)
-
-                    usuario.save()
-                    
-                    RecuperacionPassword.objects.create(
-                        usuario=usuario
-                    )
-                    
-                    
-
-                    messages.success(
-                        request,
-                        "Contraseña actualizada correctamente."
-                    )
-
-                    return redirect("login")
-
-                except Usuario.DoesNotExist:
-
-                    messages.error(
-                        request,
-                        "No existe un usuario con ese correo."
-                    )
-
-    else:
-
-        form = RecuperarPasswordForm()
-
-    return render(
-        request,
-        "usuarios/recuperar_password.html",
-        {
-            "form": form
-        }
-    )
-
-
-
+@require_POST
 def logout_usuario(request):
 
     if request.user.is_authenticated:
@@ -485,14 +401,7 @@ def logout_usuario(request):
             usuario=request.user,
             accion="Cierre de sesión"
         )
-        
-        registrar_auditoria(
 
-        request.user,
-
-        "Cierre de sesión"
-
-        )
 
     logout(request)
 
@@ -540,23 +449,61 @@ def registrar_auditoria(usuario, accion):
     
 @login_required
 def consultar_auditoria(request):
+    permiso = validar_permiso(request, "Consultar auditoría")
+    if permiso:
+        return permiso
 
     auditorias = AuditoriaSesion.objects.select_related(
-
+    
         "usuario"
-
+    
     ).order_by("-fecha")
 
+    usuario_id = request.GET.get("usuario", "").strip()
+    accion = request.GET.get("accion", "").strip()
+    fecha = request.GET.get("fecha", "").strip()
+
+    usuarios = Usuario.objects.order_by("username")
+
+    if usuario_id.isdecimal() and usuarios.filter(pk=usuario_id).exists():
+        auditorias = auditorias.filter(usuario_id=usuario_id)
+    else:
+        usuario_id = ""
+
+    if accion:
+        auditorias = auditorias.filter(accion__icontains=accion)
+
+    from django.utils.dateparse import parse_date
+
+    fecha_valida = parse_date(fecha) if fecha else None
+    if fecha_valida:
+        auditorias = auditorias.filter(fecha__date=fecha_valida)
+    else:
+        fecha = ""
+
     return render(
-
+        
         request,
-
+        
         "usuarios/consultar_auditoria.html",
-
+        
         {
-
-            "auditorias": auditorias
-
-        }
-
+            "auditorias": auditorias,
+            "usuarios": usuarios,
+            "usuario_id": usuario_id,
+            "accion": accion,
+            "fecha": fecha,
+        },
     )
+    
+class ConfirmarRecuperacionPasswordView(PasswordResetConfirmView):
+    def form_valid(self, form):
+        response = super().form_valid(form)
+
+        self.user.intentos_fallidos = 0
+        self.user.bloqueado = False
+        self.user.save(update_fields=["intentos_fallidos", "bloqueado"])
+
+        RecuperacionPassword.objects.create(usuario=self.user)
+
+        return response

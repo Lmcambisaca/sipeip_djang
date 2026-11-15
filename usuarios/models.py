@@ -9,6 +9,27 @@ class Usuario(AbstractUser):
     email = models.EmailField(
         unique=True
     )
+    
+    identificacion = models.CharField(
+        max_length=20,
+        unique=True,
+        null=True,
+        blank=True,
+    )
+
+    cargo = models.CharField(
+        max_length=150,
+        blank=True,
+        default="",
+    )
+
+    entidad = models.ForeignKey(
+        "entidades.Entidad",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="usuarios",
+    )
 
     estado = models.BooleanField(
         default=True
