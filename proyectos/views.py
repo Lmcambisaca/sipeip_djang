@@ -1,22 +1,16 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from usuarios.models import Usuario
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-
-from .models import (
-    Proyecto,
-    AuditoriaProyecto,
-    Cronograma,
-    Documento
-)
-
-from .forms import (
-    ProyectoForm,
-    CronogramaForm,
-    DocumentoForm
-)
-
+from decimal import Decimal, InvalidOperation
+from django.views.decorators.http import require_POST
+from .models import (Proyecto, AuditoriaProyecto, Cronograma, Documento)
+from .forms import (ProyectoForm, CronogramaForm, DocumentoForm)
 from usuarios.permisos import validar_permiso
+import mimetypes
+from pathlib import Path
+from django.http import FileResponse, Http404
 
 @login_required
 def registrar_proyecto(request):
@@ -108,25 +102,23 @@ def registrar_proyecto(request):
 
 @login_required
 def consultar_proyectos(request):
-    
-    permiso = validar_permiso(
-    request,
-    "Administrar proyectos"
-    )
-
+    permiso = validar_permiso(request, "Administrar proyectos")
     if permiso:
         return permiso
 
-    buscar = request.GET.get(
-        "buscar",
-        ""
-    )
+    buscar = request.GET.get("buscar", "").strip()
+    estado = request.GET.get("estado", "")
+    responsable_id = request.GET.get("responsable", "")
+    planificacion_id = request.GET.get("planificacion", "")
+    periodo = request.GET.get("periodo", "")
+    presupuesto_min = request.GET.get("presupuesto_min", "").strip()
+    presupuesto_max = request.GET.get("presupuesto_max", "").strip()
 
     proyectos = Proyecto.objects.filter(
-    eliminado=False
+        eliminado=False
     ).select_related(
         "responsable",
-        "planificacion"
+        "planificacion",
     )
 
     if buscar:
@@ -139,13 +131,61 @@ def consultar_proyectos(request):
 
             | Q(responsable__first_name__icontains=buscar)
 
+            | Q(responsable__last_name__icontains=buscar)
         )
+
+    if estado in {"0", "1"}:
+        proyectos = proyectos.filter(estado=(estado == "1"))
+    else:
+        estado = ""
+
+    if responsable_id.isdecimal():
+        proyectos = proyectos.filter(responsable_id=responsable_id)
+    else:
+        responsable_id = ""
+
+    if planificacion_id.isdecimal():
+        proyectos = proyectos.filter(planificacion_id=planificacion_id)
+    else:
+        planificacion_id = ""
+
+    if periodo:
+        proyectos = proyectos.filter(planificacion__periodo=periodo)
+
+    try:
+        if presupuesto_min:
+            proyectos = proyectos.filter(
+                presupuesto__gte=Decimal(presupuesto_min)
+            )
+    except InvalidOperation:
+        presupuesto_min = ""
+        messages.error(request, "El presupuesto mínimo no es válido.")
+
+    try:
+        if presupuesto_max:
+            proyectos = proyectos.filter(
+                presupuesto__lte=Decimal(presupuesto_max)
+            )
+    except InvalidOperation:
+        presupuesto_max = ""
+        messages.error(request, "El presupuesto máximo no es válido.")
+
+    proyectos = proyectos.order_by("codigo")
+    responsables = Usuario.objects.filter(
+        estado=True,
+        is_active=True,
+    ).order_by("last_name", "first_name")
+    planificaciones = Planificacion.objects.order_by("-periodo", "nombre")
+    periodos = (
+        Planificacion.objects.order_by("-periodo")
+        .values_list("periodo", flat=True)
+        .distinct()
+    )
 
     mensaje = ""
 
     if not proyectos.exists():
-
-        mensaje = "No existen proyectos registrados."
+        mensaje = "No existen proyectos que coincidan con la búsqueda."
 
     return render(
 
@@ -156,169 +196,121 @@ def consultar_proyectos(request):
         {
 
             "proyectos": proyectos,
-
+            "responsables": responsables,
+            "planificaciones": planificaciones,
+            "periodos": periodos,
             "mensaje": mensaje,
-
-            "buscar": buscar
-
-        }
-
+            "buscar": buscar,
+            "estado": estado,
+            "responsable_id": responsable_id,
+            "planificacion_id": planificacion_id,
+            "periodo": periodo,
+            "presupuesto_min": presupuesto_min,
+            "presupuesto_max": presupuesto_max,
+        },
     )
     
 @login_required
 def editar_proyecto(request, id):
-    
-    permiso = validar_permiso(
-    request,
-    "Administrar proyectos"
-    )
-
+    permiso = validar_permiso(request, "Administrar proyectos")
     if permiso:
         return permiso
 
     proyecto = get_object_or_404(
         Proyecto,
         pk=id,
-        eliminado=False
+        eliminado=False,
     )
 
     if request.method == "POST":
-
-        form = ProyectoForm(
-            request.POST,
-            instance=proyecto
-        )
+        form = ProyectoForm(request.POST, instance=proyecto)
 
         if form.is_valid():
+            cambios = []
 
-            presupuesto = form.cleaned_data["presupuesto"]
+            for campo in form.changed_data:
+                valor_anterior = getattr(proyecto, campo)
+                valor_nuevo = form.cleaned_data[campo]
+                etiqueta = form.fields[campo].label
 
-            fecha_inicio = form.cleaned_data["fecha_inicio"]
+                cambios.append(
 
-            fecha_fin = form.cleaned_data["fecha_fin"]
+                    f"{etiqueta}: {valor_anterior} → {valor_nuevo}"
 
-            if presupuesto <= 0:
-
-                messages.error(
-                    request,
-                    "El presupuesto debe ser mayor a cero."
                 )
 
-            elif fecha_inicio > fecha_fin:
+            proyecto = form.save()
 
-                messages.error(
-                    request,
-                    "La fecha inicial no puede ser mayor que la final."
-                )
-
-            else:
-
-                proyecto = form.save()
-
+            if cambios:
                 AuditoriaProyecto.objects.create(
-
+    
                     proyecto=proyecto,
-
+    
                     accion="Actualización",
-
-                    usuario=request.user
-
+                    detalle="\n".join(cambios),
+                    usuario=request.user,
                 )
 
-                messages.success(
-
-                    request,
-
-                    "Proyecto actualizado correctamente."
-
-                )
-
-                return redirect(
-                    "consultar_proyectos"
-                )
-
+            messages.success(request, "Proyecto actualizado correctamente.")
+            return redirect("consultar_proyectos")
     else:
-
-        form = ProyectoForm(
-            instance=proyecto
-        )
+        form = ProyectoForm(instance=proyecto)
 
     return render(
-
+    
         request,
-
+    
         "proyectos/editar_proyecto.html",
-
-        {
-
-            "form": form
-
-        }
-
+        {"form": form},
     )
 
 
 @login_required
+@require_POST
 def eliminar_proyecto(request, id):
-    
-    permiso = validar_permiso(
-    request,
-    "Administrar proyectos"
-    )
-
+    permiso = validar_permiso(request, "Administrar proyectos")
     if permiso:
         return permiso
 
     proyecto = get_object_or_404(
-
-        Proyecto,
-
-        pk=id,
-
-        eliminado=False
-
-    )
     
-    # TAR-116, TAR-118 y TAR-119
+        Proyecto,
+    
+        pk=id,
+        eliminado=False,
+    )
 
-    if proyecto.cronogramas.exists():
+    tiene_dependencias = (
+        proyecto.cronogramas.exists()
+        or proyecto.metas.exists()
+        or proyecto.objetivos_desarrollo.exists()
+        or proyecto.objetivos_institucionales.exists()
+    )
 
+    if tiene_dependencias:
         messages.error(
-
+    
             request,
-
-            "No puede eliminar este proyecto porque tiene actividades registradas en el cronograma."
-
+            "No se puede eliminar el proyecto porque tiene cronogramas, metas u objetivos asociados.",
         )
-
+    
         return redirect("consultar_proyectos")
 
-
+    
     proyecto.eliminado = True
-
-    proyecto.save()
+    proyecto.save(update_fields=["eliminado"])
 
     AuditoriaProyecto.objects.create(
-
+       
         proyecto=proyecto,
-
+       
         accion="Eliminación lógica",
-
-        usuario=request.user
-
+        detalle="El proyecto fue marcado como eliminado.",
+        usuario=request.user,
     )
 
-    messages.success(
-
-        request,
-
-        "Proyecto eliminado correctamente."
-
-    )
-
-    return redirect(
-        "consultar_proyectos"
-    )
+    messages.success(request, "Proyecto eliminado correctamente.")
+    return redirect("consultar_proyectos")
     
 @login_required
 def registrar_cronograma(request):
@@ -471,93 +463,26 @@ def editar_cronograma(request, id):
     
 @login_required
 def registrar_documento(request):
-    
-    permiso = validar_permiso(
-    request,
-    "Administrar documentos"
-    )
-
+    permiso = validar_permiso(request, "Administrar documentos")
     if permiso:
         return permiso
 
     if request.method == "POST":
-
-        form = DocumentoForm(
-            request.POST,
-            request.FILES
-        )
-
+        form = DocumentoForm(request.POST, request.FILES)
         if form.is_valid():
-
-            archivo = request.FILES["archivo"]
-
-            if archivo.size > 5 * 1024 * 1024:
-
-                messages.error(
-                    request,
-                    "El archivo supera el tamaño permitido (5 MB)."
-                )
-
-            else:
-
-                extension = archivo.name.split(".")[-1].lower()
-
-                permitidos = [
-
-                    "pdf",
-
-                    "doc",
-
-                    "docx",
-
-                    "xls",
-
-                    "xlsx",
-
-                    "png",
-
-                    "jpg",
-
-                    "jpeg"
-
-                ]
-
-                if extension not in permitidos:
-
-                    messages.error(
-                        request,
-                        "Formato de archivo no permitido."
-                    )
-
-                else:
-
-                    form.save()
-
-                    messages.success(
-                        request,
-                        "Documento cargado correctamente."
-                    )
-
-                    return redirect(
-                        "consultar_documentos"
-                    )
-
+            form.save()
+            messages.success(request, "Documento cargado correctamente.")
+            return redirect("consultar_documentos")
     else:
-
+       
         form = DocumentoForm()
 
     return render(
-
+       
         request,
-
+       
         "proyectos/registrar_documento.html",
-
-        {
-
-            "form": form
-
-        }
-
+        {"form": form},
     )
     
 @login_required
@@ -587,4 +512,31 @@ def consultar_documentos(request):
 
         }
 
+    )
+    
+@login_required
+def descargar_documento(request, id):
+    permiso = validar_permiso(request, "Administrar documentos")
+    if permiso:
+        return permiso
+
+    documento = get_object_or_404(
+        Documento.objects.select_related("proyecto"),
+        pk=id,
+        proyecto__eliminado=False,
+    )
+
+    try:
+        archivo = documento.archivo.open("rb")
+    except (FileNotFoundError, ValueError):
+        raise Http404("El archivo solicitado no está disponible.")
+
+    tipo = mimetypes.guess_type(documento.archivo.name)[0]
+    nombre = Path(documento.archivo.name).name
+
+    return FileResponse(
+        archivo,
+        as_attachment=True,
+        filename=nombre,
+        content_type=tipo or "application/octet-stream",
     )

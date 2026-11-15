@@ -3,175 +3,185 @@
 {% block content %}
 
 <div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h4 class="m-0 font-weight-bold text-primary">
+                Consultar Proyectos
+            </h4>
+        </div>
 
-<div class="card shadow mb-4">
+        <div class="card-body">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-info">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
 
-<div class="card-header py-3">
+            {% if mensaje %}
+                <div class="alert alert-warning">{{ mensaje }}</div>
+            {% endif %}
 
-<h4 class="m-0 font-weight-bold text-primary">
+            <form method="get">
+                <div class="row g-2 mb-3">
+                    <div class="col-md-3">
+                        <label for="buscar">Buscar</label>
+                        <input
+                            id="buscar"
+                            class="form-control"
+                            type="text"
+                            name="buscar"
+                            placeholder="Código, proyecto o responsable"
+                            value="{{ buscar }}">
+                    </div>
 
-Consultar Proyectos
+                    <div class="col-md-2">
+                        <label for="estado">Estado</label>
+                        <select id="estado" name="estado" class="form-control">
+                            <option value="">Todos</option>
+                            <option value="1" {% if estado == "1" %}selected{% endif %}>
+                                Activos
+                            </option>
+                            <option value="0" {% if estado == "0" %}selected{% endif %}>
+                                Inactivos
+                            </option>
+                        </select>
+                    </div>
 
-</h4>
+                    <div class="col-md-2">
+                        <label for="responsable">Responsable</label>
+                        <select id="responsable" name="responsable" class="form-control">
+                            <option value="">Todos</option>
+                            {% for u in responsables %}
+                                <option
+                                    value="{{ u.pk }}"
+                                    {% if responsable_id == u.pk|stringformat:"s" %}selected{% endif %}>
+                                    {{ u.get_full_name|default:u.username }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
 
-</div>
+                    <div class="col-md-2">
+                        <label for="planificacion">Planificación</label>
+                        <select id="planificacion" name="planificacion" class="form-control">
+                            <option value="">Todas</option>
+                            {% for plan in planificaciones %}
+                                <option
+                                    value="{{ plan.pk }}"
+                                    {% if planificacion_id == plan.pk|stringformat:"s" %}selected{% endif %}>
+                                    {{ plan.nombre }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
 
-<div class="card-body">
+                    <div class="col-md-1">
+                        <label for="periodo">Período</label>
+                        <select id="periodo" name="periodo" class="form-control">
+                            <option value="">Todos</option>
+                            {% for valor in periodos %}
+                                <option value="{{ valor }}" {% if periodo == valor %}selected{% endif %}>
+                                    {{ valor }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
 
-<form method="get">
+                    <div class="col-md-1">
+                        <label for="presupuesto_min">Desde</label>
+                        <input
+                            id="presupuesto_min"
+                            class="form-control"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            name="presupuesto_min"
+                            value="{{ presupuesto_min }}">
+                    </div>
 
-<div class="row">
-
-<div class="col-md-4">
-
-<input
-class="form-control"
-type="text"
-name="buscar"
-placeholder="Buscar..."
-value="{{ buscar }}">
-
-</div>
-
-<div class="col-md-2">
-
-<button
-class="btn btn-primary">
-
-Buscar
-
-</button>
-
-</div>
-
-</div>
-
-</form>
-
-<br>
-
-{% if mensaje %}
-
-<div class="alert alert-warning">
-
-{{ mensaje }}
-
-</div>
-
-{% endif %}
-
-<table class="table table-bordered table-hover">
-
-    <thead>
-
-        <tr class="text-center">
-
-            <th>Código</th>
-            <th>Proyecto</th>
-            <th>Responsable</th>
-            <th>Presupuesto</th>
-            <th>Inicio</th>
-            <th>Fin</th>
-            <th>Estado</th>
-            <th width="180">
-
-                Acciones
-
-            </th>
-
-        </tr>
-
-    </thead>
-
-    <tbody>
-
-        {% for p in proyectos %}
-
-        <tr>
-
-            <td>{{ p.codigo }}</td>
-
-            <td>{{ p.nombre }}</td>
-
-            <td>{{ p.responsable }}</td>
-
-            <td>${{ p.presupuesto }}</td>
-
-            <td>{{ p.fecha_inicio }}</td>
-
-            <td>{{ p.fecha_fin }}</td>
-
-            <td class="text-center">
-
-                {% if p.estado %}
-
-                    <span class="badge bg-success">
-
-                        Activo
-
-                    </span>
-
-                {% else %}
-
-                    <span class="badge bg-danger">
-
-                        Inactivo
-
-                    </span>
-
-                {% endif %}
-
-            </td>
-
-            <td>
-
-                <div class="d-flex justify-content-center gap-1">
-
-                    <a
-                        href="{% url 'editar_proyecto' p.id %}"
-                        class="btn btn-warning btn-sm">
-
-                        Editar
-
-                    </a>
-
-                    <a
-                        href="{% url 'eliminar_proyecto' p.id %}"
-                        class="btn btn-danger btn-sm"
-                        onclick="return confirm('¿Desea eliminar este proyecto?');">
-
-                        Eliminar
-
-                    </a>
-
+                    <div class="col-md-1">
+                        <label for="presupuesto_max">Hasta</label>
+                        <input
+                            id="presupuesto_max"
+                            class="form-control"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            name="presupuesto_max"
+                            value="{{ presupuesto_max }}">
+                    </div>
                 </div>
 
-            </td>
+                <button class="btn btn-primary" type="submit">Filtrar</button>
+                <a href="{% url 'consultar_proyectos' %}" class="btn btn-secondary">
+                    Limpiar
+                </a>
+            </form>
 
-        </tr>
+            <hr>
 
-        {% empty %}
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr class="text-center">
+                        <th>Código</th>
+                        <th>Proyecto</th>
+                        <th>Responsable</th>
+                        <th>Presupuesto</th>
+                        <th>Inicio</th>
+                        <th>Fin</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
 
-        <tr>
+                <tbody>
+                    {% for p in proyectos %}
+                        <tr>
+                            <td>{{ p.codigo }}</td>
+                            <td>{{ p.nombre }}</td>
+                            <td>{{ p.responsable }}</td>
+                            <td>${{ p.presupuesto }}</td>
+                            <td>{{ p.fecha_inicio }}</td>
+                            <td>{{ p.fecha_fin }}</td>
+                            <td class="text-center">
+                                {% if p.estado %}
+                                    <span class="badge bg-success">Activo</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inactivo</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-center gap-1">
+                                    <a
+                                        href="{% url 'editar_proyecto' p.id %}"
+                                        class="btn btn-warning btn-sm">
+                                        Editar
+                                    </a>
 
-            <td colspan="8" class="text-center">
-
-                No existen proyectos registrados.
-
-            </td>
-
-        </tr>
-
-        {% endfor %}
-
-    </tbody>
-
-</table>
-
-</div>
-
-</div>
-
+                                    <form
+                                        method="post"
+                                        action="{% url 'eliminar_proyecto' p.id %}"
+                                        class="d-inline"
+                                        onsubmit="return confirm('¿Desea eliminar este proyecto?');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger btn-sm">
+                                            Eliminar
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center">
+                                No existen proyectos que coincidan con la búsqueda.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 {% endblock %}

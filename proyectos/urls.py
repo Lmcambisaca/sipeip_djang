@@ -22,4 +22,5 @@ urlpatterns = [
 
     path("documentos/consultar/", views.consultar_documentos, name="consultar_documentos"),
 
+    path("documentos/<int:id>/descargar/", views.descargar_documento, name="descargar_documento",),
 ]

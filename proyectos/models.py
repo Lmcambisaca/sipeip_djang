@@ -60,6 +60,11 @@ class Proyecto(models.Model):
 
 
 class AuditoriaProyecto(models.Model):
+    
+    detalle = models.TextField(
+        blank=True,
+        default="",
+    )
 
     proyecto = models.ForeignKey(
         Proyecto,
