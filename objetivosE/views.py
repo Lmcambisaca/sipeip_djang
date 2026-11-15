@@ -170,13 +170,11 @@ def consultar_objetivos_estrategicos(request):
 
 
 @login_required
-def editar_objetivo_estrategico(request,id):
-
+def editar_objetivo_estrategico(request, id):
     permiso = validar_permiso(
         request,
         "Administrar objetivos estratégicos"
     )
-
     if permiso:
         return permiso
 
@@ -186,93 +184,84 @@ def editar_objetivo_estrategico(request,id):
     )
 
     if request.method == "POST":
-
         form = ObjetivoEstrategicoForm(
             request.POST,
             instance=objetivo
         )
 
         if form.is_valid():
-
             codigo = form.cleaned_data["codigo"].strip()
-
             descripcion = form.cleaned_data["descripcion"].strip()
 
             if not codigo:
-
-                messages.error(
-                    request,
-                    "El código es obligatorio."
-                )
-
+                messages.error(request, "El código es obligatorio.")
             elif not descripcion:
-
-                messages.error(
-                    request,
-                    "La descripción es obligatoria."
-                )
-
+                messages.error(request, "La descripción es obligatoria.")
             elif ObjetivoEstrategico.objects.filter(
-
                 codigo__iexact=codigo
-
             ).exclude(
-
                 pk=objetivo.pk
-
             ).exists():
-
                 messages.error(
-
                     request,
-
                     "Ya existe otro objetivo estratégico con ese código."
+                )
+            else:
+                cambios = []
 
+                if objetivo.codigo != codigo:
+                    cambios.append("Código actualizado")
+
+                if objetivo.descripcion != descripcion:
+                    cambios.append("Descripción actualizada")
+
+                if objetivo.eje_estrategico != form.cleaned_data["eje_estrategico"]:
+                    cambios.append("Eje estratégico actualizado")
+
+                if objetivo.periodo_vigencia != form.cleaned_data["periodo_vigencia"]:
+                    cambios.append("Período de vigencia actualizado")
+
+                if objetivo.estado != form.cleaned_data["estado"]:
+                    cambios.append("Estado actualizado")
+
+                instituciones_anteriores = set(
+                    objetivo.objetivos_institucionales.values_list(
+                        "pk",
+                        flat=True
+                    )
+                )
+                instituciones_nuevas = set(
+                    form.cleaned_data[
+                        "objetivos_institucionales"
+                    ].values_list("pk", flat=True)
                 )
 
-            else:
+                if instituciones_anteriores != instituciones_nuevas:
+                    cambios.append(
+                        "Objetivos institucionales asociados actualizados"
+                    )
 
                 objetivo = form.save()
 
-                HistorialObjetivoEstrategico.objects.create(
+                if cambios:
+                    HistorialObjetivoEstrategico.objects.create(
+                        objetivo=objetivo,
+                        usuario=request.user,
+                        accion="; ".join(cambios)
+                    )
 
-                    objetivo=objetivo,
-
-                    usuario=request.user,
-
-                    accion="Actualización del objetivo estratégico"
-
-                )
                 messages.success(
-
                     request,
-
                     "Objetivo estratégico actualizado correctamente."
-
                 )
-
-                return redirect(
-                    "consultar_objetivos_estrategicos"
-                )
-
+                return redirect("consultar_objetivos_estrategicos")
     else:
-
-        form = ObjetivoEstrategicoForm(
-            instance=objetivo
-        )
+        form = ObjetivoEstrategicoForm(instance=objetivo)
 
     return render(
-
         request,
-
         "objetivosE/editar_objetivo_estrategico.html",
-
-        {
-
-            "form": form
-
-        }
-
+        {"form": form}
     )
     
 @login_required

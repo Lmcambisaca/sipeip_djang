@@ -60,3 +60,15 @@ class ObjetivoEstrategicoForm(forms.ModelForm):
             )
 
         }
+        
+    def clean_codigo(self):
+        return self.cleaned_data["codigo"].strip()
+
+    def clean_descripcion(self):
+        return self.cleaned_data["descripcion"].strip()
+
+    def clean_eje_estrategico(self):
+        return self.cleaned_data["eje_estrategico"].strip()
+
+    def clean_periodo_vigencia(self):
+        return self.cleaned_data["periodo_vigencia"].strip()
