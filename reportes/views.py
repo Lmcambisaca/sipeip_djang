@@ -81,75 +81,48 @@ def generar_reporte(request):
     
 @login_required
 def consultar_reportes(request):
+    permiso = _tiene_permiso(request)
+    if permiso:
+        return permiso
 
+    reportes = Reporte.objects.select_related("usuario").order_by(
+        "-fecha_generacion", "-pk"
+    )
 
-    with connection.cursor() as cursor:
+    tipo = request.GET.get("tipo", "").strip()
+    fecha = request.GET.get("fecha", "").strip()
+    usuario_id = request.GET.get("usuario", "").strip()
 
+    tipos_validos = {valor for valor, _ in Reporte.TIPO_REPORTE}
+    if tipo in tipos_validos:
+        reportes = reportes.filter(tipo=tipo)
+    else:
+        tipo = ""
 
-        cursor.execute(
+    fecha_valida = parse_date(fecha) if fecha else None
+    if fecha_valida:
+        reportes = reportes.filter(fecha_generacion__date=fecha_valida)
+    else:
+        fecha = ""
 
-            """
-            SELECT 
-            r.id,
-            r.tipo,
-            r.fecha_generacion,
-            u.username
-
-            FROM reporte r
-
-            INNER JOIN usuario u
-
-            ON r.usuario_id = u.id
-
-            ORDER BY r.fecha_generacion DESC
-
-            """
-
-        )
-
-
-        reportes = cursor.fetchall()
-
-
+    usuarios = Usuario.objects.order_by("username")
+    if usuario_id.isdecimal() and usuarios.filter(pk=usuario_id).exists():
+        reportes = reportes.filter(usuario_id=usuario_id)
+    else:
+        usuario_id = ""
 
     return render(
-
         request,
-
         "reportes/consultar_reportes.html",
-
         {
-
-            "reportes": reportes
-
-        }
-
+            "reportes": reportes,
+            "tipo": tipo,
+            "fecha": fecha,
+            "usuario_id": usuario_id,
+            "usuarios": usuarios,
+        },
     )
     
-def obtener_datos(tipo):
-
-    tablas = {
-
-        "Usuarios": Usuario.objects.all(),
-
-        "Entidades": Entidad.objects.all(),
-
-        "Planificaciones": Planificacion.objects.all(),
-
-        "Proyectos": Proyecto.objects.all(),
-
-        "ODS": ObjetivoDesarrollo.objects.all(),
-
-        "Metas": Meta.objects.all(),
-
-        "Indicadores": Indicador.objects.all(),
-
-        "Avances": AvanceIndicador.objects.all(),
-
-    }
-
-    return tablas.get(tipo, [])
-
 @login_required
 def reporte_pdf(request, tipo):
     

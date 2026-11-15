@@ -42,6 +42,18 @@ class="form-control">
 
 <div class="col-md-2">
 
+<div class="col-md-3">
+    <select name="usuario" class="form-control">
+        <option value="">Todos los usuarios</option>
+        {% for usuario in usuarios %}
+        <option value="{{ usuario.pk }}"
+                {% if usuario_id == usuario.pk|stringformat:"s" %}selected{% endif %}>
+            {{ usuario.username }}
+        </option>
+        {% endfor %}
+    </select>
+</div>
+
 <button
 class="btn btn-primary">
 
