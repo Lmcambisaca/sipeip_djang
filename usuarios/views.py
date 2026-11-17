@@ -11,18 +11,9 @@ from django.db.models.deletion import ProtectedError
 
 
 
-from .forms import (
-    LoginForm,
-    UsuarioForm,
-    UsuarioEditarForm,
-    RecuperarPasswordForm,
-)
+from .forms import (LoginForm, UsuarioForm, UsuarioEditarForm, RecuperarPasswordForm,)
 
-from .models import (
-    Usuario,
-    RecuperacionPassword,
-    AuditoriaSesion,
-)
+from .models import (Usuario, RecuperacionPassword, AuditoriaSesion,)
 
 from roles.models import Rol
 
@@ -343,11 +334,14 @@ def login_usuario(request):
                 login(request, usuario)
                 
                 registrar_auditoria(
-
+                    
                     usuario,
-
-                    "Inicio de sesión"
-
+                    
+                    "Autenticación",
+                    
+                    "Inicio de sesión",
+                    
+                    "El usuario inició sesión correctamente."
                 )
 
 
@@ -399,7 +393,9 @@ def logout_usuario(request):
 
         AuditoriaSesion.objects.create(
             usuario=request.user,
-            accion="Cierre de sesión"
+            modulo="Autenticación",
+            accion="Cierre de sesión",
+            descripcion="El usuario cerró sesión."
         )
 
 
@@ -437,14 +433,17 @@ def dashboard(request):
         }
     )
     
-def registrar_auditoria(usuario, accion):
+def registrar_auditoria(usuario, modulo, accion=None, descripcion=""):
+    # Compatibilidad con llamadas antiguas: registrar_auditoria(usuario, accion)
+    if accion is None:
+        accion = modulo
+        modulo = "Usuarios"
 
     AuditoriaSesion.objects.create(
-
         usuario=usuario,
-
-        accion=accion
-
+        modulo=modulo,
+        accion=accion,
+        descripcion=descripcion,
     )
     
 @login_required
@@ -454,21 +453,30 @@ def consultar_auditoria(request):
         return permiso
 
     auditorias = AuditoriaSesion.objects.select_related(
-    
         "usuario"
-    
-    ).order_by("-fecha")
+    ).order_by("-fecha", "-pk")
 
     usuario_id = request.GET.get("usuario", "").strip()
+    modulo = request.GET.get("modulo", "").strip()
     accion = request.GET.get("accion", "").strip()
     fecha = request.GET.get("fecha", "").strip()
 
     usuarios = Usuario.objects.order_by("username")
+    modulos = list(
+        AuditoriaSesion.objects.order_by("modulo")
+        .values_list("modulo", flat=True)
+        .distinct()
+    )
 
     if usuario_id.isdecimal() and usuarios.filter(pk=usuario_id).exists():
         auditorias = auditorias.filter(usuario_id=usuario_id)
     else:
         usuario_id = ""
+
+    if modulo in modulos:
+        auditorias = auditorias.filter(modulo=modulo)
+    else:
+        modulo = ""
 
     if accion:
         auditorias = auditorias.filter(accion__icontains=accion)
@@ -481,29 +489,20 @@ def consultar_auditoria(request):
     else:
         fecha = ""
 
-    return render(
-        
+        return render(
         request,
-        
         "usuarios/consultar_auditoria.html",
-        
         {
             "auditorias": auditorias,
             "usuarios": usuarios,
+            "modulos": modulos,
             "usuario_id": usuario_id,
+            "modulo_seleccionado": modulo,
             "accion": accion,
             "fecha": fecha,
-        },
+        }
     )
-    
+
+
 class ConfirmarRecuperacionPasswordView(PasswordResetConfirmView):
-    def form_valid(self, form):
-        response = super().form_valid(form)
-
-        self.user.intentos_fallidos = 0
-        self.user.bloqueado = False
-        self.user.save(update_fields=["intentos_fallidos", "bloqueado"])
-
-        RecuperacionPassword.objects.create(usuario=self.user)
-
-        return response
+    pass

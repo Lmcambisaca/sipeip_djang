@@ -1,77 +1,93 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
 <div class="container-fluid">
+    <h2>Auditoría del sistema</h2>
 
-<h2>Auditoría del Sistema</h2>
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-3">
+            <select name="usuario" class="form-select">
+                <option value="">Todos los usuarios</option>
+                {% for usuario in usuarios %}
+                    <option value="{{ usuario.pk }}"
+                        {% if usuario_id == usuario.pk|stringformat:"s" %}
+                            selected
+                        {% endif %}>
+                        {{ usuario.username }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
 
-<form method="get" class="form-inline mb-3">
-    <select name="usuario" class="form-control mr-2">
-        <option value="">Todos los usuarios</option>
-        {% for usuario in usuarios %}
-        <option value="{{ usuario.pk }}"
-                {% if usuario_id == usuario.pk|stringformat:"s" %}selected{% endif %}>
-            {{ usuario.username }}
-        </option>
-        {% endfor %}
-    </select>
+        <div class="col-md-2">
+            <select name="modulo" class="form-select">
+                <option value="">Todos los módulos</option>
+                {% for nombre_modulo in modulos %}
+                    <option value="{{ nombre_modulo }}"
+                        {% if modulo_seleccionado == nombre_modulo %}
+                            selected
+                        {% endif %}>
+                        {{ nombre_modulo }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
 
-    <input type="text"
-           name="accion"
-           value="{{ accion }}"
-           class="form-control mr-2"
-           placeholder="Acción">
+        <div class="col-md-3">
+            <input type="text"
+                   name="accion"
+                   value="{{ accion }}"
+                   class="form-control"
+                   placeholder="Acción">
+        </div>
 
-    <input type="date"
-           name="fecha"
-           value="{{ fecha }}"
-           class="form-control mr-2">
+        <div class="col-md-2">
+            <input type="date"
+                   name="fecha"
+                   value="{{ fecha }}"
+                   class="form-control">
+        </div>
 
-    <button type="submit" class="btn btn-primary">Filtrar</button>
-</form>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary">
+                Filtrar
+            </button>
+            <a href="{% url 'consultar_auditoria' %}"
+               class="btn btn-secondary">
+                Limpiar
+            </a>
+        </div>
+    </form>
 
-<table class="table table-bordered">
-
-<thead>
-
-<tr>
-{% endfor %}
-<th>Usuario</th>
-
-<th>Acción</th>
-
-<th>Fecha</th>
-
-{% empty %}
-<tr>
-    <td colspan="3">No hay registros de auditoría para estos filtros.</td>
-</tr>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-{% for a in auditorias %}
-
-<tr>
-
-<td>{{ a.usuario }}</td>
-
-<td>{{ a.accion }}</td>
-
-<td>{{ a.fecha }}</td>
-
-</tr>
-
-{% endfor %}
-
-</tbody>
-
-</table>
-
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Fecha</th>
+                    <th>Módulo</th>
+                    <th>Acción</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for evento in auditorias %}
+                    <tr>
+                        <td>{{ evento.usuario.username }}</td>
+                        <td>{{ evento.fecha }}</td>
+                        <td>{{ evento.modulo }}</td>
+                        <td>{{ evento.accion }}</td>
+                        <td>{{ evento.descripcion }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5">
+                            No hay eventos de auditoría para estos filtros.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
-
 {% endblock %}

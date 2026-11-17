@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 from roles.models import Rol
+from django.core.exceptions import ValidationError
 
 
 class Usuario(AbstractUser):
@@ -93,30 +94,69 @@ class RecuperacionPassword(models.Model):
 
         return self.usuario.email
     
-class AuditoriaSesion(models.Model):
+class AuditoriaSesionQuerySet(models.QuerySet):
+    def update(self, **kwargs):
+        raise ValidationError(
+            "Los registros de auditoría no se pueden modificar."
+        )
 
+    def delete(self):
+        raise ValidationError(
+            "Los registros de auditoría no se pueden eliminar."
+        )
+
+    def bulk_update(self, objs, fields, batch_size=None):
+        raise ValidationError(
+            "Los registros de auditoría no se pueden modificar."
+        )
+
+
+class AuditoriaSesionManager(
+    models.Manager.from_queryset(AuditoriaSesionQuerySet)
+):
+    pass
+
+
+class AuditoriaSesion(models.Model):
     usuario = models.ForeignKey(
         Usuario,
-        on_delete=models.CASCADE,
-        related_name="auditorias"
+        on_delete=models.PROTECT,
+        related_name="auditorias",
     )
-
+    modulo = models.CharField(
+        max_length=100,
+        default="Sistema",
+    )
     accion = models.CharField(
-        max_length=30
+        max_length=100,
+    )
+    descripcion = models.TextField(
+        blank=True,
+        default="",
+    )
+    fecha = models.DateTimeField(
+        auto_now_add=True,
     )
 
-    fecha = models.DateTimeField(
-        auto_now_add=True
-    )
+    objects = AuditoriaSesionManager()
 
     class Meta:
-
         db_table = "auditoria_sesion"
+        verbose_name = "Auditoría del sistema"
+        verbose_name_plural = "Auditorías del sistema"
+        ordering = ["-fecha", "-pk"]
 
-        verbose_name = "Auditoría de sesión"
+    def save(self, *args, **kwargs):
+        if self.pk and type(self).objects.filter(pk=self.pk).exists():
+            raise ValidationError(
+                "Los registros de auditoría no se pueden modificar."
+            )
+        super().save(*args, **kwargs)
 
-        verbose_name_plural = "Auditorías de sesión"
+    def delete(self, *args, **kwargs):
+        raise ValidationError(
+            "Los registros de auditoría no se pueden eliminar."
+        )
 
     def __str__(self):
-
-        return f"{self.usuario.username} - {self.accion}"
+        return f"{self.usuario.username} - {self.modulo} - {self.accion}"

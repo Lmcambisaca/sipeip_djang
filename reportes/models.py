@@ -14,6 +14,8 @@ class Reporte(models.Model):
         ("Metas", "Metas"),
         ("Indicadores", "Indicadores"),
         ("Avances", "Avances"),
+        ("Inversiones", "Inversiones"),
+        ("Consolidado", "Consolidado"),
 
     ]
 
@@ -41,6 +43,11 @@ class Reporte(models.Model):
         upload_to="reportes/excel/",
         blank=True,
         null=True
+    )
+    
+    parametros = models.JSONField(
+        default=dict,
+        blank=True
     )
 
     class Meta:
