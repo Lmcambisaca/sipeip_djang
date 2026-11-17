@@ -316,6 +316,55 @@
 
             </li>
 
+            <!-- INVERSIONES -->
+            <li class="nav-item">
+
+                <a class="nav-link collapsed"
+                href="#"
+                data-toggle="collapse"
+                data-target="#collapseInversiones"
+                aria-expanded="false"
+                aria-controls="collapseInversiones">
+
+                    <i class="fas fa-coins"></i>
+                    <span>Inversiones</span>
+
+                </a>
+
+                <div id="collapseInversiones"
+                    class="collapse"
+                    data-parent="#accordionSidebar">
+
+                    <div class="bg-white py-2 collapse-inner rounded">
+
+                        <h6 class="collapse-header">
+                            Gestión de Inversiones
+                        </h6>
+
+                        <a class="collapse-item"
+                        href="{% url 'registrar_inversion' %}">
+                            Registrar inversión
+                        </a>
+
+                        <a class="collapse-item"
+                        href="{% url 'consultar_inversiones' %}">
+                            Consultar inversiones
+                        </a>
+
+                        <a class="collapse-item"
+                        href="{% url 'seguimiento_inversiones' %}">
+                            Seguimiento financiero
+                        </a>
+
+                        <a class="collapse-item"
+                        href="{% url 'reporte_inversiones' %}">
+                            Reporte financiero
+                        </a>
+
+                    </div>
+                </div>
+            </li>
+
             <!-- Menú Metas -->
         <li class="nav-item">
 

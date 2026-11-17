@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <h1 class="h3 mb-4 text-gray-800">Seguimiento financiero</h1>
+
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card shadow h-100">
+                <div class="card-body">
+                    <div class="text-muted">Total asignado</div>
+                    <h4>${{ total_asignado|floatformat:2 }}</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card shadow h-100">
+                <div class="card-body">
+                    <div class="text-muted">Total ejecutado</div>
+                    <h4>${{ total_ejecutado|floatformat:2 }}</h4>
+                    <div>Porcentaje general: {{ porcentaje_general }}%</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card shadow h-100">
+                <div class="card-body">
+                    <div class="text-muted">Total pendiente</div>
+                    <h4>${{ total_pendiente|floatformat:2 }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header">
+            Ejecución por inversión
+        </div>
+        <div class="card-body">
+            <canvas id="graficoInversiones"></canvas>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header">
+            Detalle financiero
+        </div>
+        <div class="card-body table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Código</th>
+                        <th>Inversión</th>
+                        <th>Proyecto</th>
+                        <th>Asignado</th>
+                        <th>Ejecutado</th>
+                        <th>Pendiente</th>
+                        <th>Ejecución</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inversion in inversiones %}
+                        <tr>
+                            <td>{{ inversion.codigo }}</td>
+                            <td>{{ inversion.nombre }}</td>
+                            <td>{{ inversion.proyecto.nombre }}</td>
+                            <td>${{ inversion.monto_asignado|floatformat:2 }}</td>
+                            <td>${{ inversion.monto_ejecutado|floatformat:2 }}</td>
+                            <td>${{ inversion.monto_pendiente|floatformat:2 }}</td>
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar
+                                        {% if inversion.porcentaje_ejecucion == 0 %}
+                                            bg-danger
+                                        {% elif inversion.porcentaje_ejecucion < 100 %}
+                                            bg-warning
+                                        {% else %}
+                                            bg-success
+                                        {% endif %}"
+                                        role="progressbar"
+                                        style="width: {{ inversion.porcentaje_ejecucion }}%;">
+                                        {{ inversion.porcentaje_ejecucion }}%
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if inversion.porcentaje_ejecucion == 0 %}
+                                    <span class="badge bg-danger">Sin ejecución</span>
+                                {% elif inversion.porcentaje_ejecucion < 100 %}
+                                    <span class="badge bg-warning text-dark">En ejecución</span>
+                                {% else %}
+                                    <span class="badge bg-success">Ejecutada</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center">
+                                No existen inversiones registradas.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{{ datos_grafico|json_script:"datos-grafico-inversiones" }}
+
+<script src="{% static 'vendor/chart.js/Chart.min.js' %}"></script>
+<script>
+    const datosInversiones = JSON.parse(
+        document.getElementById("datos-grafico-inversiones").textContent
+    );
+
+    const lienzo = document.getElementById("graficoInversiones");
+
+    new Chart(lienzo, {
+        type: "bar",
+        data: {
+            labels: datosInversiones.etiquetas,
+            datasets: [
+                {
+                    label: "Asignado",
+                    data: datosInversiones.asignados,
+                    backgroundColor: "#4e73df"
+                },
+                {
+                    label: "Ejecutado",
+                    data: datosInversiones.ejecutados,
+                    backgroundColor: "#1cc88a"
+                },
+                {
+                    label: "Pendiente",
+                    data: datosInversiones.pendientes,
+                    backgroundColor: "#f6c23e"
+                }
+            ]
+        },
+        options: {
+            responsive: true
+        }
+    });
+</script>
+{% endblock %}
