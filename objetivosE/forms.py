@@ -21,46 +21,39 @@ class ObjetivoEstrategicoForm(forms.ModelForm):
 
             "estado",
 
-            "objetivos_institucionales"
+            "objetivos_institucionales",
 
+            "objetivos_desarrollo",
         )
 
         widgets = {
 
             "codigo": forms.TextInput(
-                attrs={
-                    "class": "form-control"
-                }
+                attrs={"class": "form-control"}
             ),
 
             "descripcion": forms.Textarea(
-                attrs={
-                    "class": "form-control"
-                }
+                attrs={"class": "form-control"}
             ),
 
             "eje_estrategico": forms.TextInput(
-                attrs={
-                    "class": "form-control"
-                }
+                attrs={"class": "form-control"}
             ),
 
             "periodo_vigencia": forms.TextInput(
-                attrs={
-                    "class": "form-control"
-                }
+                attrs={"class": "form-control"}
             ),
-
-            "estado": forms.CheckboxInput(),
-
+            "estado": forms.CheckboxInput(
+                attrs={"class": "form-check-input"}
+            ),
             "objetivos_institucionales": forms.SelectMultiple(
-                attrs={
-                    "class": "form-select"
-                }
-            )
-
+                attrs={"class": "form-select"}
+            ),
+            "objetivos_desarrollo": forms.SelectMultiple(
+                attrs={"class": "form-select"}
+            ),
         }
-        
+
     def clean_codigo(self):
         return self.cleaned_data["codigo"].strip()
 

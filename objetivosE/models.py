@@ -31,6 +31,12 @@ class ObjetivoEstrategico(models.Model):
         related_name="objetivos_estrategicos"
     )
 
+    objetivos_desarrollo = models.ManyToManyField(
+        "ods.ObjetivoDesarrollo",
+        blank=True,
+        related_name="objetivos_estrategicos"
+    )
+
     class Meta:
 
         db_table = "objetivo_estrategico"
@@ -42,7 +48,7 @@ class ObjetivoEstrategico(models.Model):
     def __str__(self):
 
         return self.codigo
-    
+
 
 class HistorialObjetivoEstrategico(models.Model):
 

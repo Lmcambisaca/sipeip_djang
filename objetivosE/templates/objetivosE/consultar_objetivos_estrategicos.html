@@ -3,297 +3,160 @@
 {% block content %}
 
 <div class="container-fluid">
-
-<div class="card shadow">
-
-<div class="card-header">
-
-<h4>
-
-Consulta Objetivos Estratégicos
-
-</h4>
-
-</div>
-
-<div class="card-body">
-
-{% if mensaje %}
-
-<div class="alert alert-warning">
-
-{{ mensaje }}
-
-</div>
-
-{% endif %}
-
-<form method="get">
-
-<div class="row">
-
-<div class="col-md-4">
-
-<label>
-
-Eje Estratégico
-
-</label>
-
-<input
-
-type="text"
-
-name="eje"
-
-class="form-control">
-
-</div>
-
-<div class="col-md-4">
-
-<label>
-
-Período
-
-</label>
-
-<input
-
-type="text"
-
-name="periodo"
-
-class="form-control">
-
-</div>
-
-<div class="col-md-4">
-
-<label>
-
-Estado
-
-</label>
-
-<select
-
-name="estado"
-
-class="form-select">
-
-<option value="">
-
-Todos
-
-</option>
-
-<option value="True">
-
-Activo
-
-</option>
-
-<option value="False">
-
-Inactivo
-
-</option>
-
-</select>
-
-</div>
-
-</div>
-
-<br>
-
-<button class="btn btn-primary">
-
-Buscar
-
-</button>
-
-<a
-
-href="{% url 'consultar_objetivos_estrategicos' %}"
-
-class="btn btn-secondary">
-
-Limpiar
-
-</a>
-
-</form>
-
-<hr>
-
-<a
-
-href="{% url 'registrar_objetivo_estrategico' %}"
-
-class="btn btn-success mb-3">
-
-Nuevo Objetivo Estratégico
-
-</a>
-
-<table class="table table-bordered">
-
-<thead>
-
-<tr>
-
-<th>
-
-Código
-
-</th>
-
-<th>
-
-Descripción
-
-</th>
-
-<th>
-
-Eje
-
-</th>
-
-<th>
-
-Período
-
-</th>
-
-<th>
-
-Objetivos Institucionales
-
-</th>
-
-<th>
-
-Estado
-
-</th>
-
-<th>
-
-Acciones
-
-</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-{% for o in objetivos %}
-
-<tr>
-
-<td>
-
-{{ o.codigo }}
-
-</td>
-
-<td>
-
-{{ o.descripcion }}
-
-</td>
-
-<td>
-
-{{ o.eje_estrategico }}
-
-</td>
-
-<td>
-
-{{ o.periodo_vigencia }}
-
-</td>
-
-<td>
-
-{% for oi in o.objetivos_institucionales.all %}
-
-{{ oi.codigo }}
-
-<br>
-
-{% empty %}
-
-Sin asociaciones
-
-{% endfor %}
-
-</td>
-
-<td>
-
-{% if o.estado %}
-
-<span class="badge bg-success">
-
-Activo
-
-</span>
-
-{% else %}
-
-<span class="badge bg-danger">
-
-Inactivo
-
-</span>
-
-{% endif %}
-
-</td>
-
-<td>
-
-<a
-
-href="{% url 'editar_objetivo_estrategico' o.id %}"
-
-class="btn btn-warning btn-sm">
-
-Editar
-
-</a>
-
-<a
-
-href="{% url 'seguimiento_objetivo_estrategico' o.id %}"
-
-class="btn btn-info btn-sm">
-
-Seguimiento
-
-</a>
-
-</td>
-
-</tr>
-
-{% endfor %}
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
+    <div class="card shadow">
+        <div class="card-header">
+            <h4>Consulta de Objetivos Estratégicos</h4>
+        </div>
+
+        <div class="card-body">
+            {% if mensaje %}
+                <div class="alert alert-warning">
+                    {{ mensaje }}
+                </div>
+            {% endif %}
+
+            <form method="get">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="filtro-eje" class="form-label">
+                            Eje estratégico
+                        </label>
+                        <input
+                            id="filtro-eje"
+                            type="text"
+                            name="eje"
+                            class="form-control"
+                            value="{{ request.GET.eje }}">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="filtro-periodo" class="form-label">
+                            Período
+                        </label>
+                        <input
+                            id="filtro-periodo"
+                            type="text"
+                            name="periodo"
+                            class="form-control"
+                            value="{{ request.GET.periodo }}">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="filtro-estado" class="form-label">
+                            Estado
+                        </label>
+                        <select
+                            id="filtro-estado"
+                            name="estado"
+                            class="form-select">
+                            <option value="" {% if not request.GET.estado %}selected{% endif %}>
+                                Todos
+                            </option>
+                            <option value="True" {% if request.GET.estado == "True" %}selected{% endif %}>
+                                Activo
+                            </option>
+                            <option value="False" {% if request.GET.estado == "False" %}selected{% endif %}>
+                                Inactivo
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        Buscar
+                    </button>
+
+                    <a
+                        href="{% url 'consultar_objetivos_estrategicos' %}"
+                        class="btn btn-secondary">
+                        Limpiar
+                    </a>
+                </div>
+            </form>
+
+            <hr>
+
+            <a
+                href="{% url 'registrar_objetivo_estrategico' %}"
+                class="btn btn-success mb-3">
+                Nuevo objetivo estratégico
+            </a>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Descripción</th>
+                            <th>Eje</th>
+                            <th>Período</th>
+                            <th>Objetivos institucionales</th>
+                            <th>ODS</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for o in objetivos %}
+                            <tr>
+                                <td>{{ o.codigo }}</td>
+                                <td>{{ o.descripcion }}</td>
+                                <td>{{ o.eje_estrategico }}</td>
+                                <td>{{ o.periodo_vigencia }}</td>
+
+                                <td>
+                                    {% for oi in o.objetivos_institucionales.all %}
+                                        {{ oi.codigo }}<br>
+                                    {% empty %}
+                                        Sin asociaciones
+                                    {% endfor %}
+                                </td>
+
+                                <td>
+                                    {% for ods in o.objetivos_desarrollo.all %}
+                                        <strong>{{ ods.codigo }}</strong>
+                                        — {{ ods.descripcion }}<br>
+                                    {% empty %}
+                                        Sin ODS asociados
+                                    {% endfor %}
+                                </td>
+
+                                <td>
+                                    {% if o.estado %}
+                                        <span class="badge bg-success">Activo</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Inactivo</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <a
+                                        href="{% url 'editar_objetivo_estrategico' o.id %}"
+                                        class="btn btn-warning btn-sm">
+                                        Editar
+                                    </a>
+
+                                    <a
+                                        href="{% url 'seguimiento_objetivo_estrategico' o.id %}"
+                                        class="btn btn-info btn-sm">
+                                        Seguimiento
+                                    </a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center">
+                                    No hay objetivos estratégicos registrados.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% endblock %}
