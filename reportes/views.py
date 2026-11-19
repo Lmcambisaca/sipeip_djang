@@ -55,12 +55,12 @@ CAMPOS_REPORTE = {
     "Indicadores": ("meta", "nombre", "formula", "unidad_medida", "frecuencia", "estado"),
     "Avances": ("indicador", "fecha", "valor", "porcentaje_cumplimiento"),
     "Inversiones": ("codigo", "nombre", "monto_asignado", "monto_ejecutado", "fuente_financiamiento", "proyecto", "periodo_fiscal", "estado",),
+    "Metas": ("proyecto", "objetivo_desarrollo", "descripcion", "periodo", "unidad_medida", "valor_esperado", "estado"),
 }
 
 
-def _tiene_permiso(request):
-    return validar_permiso(request, "Generar reportes")
-
+def _tiene_permiso(request, nombre_permiso):
+    return validar_permiso(request, nombre_permiso)
 
 def obtener_datos(tipo, filtros=None):
     filtros = filtros or {}
@@ -152,7 +152,7 @@ def obtener_datos(tipo, filtros=None):
 
 @login_required
 def generar_reporte(request):
-    permiso = _tiene_permiso(request)
+    permiso = _tiene_permiso(request, "Consultar reportes")
     if permiso:
         return permiso
 
@@ -164,9 +164,9 @@ def generar_reporte(request):
             return HttpResponseBadRequest(
                 "Seleccione PDF o Excel para generar el reporte."
             )
-            
+
         if form.is_valid():
-         
+
             tipo = form.cleaned_data["tipo"]
             parametros = {
                 "busqueda": form.cleaned_data["busqueda"],
@@ -194,16 +194,16 @@ def generar_reporte(request):
                 return redirect(
                     f"{reverse(nombre_vista, kwargs={'tipo': tipo})}"
                     f"?{urlencode(parametros)}"
-         
+
                 )
     else:
-        
+
         form = ReporteForm()
 
     return render(
-        
+
         request,
-        
+
         "reportes/generar_reporte.html",
         {"form": form}
     )
@@ -211,7 +211,7 @@ def generar_reporte(request):
 
 @login_required
 def consultar_reportes(request):
-    permiso = _tiene_permiso(request)
+    permiso = _tiene_permiso(request, "Consultar reportes")
     if permiso:
         return permiso
 
@@ -257,9 +257,9 @@ def consultar_reportes(request):
 
 @login_required
 def reporte_pdf(request, tipo):
-    permiso = _tiene_permiso(request)
+    permiso = _tiene_permiso(request, "Generar reportes")
     if permiso:
-        
+
         return permiso
 
     encabezados, filas = obtener_datos(tipo, request.GET)
@@ -336,11 +336,11 @@ def reporte_pdf(request, tipo):
     ])
 
     buffer.seek(0)
-    
+
     return FileResponse(
-    
+
         buffer,
-    
+
         as_attachment=True,
         filename=f"{slugify(tipo)}.pdf",
         content_type="application/pdf",
@@ -349,7 +349,7 @@ def reporte_pdf(request, tipo):
 
 @login_required
 def reporte_excel(request, tipo):
-    permiso = _tiene_permiso(request)
+    permiso = _tiene_permiso(request, "Generar reportes")
     if permiso:
         return permiso
 
@@ -385,30 +385,30 @@ def reporte_excel(request, tipo):
 
 @login_required
 def reporte_consolidado(request):
-    permiso = _tiene_permiso(request)
+    permiso = _tiene_permiso(request, "Consultar reportes")
     if permiso:
         return permiso
 
     informacion = {
-       
+
         "usuarios": Usuario.objects.count(),
-       
+
         "entidades": Entidad.objects.count(),
-       
+
         "proyectos": Proyecto.objects.count(),
-       
+
         "metas": Meta.objects.count(),
-       
+
         "indicadores": Indicador.objects.count(),
-    
+
     }
-    
+
 
     return render(
-    
+
         request,
-    
+
         "reportes/reporte_consolidado.html",
         {"informacion": informacion}
-        
+
     )
