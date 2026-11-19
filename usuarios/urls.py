@@ -45,7 +45,6 @@ urlpatterns = [
         name="password_reset_complete",
     ),
     path("auditoria/", views.consultar_auditoria, name="consultar_auditoria"),
-    path("auditoria/exportar/csv/", views.exportar_auditoria_csv, name="exportar_auditoria_csv",),
     path("historial-cambios/", views.consultar_historial_cambios, name="consultar_historial_cambios",),
     path("auditoria/exportar/pdf/", views.exportar_auditoria_pdf, name="exportar_auditoria_pdf",),
     path("auditoria/exportar/excel/", views.exportar_auditoria_excel, name="exportar_auditoria_excel",),
