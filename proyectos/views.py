@@ -11,6 +11,7 @@ from usuarios.permisos import validar_permiso
 import mimetypes
 from pathlib import Path
 from django.http import FileResponse, Http404
+from planificaciones.models import Planificacion
 
 @login_required
 def registrar_proyecto(request):
