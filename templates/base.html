@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
-{% load static %}
+{% load static permisos_tags %}
 
 <head>
 
@@ -13,702 +13,501 @@
 
     <title>SIPeIP</title>
 
-    <!-- Custom fonts for this template-->
+    <!-- Fuentes de la plantilla -->
     <link
         href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
         rel="stylesheet">
 
-    <!-- Custom styles for this template-->
+    <!-- Estilos de SB Admin 2 -->
     <link href="{% static 'css/sb-admin-2.min.css' %}" rel="stylesheet">
 
 </head>
 
 <body id="page-top">
 
-    <!-- Page Wrapper -->
+    {% tiene_permiso "Administrar usuarios" as p_usuarios %}
+    {% tiene_permiso "Administrar roles" as p_roles %}
+    {% tiene_permiso "Asignar permisos" as p_asignar_permisos %}
+    {% tiene_permiso "Administrar entidades" as p_entidades %}
+    {% tiene_permiso "Administrar planificaciones" as p_plan_admin %}
+    {% tiene_permiso "Consultar planificaciones" as p_plan_consulta %}
+    {% tiene_permiso "Validar planificaciones" as p_plan_validar %}
+    {% tiene_permiso "Aprobar planificaciones" as p_plan_aprobar %}
+    {% tiene_permiso "Administrar configuración" as p_configuracion %}
+    {% tiene_permiso "Administrar proyectos" as p_proyectos %}
+    {% tiene_permiso "Administrar documentos" as p_documentos %}
+    {% tiene_permiso "Administrar inversiones" as p_inversiones_admin %}
+    {% tiene_permiso "Consultar inversiones" as p_inversiones_consulta %}
+    {% tiene_permiso "Administrar metas" as p_metas %}
+    {% tiene_permiso "Administrar indicadores" as p_indicadores %}
+    {% tiene_permiso "Registrar avances" as p_avances %}
+    {% tiene_permiso "Administrar objetivos ODS" as p_ods_admin %}
+    {% tiene_permiso "Consultar objetivos ODS" as p_ods_consulta %}
+    {% tiene_permiso "Administrar objetivos institucionales" as p_obj_i_admin %}
+    {% tiene_permiso "Consultar objetivos institucionales" as p_obj_i_consulta %}
+    {% tiene_permiso "Administrar objetivos estratégicos" as p_obj_e_admin %}
+    {% tiene_permiso "Consultar objetivos estratégicos" as p_obj_e_consulta %}
+    {% tiene_permiso "Generar reportes" as p_reportes_generar %}
+    {% tiene_permiso "Consultar reportes" as p_reportes_consultar %}
+    {% tiene_permiso "Consultar auditoría" as p_auditoria %}
+
+    <!-- Contenedor de toda la página -->
     <div id="wrapper">
 
-        <!-- Sidebar -->
+        <!-- Menú lateral -->
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
-            <!-- Sidebar - Brand -->
+
             <a class="sidebar-brand d-flex align-items-center justify-content-center"
-            href="{% url 'dashboard' %}">
-
-                <div class="sidebar-brand-text mx-3">
-                    SIPEIP
-                </div>
-
+               href="{% url 'dashboard' %}">
+                <div class="sidebar-brand-text mx-3">SIPEIP</div>
             </a>
-            
+
             <hr class="sidebar-divider">
 
-            <!-- USUARIOS -->
+            {% if p_usuarios %}
             <li class="nav-item">
 
                 <a class="nav-link collapsed"
-                href="#"
-                data-toggle="collapse"
-                data-target="#collapseUsuarios">
-
+                   href="#"
+                   data-toggle="collapse"
+                   data-target="#collapseUsuarios"
+                   aria-expanded="false"
+                   aria-controls="collapseUsuarios">
                     <i class="fas fa-users"></i>
 
                     <span>Usuarios</span>
 
                 </a>
 
-                <div id="collapseUsuarios"
-                    class="collapse">
-
+                <div id="collapseUsuarios" class="collapse" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-
-                        <h6 class="collapse-header">
-                            Gestión Usuarios
-                        </h6>
-
-                        <a class="collapse-item"
-                        href="{% url 'registrar_usuario' %}">
-                            Registrar Usuario
-                        </a>
-
-                        <a class="collapse-item"
-                        href="{% url 'consultar_usuarios' %}">
-                            Consultar Usuarios
-                        </a>
-
+                        <h6 class="collapse-header">Gestión de usuarios</h6>
+                        <a class="collapse-item" href="{% url 'registrar_usuario' %}">Registrar usuario</a>
+                        <a class="collapse-item" href="{% url 'consultar_usuarios' %}">Consultar usuarios</a>
                     </div>
 
                 </div>
 
             </li>
+            {% endif %}
 
-            <!-- ROLES -->
+            {% if p_roles %}
             <li class="nav-item">
 
                 <a class="nav-link collapsed"
-                href="#"
-                data-toggle="collapse"
-                data-target="#collapseRoles">
-
-
+                   href="#"
+                   data-toggle="collapse"
+                   data-target="#collapseRoles"
+                   aria-expanded="false"
+                   aria-controls="collapseRoles">
                     <i class="fas fa-user-shield"></i>
 
                     <span>Roles</span>
 
                 </a>
 
-                <div id="collapseRoles"
-                    class="collapse">
-
+                <div id="collapseRoles" class="collapse" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Gestión de roles</h6>
+                        <a class="collapse-item" href="{% url 'registrar_rol' %}">Registrar rol</a>
+                        <a class="collapse-item" href="{% url 'consultar_roles' %}">Consultar roles</a>
 
-                        <h6 class="collapse-header">
-                            Gestión Roles
-                        </h6>
-
-                        <a class="collapse-item"
-                        href="{% url 'registrar_rol' %}">
-                            Registrar Rol
-                        </a>
-
-                        <a class="collapse-item"
-                        href="{% url 'consultar_roles' %}">
-                            Consultar Roles
-                        </a>
-
-                        <a class="collapse-item"
-                        href="{% url 'consultar_roles' %}">
-                            Administrar Permisos
-                        </a>
-
+                        {% if p_asignar_permisos %}
+                        <a class="collapse-item" href="{% url 'consultar_roles' %}">Administrar permisos</a>
+                        {% endif %}
                     </div>
 
                 </div>
 
             </li>
+            {% endif %}
 
-            <!-- ENTIDADES -->
+            {% if p_entidades %}
+
             <li class="nav-item">
 
                 <a class="nav-link collapsed"
-                href="#"
-                data-toggle="collapse"
-                data-target="#collapseEntidades">
-
+                   href="#"
+                   data-toggle="collapse"
+                   data-target="#collapseEntidades"
+                   aria-expanded="false"
+                   aria-controls="collapseEntidades">
                     <i class="fas fa-building"></i>
 
                     <span>Entidades</span>
 
                 </a>
 
-                <div id="collapseEntidades"
-                    class="collapse">
-
+                <div id="collapseEntidades" class="collapse" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-
-                        <h6 class="collapse-header">
-                            Gestión Entidades
-                        </h6>
-
-                        <a class="collapse-item"
-                        href="{% url 'registrar_entidad' %}">
-                            Registrar Entidad
-                        </a>
-
-                        <a class="collapse-item"
-                        href="{% url 'consultar_entidades' %}">
-                            Consultar Entidades
-                        </a>
-
+                        <h6 class="collapse-header">Gestión de entidades</h6>
+                        <a class="collapse-item" href="{% url 'registrar_entidad' %}">Registrar entidad</a>
+                        <a class="collapse-item" href="{% url 'consultar_entidades' %}">Consultar entidades</a>
                     </div>
 
                 </div>
 
             </li>
+            {% endif %}
 
-            <!-- PLANIFICACIONES -->
+            {% if p_plan_admin or p_plan_consulta or p_plan_validar or p_plan_aprobar %}
+
             <li class="nav-item">
 
                 <a class="nav-link collapsed"
-                href="#"
-                data-toggle="collapse"
-                data-target="#collapsePlanificaciones">
-
+                   href="#"
+                   data-toggle="collapse"
+                   data-target="#collapsePlanificaciones"
+                   aria-expanded="false"
+                   aria-controls="collapsePlanificaciones">
                     <i class="fas fa-calendar-alt"></i>
 
                     <span>Planificaciones</span>
 
                 </a>
 
-                <div id="collapsePlanificaciones"
-                    class="collapse">
-
+                <div id="collapsePlanificaciones" class="collapse" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Gestión de planificaciones</h6>
 
-                        <h6 class="collapse-header">
-                            Gestión Planificación
-                        </h6>
-
-                        <a class="collapse-item"
-                        href="{% url 'registrar_planificacion' %}">
-                            Registrar Planificación
+                        {% if p_plan_admin %}
+                        <a class="collapse-item" href="{% url 'registrar_planificacion' %}">
+                            Registrar planificación
                         </a>
+                        {% endif %}
 
-                        <a class="collapse-item"
-                        href="{% url 'consultar_planificaciones' %}">
-                            Consultar Planificaciones
+                        {% if p_plan_consulta %}
+                        <a class="collapse-item" href="{% url 'consultar_planificaciones' %}">
+                            Consultar planificaciones
                         </a>
-
+                        {% endif %}
                     </div>
 
                 </div>
 
             </li>
+            {% endif %}
 
-            <!-- CONFIGURACIÓN -->
+            {% if p_configuracion %}
+
             <li class="nav-item">
 
                 <a class="nav-link collapsed"
-                href="#"
-                data-toggle="collapse"
-                data-target="#collapseConfiguracion">
-
+                   href="#"
+                   data-toggle="collapse"
+                   data-target="#collapseConfiguracion"
+                   aria-expanded="false"
+                   aria-controls="collapseConfiguracion">
                     <i class="fas fa-cogs"></i>
 
                     <span>Configuración</span>
 
                 </a>
 
-                <div id="collapseConfiguracion"
-                    class="collapse">
-
+                <div id="collapseConfiguracion" class="collapse" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-
-                        <h6 class="collapse-header">
-                            Parámetros Sistema
-                        </h6>
-
-                        <a class="collapse-item"
-                        href="{% url 'registrar_configuracion' %}">
-                            Registrar Parámetro
-                        </a>
-
-                        <a class="collapse-item"
-                        href="{% url 'consultar_configuracion' %}">
-                            Consultar Configuración
-                        </a>
+                        <h6 class="collapse-header">Parámetros del sistema</h6>
+                        <a class="collapse-item" href="{% url 'registrar_configuracion' %}">Registrar parámetro</a>
+                        <a class="collapse-item" href="{% url 'consultar_configuracion' %}">Consultar configuración</a>
                     </div>
 
                 </div>
 
             </li>
+            {% endif %}
 
-            <!-- PROYECTOS -->
+            {% if p_proyectos or p_documentos %}
             <li class="nav-item">
 
                 <a class="nav-link collapsed"
-                href="#"
-                data-toggle="collapse"
-                data-target="#collapseProyectos"
-                aria-expanded="true"
-                aria-controls="collapseProyectos">
-
+                   href="#"
+                   data-toggle="collapse"
+                   data-target="#collapseProyectos"
+                   aria-expanded="false"
+                   aria-controls="collapseProyectos">
                     <i class="fas fa-folder"></i>
 
                     <span>Proyectos</span>
 
                 </a>
 
-                <div id="collapseProyectos"
-                    class="collapse">
-
+                <div id="collapseProyectos" class="collapse" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
 
-                        <h6 class="collapse-header">
-                            Gestión de Proyectos
-                        </h6>
-
-                        <a class="collapse-item"
-                        href="{% url 'registrar_proyecto' %}">
-                            Registrar Proyecto
-                        </a>
-
-                        <a class="collapse-item"
-                        href="{% url 'consultar_proyectos' %}">
-                            Consultar Proyectos
-                        </a>
+                        {% if p_proyectos %}
+                        <h6 class="collapse-header">Gestión de proyectos</h6>
+                        <a class="collapse-item" href="{% url 'registrar_proyecto' %}">Registrar proyecto</a>
+                        <a class="collapse-item" href="{% url 'consultar_proyectos' %}">Consultar proyectos</a>
 
                         <div class="collapse-divider"></div>
 
-                        <h6 class="collapse-header">
-                            Cronogramas
-                        </h6>
+                        <h6 class="collapse-header">Cronogramas</h6>
+                        <a class="collapse-item" href="{% url 'registrar_cronograma' %}">Registrar cronograma</a>
+                        <a class="collapse-item" href="{% url 'consultar_cronogramas' %}">Consultar cronogramas</a>
+                        {% endif %}
 
-                        <a class="collapse-item"
-                        href="{% url 'registrar_cronograma' %}">
-                            Registrar Cronograma
-                        </a>
-
-                        <a class="collapse-item"
-                        href="{% url 'consultar_cronogramas' %}">
-                            Consultar Cronogramas
-                        </a>
-
+                        {% if p_documentos %}
                         <div class="collapse-divider"></div>
-
-                        <h6 class="collapse-header">
-                            Documentos
-                        </h6>
-
-                        <a class="collapse-item"
-                        href="{% url 'registrar_documento' %}">
-                            Registrar Documento
-                        </a>
-
-                        <a class="collapse-item"
-                        href="{% url 'consultar_documentos' %}">
-                            Consultar Documentos
-                        </a>
-
+                        <h6 class="collapse-header">Documentos</h6>
+                        <a class="collapse-item" href="{% url 'registrar_documento' %}">Registrar documento</a>
+                        <a class="collapse-item" href="{% url 'consultar_documentos' %}">Consultar documentos</a>
+                        {% endif %}
                     </div>
 
                 </div>
 
             </li>
+            {% endif %}
 
-            <!-- INVERSIONES -->
+            {% if p_inversiones_admin or p_inversiones_consulta %}
+
             <li class="nav-item">
 
                 <a class="nav-link collapsed"
-                href="#"
-                data-toggle="collapse"
-                data-target="#collapseInversiones"
-                aria-expanded="false"
-                aria-controls="collapseInversiones">
-
+                   href="#"
+                   data-toggle="collapse"
+                   data-target="#collapseInversiones"
+                   aria-expanded="false"
+                   aria-controls="collapseInversiones">
                     <i class="fas fa-coins"></i>
                     <span>Inversiones</span>
 
                 </a>
 
-                <div id="collapseInversiones"
-                    class="collapse"
-                    data-parent="#accordionSidebar">
-
+                <div id="collapseInversiones" class="collapse" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Gestión de inversiones</h6>
 
-                        <h6 class="collapse-header">
-                            Gestión de Inversiones
-                        </h6>
+                        {% if p_inversiones_admin %}
+                        <a class="collapse-item" href="{% url 'registrar_inversion' %}">Registrar inversión</a>
+                        {% endif %}
 
-                        <a class="collapse-item"
-                        href="{% url 'registrar_inversion' %}">
-                            Registrar inversión
-                        </a>
-
-                        <a class="collapse-item"
-                        href="{% url 'consultar_inversiones' %}">
-                            Consultar inversiones
-                        </a>
-
-                        <a class="collapse-item"
-                        href="{% url 'seguimiento_inversiones' %}">
-                            Seguimiento financiero
-                        </a>
-
-                        <a class="collapse-item"
-                        href="{% url 'reporte_inversiones' %}">
-                            Reporte financiero
-                        </a>
-
+                        {% if p_inversiones_consulta %}
+                        <a class="collapse-item" href="{% url 'consultar_inversiones' %}">Consultar inversiones</a>
+                        <a class="collapse-item" href="{% url 'seguimiento_inversiones' %}">Seguimiento financiero</a>
+                        <a class="collapse-item" href="{% url 'reporte_inversiones' %}">Reporte financiero</a>
+                        {% endif %}
                     </div>
                 </div>
             </li>
+            {% endif %}
 
-            <!-- Menú Metas -->
-        <li class="nav-item">
+            {% if p_metas or p_indicadores or p_avances %}
+            <li class="nav-item">
+                <a class="nav-link collapsed"
+                   href="#"
+                   data-toggle="collapse"
+                   data-target="#collapseMetas"
+                   aria-expanded="false"
+                   aria-controls="collapseMetas">
+                    <i class="fas fa-bullseye"></i>
+                    <span>Metas e indicadores</span>
+                </a>
 
-            <a class="nav-link collapsed"
-            href="#"
-            data-toggle="collapse"
-            data-target="#collapseMetas"
-            aria-expanded="true"
-            aria-controls="collapseMetas">
+                <div id="collapseMetas" class="collapse" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
 
-                <i class="fas fa-bullseye"></i>
+                        {% if p_metas %}
+                        <h6 class="collapse-header">Metas</h6>
+                        <a class="collapse-item" href="{% url 'registrar_meta' %}">Registrar meta</a>
+                        <a class="collapse-item" href="{% url 'consultar_metas' %}">Consultar metas</a>
+                        {% endif %}
 
-                <span>Metas</span>
+                        {% if p_indicadores %}
+                        <div class="collapse-divider"></div>
+                        <h6 class="collapse-header">Indicadores</h6>
+                        <a class="collapse-item" href="{% url 'registrar_indicador' %}">Registrar indicador</a>
+                        <a class="collapse-item" href="{% url 'consultar_indicadores' %}">Consultar indicadores</a>
+                        {% endif %}
 
-            </a>
-
-            <div id="collapseMetas"
-                class="collapse"
-                aria-labelledby="headingMetas"
-                data-parent="#accordionSidebar">
-
-                <div class="bg-white py-2 collapse-inner rounded">
-
-                    <h6 class="collapse-header">
-
-                        Gestión de Metas
-
-                    </h6>
-
-                    <a class="collapse-item"
-                    href="{% url 'registrar_meta' %}">
-
-                        Registrar Meta
-
-                    </a>
-
-                    <a class="collapse-item"
-                    href="{% url 'consultar_metas' %}">
-
-                        Consultar Metas
-
-                    </a>
-
-                    <div class="collapse-divider"></div>
-
-                    <h6 class="collapse-header">
-
-                        Indicadores
-
-                    </h6>
-
-                    <a class="collapse-item"
-                    href="{% url 'registrar_indicador' %}">
-
-                        Registrar Indicador
-
-                    </a>
-
-                    <a class="collapse-item"
-                    href="{% url 'consultar_indicadores' %}">
-
-                        Consultar Indicadores
-
-                    </a>
-
-                    <div class="collapse-divider"></div>
-
-                    <h6 class="collapse-header">
-
-                        Avances
-
-                    </h6>
-
-                    <a class="collapse-item"
-                    href="{% url 'registrar_avance' %}">
-
-                        Registrar Avance
-
-                    </a>
-
-                    <a class="collapse-item"
-                    href="{% url 'consultar_avances' %}">
-
-                        Consultar Avances
-
-                    </a>
-
+                        {% if p_avances %}
+                        <div class="collapse-divider"></div>
+                        <h6 class="collapse-header">Avances</h6>
+                        <a class="collapse-item" href="{% url 'registrar_avance' %}">Registrar avance</a>
+                        <a class="collapse-item" href="{% url 'consultar_avances' %}">Consultar avances</a>
+                        {% endif %}
+                    </div>
                 </div>
+            </li>
+            {% endif %}
 
-            </div>
+            {% if p_ods_admin or p_ods_consulta %}
 
-        </li>
-
-        <!-- ODS -->
             <li class="nav-item">
 
                 <a class="nav-link collapsed"
-                href="#"
-                data-toggle="collapse"
-                data-target="#collapseODS">
-
+                   href="#"
+                   data-toggle="collapse"
+                   data-target="#collapseODS"
+                   aria-expanded="false"
+                   aria-controls="collapseODS">
                     <i class="fas fa-globe"></i>
 
                     <span>ODS</span>
 
                 </a>
 
-                <div id="collapseODS"
-                    class="collapse">
-
+                <div id="collapseODS" class="collapse" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Objetivos de desarrollo sostenible</h6>
 
-                        <h6 class="collapse-header">
+                        {% if p_ods_admin %}
+                        <a class="collapse-item" href="{% url 'registrar_objetivo' %}">Registrar ODS</a>
+                        {% endif %}
 
-                            Objetivos de Desarrollo
-
-                        </h6>
-
-                        <a class="collapse-item"
-                        href="{% url 'registrar_objetivo' %}">
-
-                            Registrar ODS
-
-                        </a>
-
-                        <a class="collapse-item"
-                        href="{% url 'consultar_objetivos' %}">
-
-                            Consultar ODS
-
-                        </a>
-
-                        <a class="collapse-item"
-                        href="{% url 'dashboard_ods' %}">
-
-                            Dashboard ODS
-
-                        </a>
-
+                        {% if p_ods_consulta %}
+                        <a class="collapse-item" href="{% url 'consultar_objetivos' %}">Consultar ODS</a>
+                        <a class="collapse-item" href="{% url 'dashboard_ods' %}">Dashboard ODS</a>
+                        {% endif %}
                     </div>
 
                 </div>
 
             </li>
+            {% endif %}
 
-           <!-- OBJETIVOS INSTITUCIONALES -->
+            {% if p_obj_i_admin or p_obj_i_consulta %}
             <li class="nav-item">
 
                 <a class="nav-link collapsed"
-                href="#"
-                data-toggle="collapse"
-                data-target="#collapseObjetivosInstitucionales"
-                aria-expanded="false"
-                aria-controls="collapseObjetivosInstitucionales">
-
+                   href="#"
+                   data-toggle="collapse"
+                   data-target="#collapseObjetivosInstitucionales"
+                   aria-expanded="false"
+                   aria-controls="collapseObjetivosInstitucionales">
                     <i class="fas fa-bullseye"></i>
-
-                    <span>Objetivos Institucionales</span>
-
+                    <span>Objetivos institucionales</span>
                 </a>
 
-                <div id="collapseObjetivosInstitucionales"
-                    class="collapse"
-                    aria-labelledby="headingObjetivosInstitucionales"
-                    data-parent="#accordionSidebar">
-
+                <div id="collapseObjetivosInstitucionales" class="collapse" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Gestión de objetivos</h6>
 
-                        <h6 class="collapse-header">
-
-                            Gestión Objetivos
-
-                        </h6>
-
-                        <a class="collapse-item"
-                        href="{% url 'registrar_objetivo_institucional' %}">
-
-                            Registrar Objetivo
-
+                        {% if p_obj_i_admin %}
+                        <a class="collapse-item" href="{% url 'registrar_objetivo_institucional' %}">
+                            Registrar objetivo
                         </a>
+                        {% endif %}
 
-                        <a class="collapse-item"
-                        href="{% url 'consultar_objetivos_institucionales' %}">
-
-                            Consultar Objetivos
-
+                        {% if p_obj_i_consulta %}
+                        <a class="collapse-item" href="{% url 'consultar_objetivos_institucionales' %}">
+                            Consultar objetivos
                         </a>
-
-                        <a class="collapse-item"
-                        href="{% url 'dashboard_objetivos_institucionales' %}">
-
+                        <a class="collapse-item" href="{% url 'dashboard_objetivos_institucionales' %}">
                             Dashboard
 
                         </a>
-
+                        {% endif %}
                     </div>
 
                 </div>
 
             </li>
+            {% endif %}
 
-            <!-- OBJETIVOS ESTRATÉGICOS -->
+            {% if p_obj_e_admin or p_obj_e_consulta %}
             <li class="nav-item">
 
                 <a class="nav-link collapsed"
-
-                href="#"
-
-                data-toggle="collapse"
-
-                data-target="#collapseObjetivosEstrategicos"
-
-                aria-expanded="false"
-
-                aria-controls="collapseObjetivosEstrategicos">
-
-                <i class="fas fa-sitemap"></i>
-
-                <span>Objetivos Estratégicos</span>
-
+                   href="#"
+                   data-toggle="collapse"
+                   data-target="#collapseObjetivosEstrategicos"
+                   aria-expanded="false"
+                   aria-controls="collapseObjetivosEstrategicos">
+                    <i class="fas fa-sitemap"></i>
+                    <span>Objetivos estratégicos</span>
                 </a>
 
-                <div id="collapseObjetivosEstrategicos"
+                <div id="collapseObjetivosEstrategicos" class="collapse" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Gestión estratégica</h6>
 
-                class="collapse"
+                        {% if p_obj_e_admin %}
+                        <a class="collapse-item" href="{% url 'registrar_objetivo_estrategico' %}">
+                            Registrar objetivo
+                        </a>
+                        {% endif %}
 
-                data-parent="#accordionSidebar">
-
-                <div class="bg-white py-2 collapse-inner rounded">
-
-                <h6 class="collapse-header">
-
-                Gestión Estratégica
-
-                </h6>
-
-                <a class="collapse-item"
-
-                href="{% url 'registrar_objetivo_estrategico' %}">
-
-                Registrar Objetivo
-
-                </a>
-
-                <a class="collapse-item"
-
-                href="{% url 'consultar_objetivos_estrategicos' %}">
-
-                Consultar Objetivos
-
-                </a>
-
-                <a class="collapse-item"
-
-                href="{% url 'dashboard_objetivos_estrategicos' %}">
-
-                Dashboard Estratégico
-
-                </a>
-
-                </div>
-
-
+                        {% if p_obj_e_consulta %}
+                        <a class="collapse-item" href="{% url 'consultar_objetivos_estrategicos' %}">
+                            Consultar objetivos
+                        </a>
+                        <a class="collapse-item" href="{% url 'dashboard_objetivos_estrategicos' %}">
+                            Dashboard estratégico
+                        </a>
+                        {% endif %}
+                    </div>
                 </div>
 
             </li>
+            {% endif %}
 
-            <!-- REPORTES -->
+            {% if p_reportes_generar or p_reportes_consultar %}
             <li class="nav-item">
 
                 <a class="nav-link collapsed"
-                href="#"
-                data-toggle="collapse"
-                data-target="#collapseReportes">
-
+                   href="#"
+                   data-toggle="collapse"
+                   data-target="#collapseReportes"
+                   aria-expanded="false"
+                   aria-controls="collapseReportes">
                     <i class="fas fa-chart-bar"></i>
 
                     <span>Reportes</span>
 
                 </a>
 
-                <div id="collapseReportes"
-                    class="collapse">
-
+                <div id="collapseReportes" class="collapse" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Gestión de reportes</h6>
 
-                        <h6 class="collapse-header">
-                            Gestión de Reportes
-                        </h6>
+                        {% if p_reportes_generar %}
+                        <a class="collapse-item" href="{% url 'generar_reporte' %}">Generar reporte</a>
+                        {% endif %}
 
-                        <a class="collapse-item"
-                        href="{% url 'generar_reporte' %}">
-                            Generar Reporte
-                        </a>
-
-                        <a class="collapse-item"
-                        href="{% url 'consultar_reportes' %}">
-                            Consultar Reportes
-                        </a>
-
+                        {% if p_reportes_consultar %}
+                        <a class="collapse-item" href="{% url 'consultar_reportes' %}">Consultar reportes</a>
+                        {% endif %}
                     </div>
 
                 </div>
 
             </li>
+            {% endif %}
 
+            {% if p_auditoria %}
             <li class="nav-item">
-
-            <a class="nav-link"
-
-            href="{% url 'consultar_auditoria' %}">
-
-                <i class="fas fa-history"></i>
-
-                <span>Auditoría</span>
-
-            </a>
-
-        </li>
-            
-        </li>
+                <a class="nav-link" href="{% url 'consultar_auditoria' %}">
+                    <i class="fas fa-history"></i>
+                    <span>Auditoría</span>
+                </a>
+            </li>
+            {% endif %}
 
         </ul>
+        <!-- Fin del menú lateral -->
 
-        <!-- Content Wrapper -->
+        <!-- Contenedor del contenido -->
         <div id="content-wrapper" class="d-flex flex-column">
 
-            <!-- Main Content -->
+            <!-- Contenido principal -->
             <div id="content">
 
-                <!-- Topbar -->
+                <!-- Barra superior -->
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
-                    <!-- Sidebar Toggle (Topbar) -->
+
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
                         <i class="fa fa-bars"></i>
                     </button>
 
-                    <!-- Topbar Search -->
-                    <form
-                        class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                    <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
                         <div class="input-group">
-                            <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
-                                aria-label="Search" aria-describedby="basic-addon2">
+                            <input type="text"
+                                   class="form-control bg-light border-0 small"
+                                   placeholder="Buscar..."
+                                   aria-label="Buscar">
                             <div class="input-group-append">
                                 <button class="btn btn-primary" type="button">
                                     <i class="fas fa-search fa-sm"></i>
@@ -717,60 +516,31 @@
                         </div>
                     </form>
 
-                    <!-- Topbar Navbar -->
+
                     <ul class="navbar-nav ml-auto">
 
-                        <!-- Nav Item - Search Dropdown (Visible Only XS) -->
-                        <li class="nav-item dropdown no-arrow d-sm-none">
-                            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-search fa-fw"></i>
-                            </a>
-                            <!-- Dropdown - Messages -->
-                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
-                                aria-labelledby="searchDropdown">
-                                <form class="form-inline mr-auto w-100 navbar-search">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control bg-light border-0 small"
-                                            placeholder="Search for..." aria-label="Search"
-                                            aria-describedby="basic-addon2">
-                                        <div class="input-group-append">
-                                            <button class="btn btn-primary" type="button">
-                                                <i class="fas fa-search fa-sm"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </li>
 
-            
                         <div class="topbar-divider d-none d-sm-block"></div>
 
-                        <!-- Nav Item - User Information -->
+
                         <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{ request.user.username }}</span>
+                            <a class="nav-link dropdown-toggle"
+                               href="#"
+                               id="userDropdown"
+                               role="button"
+                               data-toggle="dropdown"
+                               aria-haspopup="true"
+                               aria-expanded="false">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">
+                                    {{ request.user.username }}
+                                </span>
                                 <img class="img-profile rounded-circle"
-                                    src="{% static 'img/undraw_profile.svg' %}">
+                                     src="{% static 'img/undraw_profile.svg' %}"
+                                     alt="Perfil">
                             </a>
-                            <!-- Dropdown - User Information -->
+
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Profile
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Settings
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Activity Log
-                                </a>
-                                <div class="dropdown-divider"></div>
+                                 aria-labelledby="userDropdown">
                                 <form method="post" action="{% url 'logout' %}" class="m-0">
                                     {% csrf_token %}
                                     <button type="submit" class="dropdown-item">
@@ -784,88 +554,53 @@
                     </ul>
 
                 </nav>
-                
+                <!-- Fin de la barra superior -->
 
-                <!-- Begin Page Content -->
-
+                <!-- Área que cada página completa -->
                 {% block content %}
                 {% endblock %}
 
                 {% if messages %}
-
-                {% for message in messages %}
-
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show mx-3" role="alert">
                         {{ message }}
-
-                        <button
-                            type="button"
-                            class="btn-close"
-                            data-bs-dismiss="alert">
-                        </button>
-
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="alert"
+                                aria-label="Cerrar"></button>
                     </div>
+                    {% endfor %}
+                {% endif %}
 
-                {% endfor %}
+            </div>
+            <!-- Fin del contenido principal -->
 
-            {% endif %}
-
-            <!-- Footer -->
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
-                        <span>Secretaria Nacional 2026</span>
+                        <span>Secretaría Nacional 2026</span>
                     </div>
                 </div>
             </footer>
         </div>
-    </div>
+        <!-- Fin del contenedor del contenido -->
 
-    <!-- Scroll to Top Button-->
+    </div>
+    <!-- Fin del contenedor de toda la página -->
+
+
     <a class="scroll-to-top rounded" href="#page-top">
         <i class="fas fa-angle-up"></i>
     </a>
 
-    <!-- Logout Modal-->
-    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="login.html">Logout</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Bootstrap core JavaScript-->
-    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    <!-- Scripts de SB Admin 2 -->
     <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
 
-    <!-- Core plugin JavaScript-->
-    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
-
-    <!-- Custom scripts for all pages-->
-    <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
-
-    <!-- Page level plugins -->
-    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
-
-    <!-- Page level custom scripts -->
-    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
 
     <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
 
-    <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
+
 
     <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
 
