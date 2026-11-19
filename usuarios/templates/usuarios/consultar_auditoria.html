@@ -81,11 +81,25 @@
         </div>
     </form>
 
-    <a
-        href="{% url 'exportar_auditoria_csv' %}?usuario={{ usuario_id|urlencode }}&amp;modulo={{ modulo_seleccionado|urlencode }}&amp;accion={{ accion|urlencode }}&amp;fecha_desde={{ fecha_desde|urlencode }}&amp;fecha_hasta={{ fecha_hasta|urlencode }}"
-        class="btn btn-success mb-3">
-        Exportar bitácora a CSV
-    </a>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <a
+            href="{% url 'exportar_auditoria_csv' %}?usuario={{ usuario_id|urlencode }}&amp;modulo={{ modulo_seleccionado|urlencode }}&amp;accion={{ accion|urlencode }}&amp;fecha_desde={{ fecha_desde|urlencode }}&amp;fecha_hasta={{ fecha_hasta|urlencode }}"
+            class="btn btn-success">
+            Exportar CSV
+        </a>
+
+        <a
+            href="{% url 'exportar_auditoria_pdf' %}?usuario={{ usuario_id|urlencode }}&amp;modulo={{ modulo_seleccionado|urlencode }}&amp;accion={{ accion|urlencode }}&amp;fecha_desde={{ fecha_desde|urlencode }}&amp;fecha_hasta={{ fecha_hasta|urlencode }}"
+            class="btn btn-danger">
+            Exportar PDF
+        </a>
+
+        <a
+            href="{% url 'exportar_auditoria_excel' %}?usuario={{ usuario_id|urlencode }}&amp;modulo={{ modulo_seleccionado|urlencode }}&amp;accion={{ accion|urlencode }}&amp;fecha_desde={{ fecha_desde|urlencode }}&amp;fecha_hasta={{ fecha_hasta|urlencode }}"
+            class="btn btn-primary">
+            Exportar Excel
+        </a>
+    </div>
 
     <div class="table-responsive">
         <table class="table table-bordered table-hover">

@@ -17,6 +17,19 @@ from .forms import LoginForm, UsuarioEditarForm, UsuarioForm
 from .models import AuditoriaSesion, HistorialCambio, Usuario
 from .permisos import validar_permiso
 
+from io import BytesIO
+from xml.sax.saxutils import escape
+
+from django.utils import timezone
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.pagesizes import landscape, legal
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+
 
 @login_required
 def registrar_usuario(request):
@@ -514,6 +527,160 @@ def exportar_auditoria_csv(request):
 class ConfirmarRecuperacionPasswordView(PasswordResetConfirmView):
     pass
 
+@login_required
+def exportar_auditoria_excel(request):
+    permiso = validar_permiso(request, "Consultar auditoría")
+    if permiso:
+        return permiso
+
+    auditorias, _ = obtener_auditorias_filtradas(request)
+
+    libro = Workbook()
+    hoja = libro.active
+    hoja.title = "Auditoría"
+
+    encabezados = ["Usuario", "Fecha", "Módulo", "Acción", "Descripción"]
+    hoja.append(encabezados)
+
+    for celda in hoja[1]:
+        celda.font = Font(bold=True, color="FFFFFF")
+        celda.fill = PatternFill("solid", fgColor="17365D")
+
+    for evento in auditorias:
+        fecha = timezone.localtime(evento.fecha)
+        hoja.append([
+            evento.usuario.username,
+            fecha.strftime("%d/%m/%Y %H:%M:%S"),
+            evento.modulo,
+            evento.accion,
+            evento.descripcion,
+        ])
+
+    hoja.freeze_panes = "A2"
+    hoja.auto_filter.ref = hoja.dimensions
+
+    anchos = {
+        "A": 20,
+        "B": 22,
+        "C": 26,
+        "D": 30,
+        "E": 80,
+    }
+    for columna, ancho in anchos.items():
+        hoja.column_dimensions[columna].width = ancho
+
+    buffer = BytesIO()
+    libro.save(buffer)
+
+    respuesta = HttpResponse(
+        buffer.getvalue(),
+        content_type=(
+            "application/vnd.openxmlformats-officedocument."
+            "spreadsheetml.sheet"
+        ),
+    )
+    respuesta["Content-Disposition"] = (
+        'attachment; filename="bitacora_auditoria.xlsx"'
+    )
+    return respuesta
+
+
+@login_required
+def exportar_auditoria_pdf(request):
+    permiso = validar_permiso(request, "Consultar auditoría")
+    if permiso:
+        return permiso
+
+    auditorias, _ = obtener_auditorias_filtradas(request)
+
+    estilos = getSampleStyleSheet()
+    titulo = ParagraphStyle(
+        "TituloAuditoria",
+        parent=estilos["Title"],
+        alignment=TA_CENTER,
+        fontSize=15,
+        leading=18,
+        spaceAfter=12,
+    )
+    celda = ParagraphStyle(
+        "CeldaAuditoria",
+        parent=estilos["BodyText"],
+        fontSize=7,
+        leading=9,
+        wordWrap="CJK",
+    )
+
+    filas = [[
+        Paragraph("<b>Usuario</b>", celda),
+        Paragraph("<b>Fecha</b>", celda),
+        Paragraph("<b>Módulo</b>", celda),
+        Paragraph("<b>Acción</b>", celda),
+        Paragraph("<b>Descripción</b>", celda),
+    ]]
+
+    hay_eventos = False
+    for evento in auditorias:
+        hay_eventos = True
+        fecha = timezone.localtime(evento.fecha)
+        valores = [
+            evento.usuario.username,
+            fecha.strftime("%d/%m/%Y %H:%M:%S"),
+            evento.modulo,
+            evento.accion,
+            evento.descripcion,
+        ]
+        filas.append([
+            Paragraph(escape(str(valor or "")), celda)
+            for valor in valores
+        ])
+
+    if not hay_eventos:
+        filas.append([
+            Paragraph("No hay eventos para los filtros seleccionados.", celda),
+            "", "", "", "",
+        ])
+
+    buffer = BytesIO()
+    documento = SimpleDocTemplate(
+        buffer,
+        pagesize=landscape(legal),
+        rightMargin=0.35 * inch,
+        leftMargin=0.35 * inch,
+        topMargin=0.4 * inch,
+        bottomMargin=0.4 * inch,
+        title="Bitácora de auditoría",
+    )
+
+    tabla = Table(
+        filas,
+        colWidths=[1.4 * inch, 1.55 * inch, 1.7 * inch, 2.0 * inch, 6.3 * inch],
+        repeatRows=1,
+        splitByRow=1,
+    )
+    tabla.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#17365D")),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("GRID", (0, 0), (-1, -1), 0.35, colors.HexColor("#B7C9D6")),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [
+            colors.white,
+            colors.HexColor("#F1F5F9"),
+        ]),
+        ("SPAN", (0, 1), (-1, 1)) if not hay_eventos
+        else ("VALIGN", (0, 0), (-1, -1), "TOP"),
+    ]))
+
+    documento.build([
+        Paragraph("Bitácora de auditoría", titulo),
+        Spacer(1, 4),
+        tabla,
+    ])
+
+    respuesta = HttpResponse(buffer.getvalue(), content_type="application/pdf")
+    respuesta["Content-Disposition"] = (
+        'attachment; filename="bitacora_auditoria.pdf"'
+    )
+    return respuesta
 
 @login_required
 def consultar_historial_cambios(request):
