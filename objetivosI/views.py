@@ -91,65 +91,41 @@ def registrar_objetivo_institucional(request):
 
 @login_required
 def consultar_objetivos_institucionales(request):
-
     permiso = validar_permiso(
         request,
         "Consultar objetivos institucionales"
     )
 
     if permiso:
-
         permiso = validar_permiso(
             request,
             "Administrar objetivos institucionales"
         )
-
         if permiso:
             return permiso
 
+    objetivos = ObjetivoInstitucional.objects.select_related(
+        "responsable"
+    ).all()
 
-    objetivos = ObjetivoInstitucional.objects.all()
-
-
-    periodo = request.GET.get(
-        "periodo",
-        ""
-    )
-
-    responsable = request.GET.get(
-        "responsable",
-        ""
-    )
-
-    estado = request.GET.get(
-        "estado",
-        ""
-    )
-
+    periodo = request.GET.get("periodo", "").strip()
+    responsable = request.GET.get("responsable", "").strip()
+    estado = request.GET.get("estado", "").strip()
 
     if periodo:
-
         objetivos = objetivos.filter(
             periodo_vigencia__icontains=periodo
         )
 
-
-    if responsable:
-
+    if responsable.isdecimal():
         objetivos = objetivos.filter(
             responsable_id=responsable
         )
 
+    if estado in ("True", "False"):
+        objetivos = objetivos.filter(estado=(estado == "True"))
 
-    if estado != "":
-
-        objetivos = objetivos.filter(
-            estado=estado
-        )
-
-
-        mensaje = ""
-
+    mensaje = ""
     if not objetivos.exists():
         mensaje = "No existen objetivos institucionales registrados."
 
