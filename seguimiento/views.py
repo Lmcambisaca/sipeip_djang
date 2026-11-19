@@ -4,24 +4,15 @@ from django.contrib import messages
 import json
 from decimal import Decimal, ROUND_HALF_UP
 
-from .models import (
-    Meta,
-    HistorialMeta,
-    Indicador,
-    AvanceIndicador,
-)
+from .models import (Meta, HistorialMeta, Indicador, AvanceIndicador,)
 
-from .forms import (
-    MetaForm,
-    IndicadorForm,
-    AvanceIndicadorForm,
-)
+from .forms import (MetaForm, IndicadorForm, AvanceIndicadorForm,)
 
 from usuarios.permisos import validar_permiso
 
 @login_required
 def registrar_meta(request):
-    
+
     permiso = validar_permiso(
     request,
     "Administrar metas"
@@ -100,10 +91,10 @@ def registrar_meta(request):
         }
 
     )
-    
+
 @login_required
 def consultar_metas(request):
-    
+
     permiso = validar_permiso(
     request,
     "Administrar metas"
@@ -114,7 +105,10 @@ def consultar_metas(request):
 
     buscar = request.GET.get("buscar", "")
 
-    metas = Meta.objects.select_related("proyecto")
+    metas = Meta.objects.select_related(
+    "proyecto",
+    "objetivo_desarrollo",
+    )
 
     if buscar:
 
@@ -145,7 +139,7 @@ def consultar_metas(request):
         }
 
     )
-    
+
 @login_required
 def editar_meta(request, id):
     permiso = validar_permiso(request, "Administrar metas")
@@ -158,31 +152,16 @@ def editar_meta(request, id):
         form = MetaForm(request.POST, instance=meta)
 
         if form.is_valid():
-            proyecto = form.cleaned_data["proyecto"]
+            meta_actualizada = form.save()
 
-            if not proyecto.objetivos_desarrollo.exists():
-                messages.error(
-                    request,
-                    "El proyecto seleccionado no está asociado a ningún Objetivo de Desarrollo."
-                )
-            
-            else:
-                form.save()
+            HistorialMeta.objects.create(
+                meta=meta_actualizada,
+                descripcion="Actualización de la meta.",
+            )
 
-                HistorialMeta.objects.create(
-            
-                    meta=meta,
-            
-                    descripcion="Actualización de la meta."
-            
-                )
+            messages.success(request, "Meta actualizada correctamente.")
+            return redirect("consultar_metas")
 
-
-                messages.success(
-                    request,
-                    "Meta actualizada correctamente."
-                )
-                return redirect("consultar_metas")
     else:
 
         form = MetaForm(instance=meta)
@@ -194,10 +173,10 @@ def editar_meta(request, id):
         "seguimiento/editar_meta.html",
         {"form": form}
     )
-    
+
 @login_required
 def registrar_indicador(request):
-    
+
     permiso = validar_permiso(
     request,
     "Administrar indicadores"
@@ -240,10 +219,10 @@ def registrar_indicador(request):
         }
 
     )
-    
+
 @login_required
 def consultar_indicadores(request):
-    
+
     permiso = validar_permiso(
     request,
     "Administrar indicadores"
@@ -269,10 +248,10 @@ def consultar_indicadores(request):
         }
 
     )
-    
+
 @login_required
 def editar_indicador(request, id):
-    
+
     permiso = validar_permiso(
     request,
     "Administrar indicadores"
@@ -348,7 +327,7 @@ def registrar_avance(request):
         form = AvanceIndicadorForm(request.POST)
 
         if form.is_valid():
-       
+
             avance = form.save(commit=False)
             valor_esperado = avance.indicador.meta.valor_esperado
 
@@ -371,20 +350,20 @@ def registrar_avance(request):
                 messages.success(request, "Avance registrado correctamente.")
                 return redirect("consultar_avances")
     else:
-       
+
         form = AvanceIndicadorForm()
 
     return render(
-       
+
         request,
-       
+
         "seguimiento/registrar_avance.html",
         {"form": form}
     )
-    
+
 @login_required
 def consultar_avances(request):
-    
+
     permiso = validar_permiso(
     request,
     "Registrar avances"
@@ -411,7 +390,7 @@ def consultar_avances(request):
         }
 
     )
-    
+
 @login_required
 def editar_avance(request, id):
     permiso = validar_permiso(request, "Registrar avances")
@@ -421,14 +400,14 @@ def editar_avance(request, id):
     avance_original = get_object_or_404(AvanceIndicador, pk=id)
 
     if request.method == "POST":
-       
+
         form = AvanceIndicadorForm(
             request.POST,
             instance=avance_original
         )
 
         if form.is_valid():
-       
+
             avance = form.save(commit=False)
             valor_esperado = avance.indicador.meta.valor_esperado
 
@@ -454,16 +433,16 @@ def editar_avance(request, id):
         form = AvanceIndicadorForm(instance=avance_original)
 
     return render(
-       
+
         request,
-       
+
         "seguimiento/editar_avance.html",
         {"form": form}
     )
 
 @login_required
 def grafico_indicador(request, id):
-    
+
     permiso = validar_permiso(
     request,
     "Administrar indicadores"
@@ -511,4 +490,3 @@ def grafico_indicador(request, id):
         }
 
     )
-    

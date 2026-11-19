@@ -31,6 +31,12 @@ class Meta(models.Model):
         default=True
     )
 
+    objetivo_desarrollo = models.ForeignKey(
+        "ods.ObjetivoDesarrollo",
+        on_delete=models.PROTECT,
+        related_name="metas",
+    )
+
     class Meta:
 
         db_table = "meta"
@@ -42,7 +48,7 @@ class Meta(models.Model):
     def __str__(self):
 
         return self.descripcion
-    
+
 class HistorialMeta(models.Model):
 
     meta = models.ForeignKey(
@@ -63,7 +69,7 @@ class HistorialMeta(models.Model):
     def __str__(self):
 
         return self.meta.descripcion
-    
+
 class Indicador(models.Model):
 
     meta = models.ForeignKey(
@@ -103,7 +109,7 @@ class Indicador(models.Model):
     def __str__(self):
 
         return self.nombre
-    
+
 class AvanceIndicador(models.Model):
 
     indicador = models.ForeignKey(

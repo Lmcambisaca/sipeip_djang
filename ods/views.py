@@ -260,7 +260,10 @@ def seguimiento_objetivo(request, id):
     proyectos = objetivo.proyectos.all()
 
     metas = Meta.objects.filter(
-        proyecto__in=proyectos
+        objetivo_desarrollo=objetivo
+    ).select_related(
+        "proyecto",
+        "objetivo_desarrollo",
     )
 
     indicadores = Indicador.objects.filter(
@@ -326,7 +329,10 @@ def dashboard_ods(request):
         proyectos = objetivo.proyectos.all()
 
         metas = Meta.objects.filter(
-            proyecto__in=proyectos
+            objetivo_desarrollo=objetivo
+        ).select_related(
+            "proyecto",
+            "objetivo_desarrollo",
         )
 
         indicadores = Indicador.objects.filter(

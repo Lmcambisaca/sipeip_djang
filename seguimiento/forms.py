@@ -2,9 +2,18 @@ from django import forms
 from .models import Meta
 from proyectos.models import Proyecto
 from .models import Indicador, AvanceIndicador
+from ods.models import ObjetivoDesarrollo
 
 
 class MetaForm(forms.ModelForm):
+
+    objetivo_desarrollo = forms.ModelChoiceField(
+        label="Objetivo de Desarrollo (ODS)",
+        queryset=ObjetivoDesarrollo.objects.order_by("codigo"),
+        required=True,
+        empty_label="Seleccione un ODS",
+        widget=forms.Select(attrs={"class": "form-select"}),
+    )
 
     class Meta:
 
@@ -13,7 +22,7 @@ class MetaForm(forms.ModelForm):
         fields = (
 
             "proyecto",
-
+            "objetivo_desarrollo",
             "descripcion",
 
             "periodo",
@@ -61,7 +70,7 @@ class MetaForm(forms.ModelForm):
         self.fields["proyecto"].queryset = Proyecto.objects.filter(
             eliminado=False
         )
-    
+
     def clean(self):
         cleaned_data = super().clean()
 
@@ -77,8 +86,18 @@ class MetaForm(forms.ModelForm):
                 "El valor esperado debe ser mayor que cero."
             )
 
+        proyecto = cleaned_data.get("proyecto")
+        objetivo = cleaned_data.get("objetivo_desarrollo")
+
+        if proyecto and objetivo:
+            if not objetivo.proyectos.filter(pk=proyecto.pk).exists():
+                self.add_error(
+                    "objetivo_desarrollo",
+                    "El ODS seleccionado no está asociado al proyecto.",
+                )
+
         return cleaned_data
-        
+
 class IndicadorForm(forms.ModelForm):
 
     class Meta:
@@ -128,7 +147,7 @@ class IndicadorForm(forms.ModelForm):
             )
 
         }
-            
+
     def clean(self):
         cleaned_data = super().clean()
 
@@ -138,7 +157,7 @@ class IndicadorForm(forms.ModelForm):
                 self.add_error(campo, "Este campo no puede quedar vacío.")
 
         return cleaned_data
-        
+
 class AvanceIndicadorForm(forms.ModelForm):
 
     class Meta:
@@ -175,7 +194,7 @@ class AvanceIndicadorForm(forms.ModelForm):
             )
 
         }
-        
+
     def clean(self):
         cleaned_data = super().clean()
 
