@@ -4,8 +4,17 @@
 <div class="container-fluid">
     <h2>Auditoría del sistema</h2>
 
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
     <form method="get" class="row g-2 mb-3">
-        <div class="col-md-3">
+        <div class="col-md-2">
             <select name="usuario" class="form-select">
                 <option value="">Todos los usuarios</option>
                 {% for usuario in usuarios %}
@@ -33,31 +42,50 @@
             </select>
         </div>
 
-        <div class="col-md-3">
-            <input type="text"
-                   name="accion"
-                   value="{{ accion }}"
-                   class="form-control"
-                   placeholder="Acción">
+        <div class="col-md-2">
+            <input
+                type="text"
+                name="accion"
+                value="{{ accion }}"
+                class="form-control"
+                placeholder="Acción">
         </div>
 
         <div class="col-md-2">
-            <input type="date"
-                   name="fecha"
-                   value="{{ fecha }}"
-                   class="form-control">
+            <label for="fecha_desde" class="form-label">Desde</label>
+            <input
+                type="date"
+                id="fecha_desde"
+                name="fecha_desde"
+                value="{{ fecha_desde }}"
+                class="form-control">
         </div>
 
         <div class="col-md-2">
+            <label for="fecha_hasta" class="form-label">Hasta</label>
+            <input
+                type="date"
+                id="fecha_hasta"
+                name="fecha_hasta"
+                value="{{ fecha_hasta }}"
+                class="form-control">
+        </div>
+
+        <div class="col-md-2 d-flex align-items-end gap-2">
             <button type="submit" class="btn btn-primary">
                 Filtrar
             </button>
-            <a href="{% url 'consultar_auditoria' %}"
-               class="btn btn-secondary">
+            <a href="{% url 'consultar_auditoria' %}" class="btn btn-secondary">
                 Limpiar
             </a>
         </div>
     </form>
+
+    <a
+        href="{% url 'exportar_auditoria_csv' %}?usuario={{ usuario_id|urlencode }}&amp;modulo={{ modulo_seleccionado|urlencode }}&amp;accion={{ accion|urlencode }}&amp;fecha_desde={{ fecha_desde|urlencode }}&amp;fecha_hasta={{ fecha_hasta|urlencode }}"
+        class="btn btn-success mb-3">
+        Exportar bitácora a CSV
+    </a>
 
     <div class="table-responsive">
         <table class="table table-bordered table-hover">
@@ -74,14 +102,14 @@
                 {% for evento in auditorias %}
                     <tr>
                         <td>{{ evento.usuario.username }}</td>
-                        <td>{{ evento.fecha }}</td>
+                        <td>{{ evento.fecha|date:"d/m/Y H:i:s" }}</td>
                         <td>{{ evento.modulo }}</td>
                         <td>{{ evento.accion }}</td>
                         <td>{{ evento.descripcion }}</td>
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="5">
+                        <td colspan="5" class="text-center">
                             No hay eventos de auditoría para estos filtros.
                         </td>
                     </tr>

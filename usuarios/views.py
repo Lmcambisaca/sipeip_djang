@@ -1,32 +1,26 @@
-from django.shortcuts import render, redirect, get_object_or_404
+import csv
+
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.hashers import make_password, check_password
-from django.db.models import Q
-from usuarios.models import AuditoriaSesion
-from django.views.decorators.http import require_POST
+
 from django.contrib.auth.views import PasswordResetConfirmView
+from django.db.models import Q
 from django.db.models.deletion import ProtectedError
-
-
-
-from .forms import (LoginForm, UsuarioForm, UsuarioEditarForm, RecuperarPasswordForm,)
-
-from .models import (Usuario, RecuperacionPassword, AuditoriaSesion,)
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.dateparse import parse_date
+from django.views.decorators.http import require_POST
 
 from roles.models import Rol
-
+from .forms import LoginForm, UsuarioEditarForm, UsuarioForm
+from .models import AuditoriaSesion, HistorialCambio, Usuario
 from .permisos import validar_permiso
+
 
 @login_required
 def registrar_usuario(request):
-
-    permiso = validar_permiso(
-        request,
-        "Administrar usuarios"
-    )
-
+    permiso = validar_permiso(request, "Administrar usuarios")
     if permiso:
         return permiso
 
@@ -35,31 +29,18 @@ def registrar_usuario(request):
         form = UsuarioForm(request.POST)
 
         if form.is_valid():
-            
+            form.save()
             registrar_auditoria(
 
                 request.user,
-
-                "Registró un usuario"
-
+                "Usuarios",
+                "Registro de usuario",
+                "Se registró un usuario.",
             )
-
-            form.save()
-
-            messages.success(
-                request,
-                "Usuario registrado correctamente."
-            )
-
+            messages.success(request, "Usuario registrado correctamente.")
             return redirect("consultar_usuarios")
 
-        else:
-
-            messages.error(
-                request,
-                "Revise la información ingresada."
-            )
-
+        messages.error(request, "Revise la información ingresada.")
     else:
 
         form = UsuarioForm()
@@ -67,20 +48,13 @@ def registrar_usuario(request):
     return render(
         request,
         "usuarios/registrar_usuario.html",
-        {
-            "form": form
-        }
+        {"form": form},
     )
 
 
 @login_required
 def consultar_usuarios(request):
-   
-    permiso = validar_permiso(
-        request,
-        "Administrar usuarios",
-    )
-
+    permiso = validar_permiso(request, "Administrar usuarios")
     if permiso:
         return permiso
 
@@ -94,7 +68,7 @@ def consultar_usuarios(request):
     ).all()
 
     if buscar:
-    
+
         usuarios = usuarios.filter(
             Q(username__icontains=buscar)
             | Q(first_name__icontains=buscar)
@@ -125,7 +99,7 @@ def consultar_usuarios(request):
     mensaje = ""
 
     if not usuarios.exists():
-     
+
         mensaje = "No existen usuarios que coincidan con la búsqueda."
 
     return render(
@@ -140,58 +114,43 @@ def consultar_usuarios(request):
             "rol": rol,
         },
     )
-    
+
+
 @login_required
 def editar_usuario(request, id):
-    
-    permiso = validar_permiso(
-    request,
-    "Administrar usuarios"
-    )
-
+    permiso = validar_permiso(request, "Administrar usuarios")
     if permiso:
         return permiso
 
-    usuario = get_object_or_404(
-        Usuario,
-        pk=id
-    )
+    usuario = get_object_or_404(Usuario, pk=id)
 
     if request.method == "POST":
-
-        formulario = UsuarioEditarForm(
-            request.POST,
-            instance=usuario
-        )
+        formulario = UsuarioEditarForm(request.POST, instance=usuario)
 
         if formulario.is_valid():
 
             formulario.save()
-
-            messages.success(
-                request,
-                "Usuario actualizado correctamente."
+            registrar_auditoria(
+                request.user,
+                "Usuarios",
+                "Actualización de usuario",
+                f"Se actualizó el usuario {usuario.username}.",
             )
-
-            return redirect(
-                "consultar_usuarios"
-            )
-
+            messages.success(request, "Usuario actualizado correctamente.")
+            return redirect("consultar_usuarios")
     else:
-
-        formulario = UsuarioEditarForm(
-            instance=usuario
-        )
+        formulario = UsuarioEditarForm(instance=usuario)
 
     return render(
         request,
         "usuarios/editar_usuario.html",
         {
             "form": formulario,
-            "usuario": usuario
-        }
+            "usuario": usuario,
+        },
     )
-    
+
+
 @login_required
 @require_POST
 def cambiar_estado_usuario(request, id):
@@ -216,10 +175,7 @@ def cambiar_estado_usuario(request, id):
     nuevo_estado = accion == "activar"
 
     if usuario.estado == nuevo_estado:
-        messages.info(
-            request,
-            "La cuenta ya se encuentra en ese estado.",
-        )
+        messages.info(request, "La cuenta ya se encuentra en ese estado.")
         return redirect("consultar_usuarios")
 
     usuario.estado = nuevo_estado
@@ -228,9 +184,9 @@ def cambiar_estado_usuario(request, id):
     if nuevo_estado:
         usuario.intentos_fallidos = 0
         usuario.bloqueado = False
-        messages.success(request, "Usuario activado correctamente.")
+        mensaje = "Usuario activado correctamente."
     else:
-        messages.success(request, "Usuario desactivado correctamente.")
+        mensaje = "Usuario desactivado correctamente."
 
     usuario.save(
         update_fields=[
@@ -240,6 +196,14 @@ def cambiar_estado_usuario(request, id):
             "bloqueado",
         ]
     )
+
+    registrar_auditoria(
+        request.user,
+        "Usuarios",
+        "Cambio de estado",
+        f"Se cambió el estado del usuario {usuario.username}.",
+    )
+    messages.success(request, mensaje)
     return redirect("consultar_usuarios")
 
 
@@ -264,7 +228,8 @@ def eliminar_usuario(request, id):
     )
 
     for relacion, descripcion in dependencias:
-        if getattr(usuario, relacion).exists():
+        relacion_usuario = getattr(usuario, relacion, None)
+        if relacion_usuario is not None and relacion_usuario.exists():
             messages.error(
                 request,
                 f"No se puede eliminar el usuario porque tiene {descripcion}.",
@@ -272,6 +237,7 @@ def eliminar_usuario(request, id):
             return redirect("consultar_usuarios")
 
     try:
+        nombre_usuario = usuario.username
         usuario.delete()
     except ProtectedError:
         messages.error(
@@ -280,20 +246,24 @@ def eliminar_usuario(request, id):
         )
         return redirect("consultar_usuarios")
 
+    registrar_auditoria(
+        request.user,
+        "Usuarios",
+        "Eliminación de usuario",
+        f"Se eliminó el usuario {nombre_usuario}.",
+    )
     messages.success(request, "Usuario eliminado correctamente.")
     return redirect("consultar_usuarios")
 
 
 
 def login_usuario(request):
-
     if request.user.is_authenticated:
         return redirect("dashboard")
 
     form = LoginForm(request, data=request.POST or None)
 
     if request.method == "POST":
-
         email = request.POST.get("username", "").strip()
 
         usuario_bd = Usuario.objects.filter(
@@ -301,91 +271,63 @@ def login_usuario(request):
         ).first()
 
         if usuario_bd and usuario_bd.bloqueado:
-
             messages.error(
                 request,
-                "Su cuenta ha sido bloqueada por exceder los 3 intentos permitidos."
+                "Su cuenta ha sido bloqueada por exceder los 3 intentos permitidos.",
             )
-
             return render(
                 request,
                 "usuarios/login.html",
-                {
-                    "form": form
-                }
+                {"form": form},
             )
 
         if form.is_valid():
-
             usuario = form.get_user()
 
             if not usuario.estado:
-
-                messages.error(
-                    request,
-                    "Este usuario se encuentra inactivo."
-                )
-
+                messages.error(request, "Este usuario se encuentra inactivo.")
             else:
-
                 usuario.intentos_fallidos = 0
-                usuario.save()
-
+                usuario.save(update_fields=["intentos_fallidos"])
                 login(request, usuario)
-                
+
                 registrar_auditoria(
-                    
                     usuario,
-                    
                     "Autenticación",
-                    
                     "Inicio de sesión",
-                    
-                    "El usuario inició sesión correctamente."
+                    "El usuario inició sesión correctamente.",
                 )
-
-
                 return redirect("dashboard")
 
-        else:
+        elif usuario_bd:
+            usuario_bd.intentos_fallidos += 1
 
-            if usuario_bd:
-
-                usuario_bd.intentos_fallidos += 1
-
-                if usuario_bd.intentos_fallidos >= 3:
-
-                    usuario_bd.bloqueado = True
-
-                    messages.error(
-                        request,
-                        "Su cuenta ha sido bloqueada por exceder los intentos permitidos."
-                    )
-
-                else:
-
-                    messages.error(
-                        request,
-                        f"Usuario o contraseña incorrectos. Intento {usuario_bd.intentos_fallidos} de 3."
-                    )
-
-                usuario_bd.save()
-
-            else:
-
+            if usuario_bd.intentos_fallidos >= 3:
+                usuario_bd.bloqueado = True
                 messages.error(
                     request,
-                    "Usuario o contraseña incorrectos."
+                    "Su cuenta ha sido bloqueada por exceder los intentos permitidos.",
                 )
+            else:
+                messages.error(
+                    request,
+                    "Correo o contraseña incorrectos. "
+                    f"Intento {usuario_bd.intentos_fallidos} de 3.",
+                )
+
+            usuario_bd.save(
+                update_fields=["intentos_fallidos", "bloqueado"]
+            )
+        else:
+            messages.error(request, "Correo o contraseña incorrectos.")
 
     return render(
         request,
         "usuarios/login.html",
-        {
-            "form": form
-        }
+        {"form": form},
     )
-    
+
+
 @require_POST
 def logout_usuario(request):
 
@@ -395,7 +337,7 @@ def logout_usuario(request):
             usuario=request.user,
             modulo="Autenticación",
             accion="Cierre de sesión",
-            descripcion="El usuario cerró sesión."
+            descripcion="El usuario cerró sesión.",
         )
 
 
@@ -407,34 +349,30 @@ def logout_usuario(request):
 @login_required
 def dashboard(request):
 
-    rol = None
-
-    if hasattr(request.user, "rol") and request.user.rol:
-        rol = request.user.rol.nombre
-        
     permisos = []
 
-    if request.user.is_authenticated and request.user.rol:
-
+    if request.user.rol:
         permisos = list(
-            request.user.rol.permisos.filter(
-                estado=True
-            ).values_list(
+            request.user.rol.permisos.filter(estado=True).values_list(
                 "nombre",
-                flat=True
+                flat=True,
             )
         )
 
     return render(
         request,
         "usuarios/dashboard.html",
-        {
-            "permisos": permisos,
-        }
+        {"permisos": permisos},
     )
-    
+
+
 def registrar_auditoria(usuario, modulo, accion=None, descripcion=""):
-    # Compatibilidad con llamadas antiguas: registrar_auditoria(usuario, accion)
+    """
+    Registra un evento de auditoría.
+
+    Mantiene compatibilidad con llamadas antiguas de dos argumentos:
+    registrar_auditoria(usuario, accion).
+    """
     if accion is None:
         accion = modulo
         modulo = "Usuarios"
@@ -445,13 +383,9 @@ def registrar_auditoria(usuario, modulo, accion=None, descripcion=""):
         accion=accion,
         descripcion=descripcion,
     )
-    
-@login_required
-def consultar_auditoria(request):
-    permiso = validar_permiso(request, "Consultar auditoría")
-    if permiso:
-        return permiso
 
+
+def obtener_auditorias_filtradas(request):
     auditorias = AuditoriaSesion.objects.select_related(
         "usuario"
     ).order_by("-fecha", "-pk")
@@ -459,7 +393,8 @@ def consultar_auditoria(request):
     usuario_id = request.GET.get("usuario", "").strip()
     modulo = request.GET.get("modulo", "").strip()
     accion = request.GET.get("accion", "").strip()
-    fecha = request.GET.get("fecha", "").strip()
+    fecha_desde_texto = request.GET.get("fecha_desde", "").strip()
+    fecha_hasta_texto = request.GET.get("fecha_hasta", "").strip()
 
     usuarios = Usuario.objects.order_by("username")
     modulos = list(
@@ -468,41 +403,169 @@ def consultar_auditoria(request):
         .distinct()
     )
 
-    if usuario_id.isdecimal() and usuarios.filter(pk=usuario_id).exists():
-        auditorias = auditorias.filter(usuario_id=usuario_id)
-    else:
-        usuario_id = ""
+    if usuario_id:
+        if usuario_id.isdecimal() and usuarios.filter(pk=usuario_id).exists():
+            auditorias = auditorias.filter(usuario_id=usuario_id)
+        else:
+            usuario_id = ""
 
-    if modulo in modulos:
-        auditorias = auditorias.filter(modulo=modulo)
-    else:
-        modulo = ""
+    if modulo:
+        if modulo in modulos:
+            auditorias = auditorias.filter(modulo=modulo)
+        else:
+            modulo = ""
 
     if accion:
         auditorias = auditorias.filter(accion__icontains=accion)
 
-    from django.utils.dateparse import parse_date
+    fecha_desde = parse_date(fecha_desde_texto) if fecha_desde_texto else None
+    fecha_hasta = parse_date(fecha_hasta_texto) if fecha_hasta_texto else None
 
-    fecha_valida = parse_date(fecha) if fecha else None
-    if fecha_valida:
-        auditorias = auditorias.filter(fecha__date=fecha_valida)
-    else:
-        fecha = ""
+    if fecha_desde_texto and not fecha_desde:
+        messages.error(request, "La fecha inicial no es válida.")
+        fecha_desde_texto = ""
 
-        return render(
+    if fecha_hasta_texto and not fecha_hasta:
+        messages.error(request, "La fecha final no es válida.")
+        fecha_hasta_texto = ""
+
+    if fecha_desde and fecha_hasta and fecha_desde > fecha_hasta:
+        messages.error(
+            request,
+            "La fecha inicial no puede ser posterior a la fecha final.",
+        )
+        fecha_desde = None
+        fecha_hasta = None
+        fecha_desde_texto = ""
+        fecha_hasta_texto = ""
+
+    if fecha_desde:
+        auditorias = auditorias.filter(fecha__date__gte=fecha_desde)
+
+    if fecha_hasta:
+        auditorias = auditorias.filter(fecha__date__lte=fecha_hasta)
+
+    filtros = {
+        "usuarios": usuarios,
+        "modulos": modulos,
+        "usuario_id": usuario_id,
+        "modulo_seleccionado": modulo,
+        "accion": accion,
+        "fecha_desde": fecha_desde_texto,
+        "fecha_hasta": fecha_hasta_texto,
+    }
+
+    return auditorias, filtros
+
+
+@login_required
+def consultar_auditoria(request):
+    permiso = validar_permiso(request, "Consultar auditoría")
+    if permiso:
+        return permiso
+
+    auditorias, filtros = obtener_auditorias_filtradas(request)
+
+    return render(
         request,
         "usuarios/consultar_auditoria.html",
         {
             "auditorias": auditorias,
-            "usuarios": usuarios,
-            "modulos": modulos,
-            "usuario_id": usuario_id,
-            "modulo_seleccionado": modulo,
-            "accion": accion,
-            "fecha": fecha,
-        }
+            **filtros,
+        },
     )
+
+
+@login_required
+def exportar_auditoria_csv(request):
+    permiso = validar_permiso(request, "Consultar auditoría")
+    if permiso:
+        return permiso
+
+    auditorias, _ = obtener_auditorias_filtradas(request)
+
+    respuesta = HttpResponse(
+        content_type="text/csv; charset=utf-8",
+    )
+    respuesta["Content-Disposition"] = (
+        'attachment; filename="bitacora_auditoria.csv"'
+    )
+    respuesta.write("\ufeff")
+
+    escritor = csv.writer(respuesta, delimiter=";")
+    escritor.writerow(
+        ["Usuario", "Fecha", "Módulo", "Acción", "Descripción"]
+    )
+
+    for evento in auditorias:
+        escritor.writerow(
+            [
+                evento.usuario.username,
+                evento.fecha.strftime("%d/%m/%Y %H:%M:%S"),
+                evento.modulo,
+                evento.accion,
+                evento.descripcion,
+            ]
+        )
+
+    return respuesta
 
 
 class ConfirmarRecuperacionPasswordView(PasswordResetConfirmView):
     pass
+
+
+@login_required
+def consultar_historial_cambios(request):
+    permiso = validar_permiso(request, "Consultar auditoría")
+    if permiso:
+        return permiso
+
+    historial = HistorialCambio.objects.select_related(
+        "usuario"
+    ).order_by("-fecha", "-pk")
+
+    usuario_id = request.GET.get("usuario", "").strip()
+    modulo = request.GET.get("modulo", "").strip()
+    entidad = request.GET.get("entidad", "").strip()
+
+    usuarios = Usuario.objects.order_by("username")
+    modulos = list(
+        HistorialCambio.objects.order_by("modulo")
+        .values_list("modulo", flat=True)
+        .distinct()
+    )
+    entidades = list(
+        HistorialCambio.objects.order_by("entidad")
+        .values_list("entidad", flat=True)
+        .distinct()
+    )
+
+    if usuario_id and usuario_id.isdecimal():
+        historial = historial.filter(usuario_id=usuario_id)
+    else:
+        usuario_id = ""
+
+    if modulo in modulos:
+        historial = historial.filter(modulo=modulo)
+    else:
+        modulo = ""
+
+    if entidad in entidades:
+        historial = historial.filter(entidad=entidad)
+    else:
+        entidad = ""
+
+    return render(
+        request,
+        "usuarios/consultar_historial_cambios.html",
+        {
+            "historial": historial,
+            "usuarios": usuarios,
+            "modulos": modulos,
+            "entidades": entidades,
+            "usuario_id": usuario_id,
+            "modulo_seleccionado": modulo,
+            "entidad_seleccionada": entidad,
+        },
+    )

@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2>Historial de cambios</h2>
+
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-3">
+            <select name="usuario" class="form-select">
+                <option value="">Todos los usuarios</option>
+                {% for usuario in usuarios %}
+                    <option value="{{ usuario.pk }}"
+                        {% if usuario_id == usuario.pk|stringformat:"s" %}
+                            selected
+                        {% endif %}>
+                        {{ usuario.username }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <select name="modulo" class="form-select">
+                <option value="">Todos los módulos</option>
+                {% for nombre_modulo in modulos %}
+                    <option value="{{ nombre_modulo }}"
+                        {% if modulo_seleccionado == nombre_modulo %}
+                            selected
+                        {% endif %}>
+                        {{ nombre_modulo }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <select name="entidad" class="form-select">
+                <option value="">Todas las entidades</option>
+                {% for nombre_entidad in entidades %}
+                    <option value="{{ nombre_entidad }}"
+                        {% if entidad_seleccionada == nombre_entidad %}
+                            selected
+                        {% endif %}>
+                        {{ nombre_entidad }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+            <a href="{% url 'consultar_historial_cambios' %}"
+               class="btn btn-secondary">
+                Limpiar
+            </a>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Fecha</th>
+                    <th>Módulo</th>
+                    <th>Entidad</th>
+                    <th>ID del registro</th>
+                    <th>Acción</th>
+                    <th>Valores anteriores</th>
+                    <th>Valores nuevos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cambio in historial %}
+                    <tr>
+                        <td>{{ cambio.usuario.username }}</td>
+                        <td>{{ cambio.fecha|date:"d/m/Y H:i:s" }}</td>
+                        <td>{{ cambio.modulo }}</td>
+                        <td>{{ cambio.entidad }}</td>
+                        <td>{{ cambio.registro_id }}</td>
+                        <td>{{ cambio.accion }}</td>
+                        <td><pre class="mb-0">{{ cambio.valores_anteriores }}</pre></td>
+                        <td><pre class="mb-0">{{ cambio.valores_nuevos }}</pre></td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center">
+                            No hay cambios registrados con esos filtros.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
