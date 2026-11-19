@@ -125,6 +125,7 @@
                     <tr class="text-center">
                         <th>Código</th>
                         <th>Proyecto</th>
+                        <th>Objetivos estratégicos</th>
                         <th>Responsable</th>
                         <th>Presupuesto</th>
                         <th>Inicio</th>
@@ -139,6 +140,12 @@
                         <tr>
                             <td>{{ p.codigo }}</td>
                             <td>{{ p.nombre }}</td>
+                            <td>{% for objetivo in p.objetivos_estrategicos.all %}
+                                {{ objetivo.codigo }}<br>
+                                {% empty %}
+                                    Sin objetivos asociados
+                                {% endfor %}
+                            </td>
                             <td>{{ p.responsable }}</td>
                             <td>${{ p.presupuesto }}</td>
                             <td>{{ p.fecha_inicio }}</td>
@@ -173,7 +180,7 @@
                         </tr>
                     {% empty %}
                         <tr>
-                            <td colspan="8" class="text-center">
+                            <td colspan="9" class="text-center">
                                 No existen proyectos que coincidan con la búsqueda.
                             </td>
                         </tr>

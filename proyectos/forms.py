@@ -4,7 +4,7 @@ from .models import Proyecto, Cronograma, Documento
 
 
 class ProyectoForm(forms.ModelForm):
-    
+
     def clean_codigo(self):
         codigo = self.cleaned_data["codigo"].strip()
 
@@ -54,6 +54,7 @@ class ProyectoForm(forms.ModelForm):
             "fecha_fin",
             "estado",
             "planificacion",
+            "objetivos_estrategicos",
         )
 
         widgets = {
@@ -68,40 +69,24 @@ class ProyectoForm(forms.ModelForm):
 
             "presupuesto": forms.NumberInput(attrs={"class": "form-control"}),
 
-            "fecha_inicio": forms.DateInput(
-                attrs={
-                    "class": "form-control",
-                    "type": "date"
-                }
-            ),
+            "fecha_inicio": forms.DateInput(attrs={"class": "form-control","type": "date"}),
 
-            "fecha_fin": forms.DateInput(
-                attrs={
-                    "class": "form-control",
-                    "type": "date"
-                }
-            ),
+            "fecha_fin": forms.DateInput(attrs={"class": "form-control","type": "date"}),
 
-            "estado": forms.CheckboxInput(
-                attrs={
-                    "class": "form-check-input"
-                }
-            ),
+            "estado": forms.CheckboxInput(attrs={"class": "form-check-input"}),
 
-            "planificacion": forms.Select(
-                attrs={
-                    "class": "form-select"
-                }
-            ),
+            "planificacion": forms.Select(attrs={"class": "form-select"}),
+
+            "objetivos_estrategicos": forms.SelectMultiple(attrs={"class": "form-select"}),
         }
 
 
 class CronogramaForm(forms.ModelForm):
-    
+
     class Meta:
-        
+
         model = Cronograma
-        
+
         fields = (
             "proyecto",
             "actividad",
@@ -110,45 +95,45 @@ class CronogramaForm(forms.ModelForm):
             "fecha_fin",
             "estado",
         )
-        
+
         widgets = {
-        
+
             "proyecto": forms.Select(
                 attrs={"class": "form-select"}
             ),
-        
+
             "actividad": forms.TextInput(
                 attrs={"class": "form-control"}
             ),
-        
+
             "responsable": forms.Select(
                 attrs={"class": "form-select"}
             ),
-        
+
             "fecha_inicio": forms.DateInput(
                 attrs={
                     "class": "form-control",
                     "type": "date",
                 }
             ),
-        
+
             "fecha_fin": forms.DateInput(
                 attrs={
                     "class": "form-control",
                     "type": "date",
                 }
             ),
-        
+
             "estado": forms.CheckboxInput(
                 attrs={"class": "form-check-input"}
             ),
-        
+
         }
 
     def __init__(self, *args, **kwargs):
-        
+
         super().__init__(*args, **kwargs)
-        
+
         self.fields["proyecto"].queryset = Proyecto.objects.filter(
             eliminado=False
         )
@@ -172,9 +157,9 @@ class CronogramaForm(forms.ModelForm):
             )
 
         return cleaned_data
-        
+
 class DocumentoForm(forms.ModelForm):
-    
+
     def clean_archivo(self):
         archivo = self.cleaned_data.get("archivo")
 

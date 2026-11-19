@@ -35,7 +35,7 @@ class Proyecto(models.Model):
     estado = models.BooleanField(
         default=True
     )
-    
+
     eliminado = models.BooleanField(
     default=False
     )
@@ -43,6 +43,12 @@ class Proyecto(models.Model):
     planificacion = models.ForeignKey(
         Planificacion,
         on_delete=models.PROTECT,
+        related_name="proyectos"
+    )
+
+    objetivos_estrategicos = models.ManyToManyField(
+        "objetivosE.ObjetivoEstrategico",
+        blank=True,
         related_name="proyectos"
     )
 
@@ -60,7 +66,7 @@ class Proyecto(models.Model):
 
 
 class AuditoriaProyecto(models.Model):
-    
+
     detalle = models.TextField(
         blank=True,
         default="",
@@ -91,7 +97,7 @@ class AuditoriaProyecto(models.Model):
     def __str__(self):
 
         return f"{self.proyecto.nombre} - {self.accion}"
-    
+
 class Cronograma(models.Model):
 
     proyecto = models.ForeignKey(
@@ -133,7 +139,7 @@ class Cronograma(models.Model):
     def __str__(self):
 
         return self.actividad
-    
+
     def save(self, *args, **kwargs):
 
         if self.estado:
@@ -145,8 +151,8 @@ class Cronograma(models.Model):
             self.porcentaje_avance = 0
 
         super().save(*args, **kwargs)
-        
-    
+
+
 class Documento(models.Model):
 
     proyecto = models.ForeignKey(
