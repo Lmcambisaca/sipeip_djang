@@ -16,57 +16,39 @@ class MetaForm(forms.ModelForm):
     )
 
     class Meta:
-
         model = Meta
-
         fields = (
-
             "proyecto",
             "objetivo_desarrollo",
             "descripcion",
-
             "periodo",
-
             "unidad_medida",
-
             "valor_esperado",
-
             "estado",
-
         )
-
         widgets = {
-
             "proyecto": forms.Select(
-                attrs={"class":"form-select"}
+                attrs={"class": "form-select"}
             ),
-
             "descripcion": forms.TextInput(
-                attrs={"class":"form-control"}
+                attrs={"class": "form-control"}
             ),
-
             "periodo": forms.TextInput(
-                attrs={"class":"form-control"}
+                attrs={"class": "form-control"}
             ),
-
             "unidad_medida": forms.TextInput(
-                attrs={"class":"form-control"}
+                attrs={"class": "form-control"}
             ),
-
             "valor_esperado": forms.NumberInput(
-                attrs={"class":"form-control"}
+                attrs={"class": "form-control"}
             ),
-
             "estado": forms.CheckboxInput(
-                attrs={"class":"form-check-input"}
+                attrs={"class": "form-check-input"}
             ),
-
         }
 
-    def __init__(self,*args,**kwargs):
-
-        super().__init__(*args,**kwargs)
-
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.fields["proyecto"].queryset = Proyecto.objects.filter(
             eliminado=False
         )
@@ -77,7 +59,10 @@ class MetaForm(forms.ModelForm):
         for campo in ("descripcion", "periodo", "unidad_medida"):
             valor = cleaned_data.get(campo)
             if valor and not valor.strip():
-                self.add_error(campo, "Este campo no puede quedar vacío.")
+                self.add_error(
+                    campo,
+                    "Este campo no puede quedar vacío."
+                )
 
         valor_esperado = cleaned_data.get("valor_esperado")
         if valor_esperado is not None and valor_esperado <= 0:
@@ -90,11 +75,27 @@ class MetaForm(forms.ModelForm):
         objetivo = cleaned_data.get("objetivo_desarrollo")
 
         if proyecto and objetivo:
-            if not objetivo.proyectos.filter(pk=proyecto.pk).exists():
+            ods_asociado_al_proyecto = objetivo.proyectos.filter(
+                pk=proyecto.pk
+            ).exists()
+
+            if not ods_asociado_al_proyecto:
                 self.add_error(
                     "objetivo_desarrollo",
-                    "El ODS seleccionado no está asociado al proyecto.",
+                    "El ODS seleccionado no está asociado al proyecto."
                 )
+            else:
+                ods_alineado_con_objetivo_estrategico = (
+                    proyecto.objetivos_estrategicos.filter(
+                        objetivos_desarrollo=objetivo
+                    ).exists()
+                )
+
+                if not ods_alineado_con_objetivo_estrategico:
+                    self.add_error(
+                        "objetivo_desarrollo",
+                        "El ODS debe estar asociado a un objetivo estratégico del proyecto."
+                    )
 
         return cleaned_data
 
