@@ -12,7 +12,7 @@ from openpyxl import Workbook
 
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER
-from reportlab.lib.pagesizes import landscape, letter
+from reportlab.lib.pagesizes import landscape, letter, legal
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from urllib.parse import urlencode
@@ -43,6 +43,7 @@ REPORTES = {
     "Indicadores": Indicador,
     "Avances": AvanceIndicador,
     "Inversiones": Inversion,
+    "Alineación estratégica": Proyecto,
 }
 
 CAMPOS_REPORTE = {
@@ -51,13 +52,127 @@ CAMPOS_REPORTE = {
     "Planificaciones": ("periodo", "nombre", "descripcion", "fecha_inicio", "fecha_fin","entidad", "estado", "validada", "aprobada", "observacion"),
     "Proyectos": ("codigo", "nombre", "descripcion", "responsable", "presupuesto","fecha_inicio", "fecha_fin", "planificacion", "estado"),
     "ODS": ("codigo", "descripcion", "eje_estrategico", "periodo_vigencia"),
-    "Metas": ("proyecto", "descripcion", "periodo", "unidad_medida","valor_esperado", "estado"),
+
     "Indicadores": ("meta", "nombre", "formula", "unidad_medida", "frecuencia", "estado"),
     "Avances": ("indicador", "fecha", "valor", "porcentaje_cumplimiento"),
     "Inversiones": ("codigo", "nombre", "monto_asignado", "monto_ejecutado", "fuente_financiamiento", "proyecto", "periodo_fiscal", "estado",),
     "Metas": ("proyecto", "objetivo_desarrollo", "descripcion", "periodo", "unidad_medida", "valor_esperado", "estado"),
 }
 
+def obtener_datos_alineacion(filtros=None):
+    filtros = filtros or {}
+    filas = []
+
+    encabezados = [
+        "Período del plan",
+        "Planificación",
+        "Código del proyecto",
+        "Proyecto",
+        "Estado del proyecto",
+        "Código del objetivo estratégico",
+        "Objetivo estratégico",
+        "Código ODS",
+        "ODS",
+        "Meta",
+        "Período de la meta",
+        "Valor esperado",
+        "Indicador",
+        "Unidad del indicador",
+        "Último avance",
+        "Fecha del último avance",
+    ]
+
+    proyectos = (
+        Proyecto.objects
+        .filter(eliminado=False)
+        .select_related("planificacion")
+        .prefetch_related(
+            "objetivos_estrategicos__objetivos_desarrollo",
+            "metas__objetivo_desarrollo",
+            "metas__indicadores__avances",
+        )
+        .order_by("codigo")
+    )
+
+    busqueda = str(filtros.get("busqueda", "")).strip().casefold()
+    periodo = str(filtros.get("periodo", "")).strip().casefold()
+    estado = str(filtros.get("estado", "")).strip().lower()
+
+    for proyecto in proyectos:
+        objetivos_estrategicos = list(
+            proyecto.objetivos_estrategicos.all()
+        )
+
+        for meta in proyecto.metas.all():
+            ods = meta.objetivo_desarrollo
+
+            objetivos_alineados = [
+                objetivo
+                for objetivo in objetivos_estrategicos
+                if any(
+                    ods_asociado.pk == ods.pk
+                    for ods_asociado in objetivo.objetivos_desarrollo.all()
+                )
+            ]
+
+            if not objetivos_alineados:
+                objetivos_alineados = [None]
+
+            indicadores = list(meta.indicadores.all()) or [None]
+
+            for objetivo in objetivos_alineados:
+                for indicador in indicadores:
+                    avance = None
+
+                    if indicador:
+                        avances = list(indicador.avances.all())
+                        if avances:
+                            avance = max(
+                                avances,
+                                key=lambda item: (item.fecha, item.pk)
+                            )
+
+                    fila = [
+                        proyecto.planificacion.periodo,
+                        proyecto.planificacion.nombre,
+                        proyecto.codigo,
+                        proyecto.nombre,
+                        "Activo" if proyecto.estado else "Inactivo",
+                        objetivo.codigo if objetivo else "",
+                        objetivo.descripcion if objetivo else "",
+                        ods.codigo,
+                        ods.descripcion,
+                        meta.descripcion,
+                        meta.periodo,
+                        meta.valor_esperado,
+                        indicador.nombre if indicador else "",
+                        indicador.unidad_medida if indicador else "",
+                        avance.valor if avance else "",
+                        avance.fecha if avance else "",
+                    ]
+
+                    if busqueda and busqueda not in " ".join(
+                        str(valor) for valor in fila
+                    ).casefold():
+                        continue
+
+                    periodos_fila = (
+                        str(proyecto.planificacion.periodo).casefold(),
+                        str(meta.periodo).casefold(),
+                    )
+                    if periodo and not any(
+                        periodo in valor for valor in periodos_fila
+                    ):
+                        continue
+
+                    if estado in ("true", "false"):
+                        proyecto_activo = estado == "true"
+                        if proyecto.estado != proyecto_activo:
+                            continue
+
+                    filas.append(fila)
+
+    return encabezados, filas
 
 def _tiene_permiso(request, nombre_permiso):
     return validar_permiso(request, nombre_permiso)
@@ -79,6 +194,9 @@ def obtener_datos(tipo, filtros=None):
             ["Inversiones", Inversion.objects.count()],
         ]
         return encabezados, filas
+
+    if tipo == "Alineación estratégica":
+        return obtener_datos_alineacion(filtros)
 
     modelo = REPORTES.get(tipo)
     if modelo is None:
@@ -266,6 +384,45 @@ def reporte_pdf(request, tipo):
     if tipo not in REPORTES and tipo != "Consolidado":
         return HttpResponseBadRequest("El tipo de reporte no es válido.")
 
+    es_alineacion = tipo == "Alineación estratégica"
+    pagina = landscape(legal) if es_alineacion else landscape(letter)
+
+    if es_alineacion:
+        indices = [0, 1, 2, 3, 5, 7, 9, 12, 14, 15]
+
+        encabezados = [
+            "Período plan",
+            "Planificación",
+            "Código proyecto",
+            "Proyecto",
+            "Código OE",
+            "Código ODS",
+            "Meta",
+            "Indicador",
+            "Último avance",
+            "Fecha avance",
+        ]
+
+        limites = {1: 45, 3: 50, 9: 90, 12: 50}
+        filas_resumidas = []
+
+        for fila in filas:
+            fila_pdf = []
+
+            for indice in indices:
+                valor = fila[indice] if indice < len(fila) else ""
+                texto = str(valor) if valor is not None else ""
+                limite = limites.get(indice)
+
+                if limite and len(texto) > limite:
+                    texto = texto[:limite - 1] + "…"
+
+                fila_pdf.append(texto)
+
+            filas_resumidas.append(fila_pdf)
+
+        filas = filas_resumidas
+
     estilos = getSampleStyleSheet()
     estilo_titulo = ParagraphStyle(
         "TituloReporte",
@@ -278,8 +435,8 @@ def reporte_pdf(request, tipo):
     estilo_celda = ParagraphStyle(
         "CeldaReporte",
         parent=estilos["BodyText"],
-        fontSize=7,
-        leading=9,
+        fontSize=5.5 if es_alineacion else 7,
+        leading=6.5 if es_alineacion else 9,
         wordWrap="CJK",
     )
 
@@ -296,7 +453,7 @@ def reporte_pdf(request, tipo):
             for valor in fila
         ])
 
-    ancho_util = landscape(letter)[0] - 0.7 * inch
+    ancho_util = pagina[0] - 0.7 * inch
     numero_columnas = max(len(encabezados), 1)
     anchos = [ancho_util / numero_columnas] * numero_columnas
 
@@ -322,7 +479,7 @@ def reporte_pdf(request, tipo):
     buffer = BytesIO()
     documento = SimpleDocTemplate(
         buffer,
-        pagesize=landscape(letter),
+        pagesize=pagina,
         rightMargin=0.35 * inch,
         leftMargin=0.35 * inch,
         topMargin=0.45 * inch,

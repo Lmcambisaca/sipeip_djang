@@ -16,6 +16,7 @@ class Reporte(models.Model):
         ("Avances", "Avances"),
         ("Inversiones", "Inversiones"),
         ("Consolidado", "Consolidado"),
+        ("Alineación estratégica", "Alineación estratégica"),
 
     ]
 
